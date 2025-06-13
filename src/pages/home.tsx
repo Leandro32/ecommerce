@@ -1,9 +1,9 @@
 // Create the missing HomePage component
-import React from 'react';
-import { motion } from 'framer-motion';
-import HeroBanner from '../components/hero-banner';
-import CategorySlider from '../components/category-slider';
-import FeaturedProducts from '../components/featured-products';
+import React from "react";
+import { motion } from "framer-motion";
+import HeroBanner from "../components/hero-banner";
+import CategorySlider from "../components/category-slider";
+import FeaturedProducts from "../components/featured-products";
 
 const HomePage: React.FC = () => {
   return (
@@ -13,14 +13,15 @@ const HomePage: React.FC = () => {
       className="py-2"
     >
       <HeroBanner />
+
       <CategorySlider />
-      <FeaturedProducts 
-        title="New Arrivals" 
+      <FeaturedProducts
+        title="New Arrivals"
         subtitle="Check out our latest products"
         type="new-arrivals"
       />
-      <FeaturedProducts 
-        title="Best Sellers" 
+      <FeaturedProducts
+        title="Best Sellers"
         subtitle="Our most popular products"
         type="best-sellers"
       />

@@ -1,0 +1,13 @@
+# App specific
+node_modules/
+docs/_book/
+.tmp
+.idea
+npm-debug.log
+.build/
+lib
+dist
+build
+lerna-debug.log
+yarn-error.log
+*.orig

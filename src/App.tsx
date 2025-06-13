@@ -1,20 +1,30 @@
-import React from 'react';
-import { Switch, Route } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import React from "react";
+import { Switch, Route } from "react-router-dom";
+import { motion } from "framer-motion";
+
+// Context hooks
+import { useAuth } from "./context/AuthContext";
+import { useCart } from "./context/CartContext";
+import { useUI } from "./context/UIContext";
 
 // Layouts
-import MainLayout from './layouts/main-layout';
+import MainLayout from "./layouts/main-layout";
 
 // Pages
-import HomePage from './pages/home';
-import ProductListPage from './pages/product-list';
-import ProductDetailPage from './pages/product-detail';
-import CartPage from './pages/cart';
-import CheckoutPage from './pages/checkout';
-import AccountPage from './pages/account';
-import NotFoundPage from './pages/not-found';
+import HomePage from "./pages/home";
+import ProductListPage from "./pages/product-list";
+import ProductDetailPage from "./pages/product-detail";
+import CartPage from "./pages/cart";
+import CheckoutPage from "./pages/checkout";
+import AccountPage from "./pages/account";
+import NotFoundPage from "./pages/not-found";
+import StateDemoPage from "./pages/state-demo";
 
 const App: React.FC = () => {
+  const { isAuthenticated, state: authState } = useAuth();
+  const { state: cartState } = useCart();
+  const { state: uiState } = useUI();
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -31,6 +41,7 @@ const App: React.FC = () => {
           <Route exact path="/cart" component={CartPage} />
           <Route exact path="/checkout" component={CheckoutPage} />
           <Route exact path="/account" component={AccountPage} />
+          <Route exact path="/demo" component={StateDemoPage} />
           <Route component={NotFoundPage} />
         </Switch>
       </MainLayout>

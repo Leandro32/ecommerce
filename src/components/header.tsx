@@ -1,25 +1,40 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Navbar, NavbarBrand, NavbarContent, NavbarItem, Button, Badge, Input, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
-import { Icon } from '@iconify/react';
-import { useCart } from '../hooks/use-cart';
-import { useSearch } from '../hooks/use-search';
-import { useCategories } from '../hooks/use-categories';
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import {
+  Navbar,
+  NavbarBrand,
+  NavbarContent,
+  NavbarItem,
+  Button,
+  Badge,
+  Input,
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
+  DropdownItem,
+} from "@heroui/react";
+import { Icon } from "@iconify/react";
+import { useCart } from "../hooks/use-cart";
+import { useSearch } from "../hooks/use-search";
+import { useCategories } from "../hooks/use-categories";
 
 const Header: React.FC = () => {
   const location = useLocation();
   const { cartItems } = useCart();
   const { searchQuery, setSearchQuery, handleSearch } = useSearch();
   const { categories } = useCategories();
-  
-  const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
-  
+
+  const cartItemCount = cartItems.reduce(
+    (total, item) => total + item.quantity,
+    0,
+  );
+
   const isActive = (path: string) => {
     return location.pathname === path;
   };
 
   return (
-    <Navbar 
+    <Navbar
       className="fixed top-0 w-full z-50 border-b border-divider bg-background/80 backdrop-blur-md"
       maxWidth="xl"
       height="3.5rem"
@@ -28,10 +43,10 @@ const Header: React.FC = () => {
         <Icon icon="lucide:shopping-bag" className="text-primary text-xl" />
         <p className="font-semibold text-inherit">NOVA</p>
       </NavbarBrand>
-      
+
       <NavbarContent className="hidden md:flex gap-4" justify="center">
-        <NavbarItem isActive={isActive('/')}>
-          <Link to="/" className="text-sm">Home</Link>
+        <NavbarItem isActive={isActive("/")} as={Link} to="/">
+          Home
         </NavbarItem>
         <Dropdown>
           <NavbarItem>
@@ -40,7 +55,9 @@ const Header: React.FC = () => {
                 disableRipple
                 variant="light"
                 className="p-0 text-sm font-normal"
-                endContent={<Icon icon="lucide:chevron-down" className="text-sm" />}
+                endContent={
+                  <Icon icon="lucide:chevron-down" className="text-sm" />
+                }
               >
                 Categories
               </Button>
@@ -48,22 +65,22 @@ const Header: React.FC = () => {
           </NavbarItem>
           <DropdownMenu aria-label="Categories">
             {categories.map((category) => (
-              <DropdownItem key={category.id} textValue={category.name}>
-                <Link 
-                  to={`/products/${category.slug}`}
-                  className="w-full block"
-                >
-                  {category.name}
-                </Link>
+              <DropdownItem
+                key={category.id}
+                textValue={category.name}
+                as={Link}
+                to={`/products/${category.slug}`}
+              >
+                {category.name}
               </DropdownItem>
             ))}
           </DropdownMenu>
         </Dropdown>
-        <NavbarItem isActive={isActive('/products')}>
-          <Link to="/products" className="text-sm">All Products</Link>
+        <NavbarItem isActive={isActive("/products")} as={Link} to="/products">
+          All Products
         </NavbarItem>
       </NavbarContent>
-      
+
       <NavbarContent justify="end">
         <NavbarItem className="hidden sm:flex">
           <form onSubmit={handleSearch} className="max-w-[180px] md:max-w-xs">
@@ -74,33 +91,44 @@ const Header: React.FC = () => {
               }}
               placeholder="Search..."
               size="sm"
-              startContent={<Icon icon="lucide:search" className="text-default-400 text-sm" />}
+              startContent={
+                <Icon
+                  icon="lucide:search"
+                  className="text-default-400 text-sm"
+                />
+              }
               type="search"
               value={searchQuery}
               onValueChange={setSearchQuery}
             />
           </form>
         </NavbarItem>
-        <NavbarItem>
-          <Link to="/account">
-            <Button isIconOnly variant="light" radius="full" size="sm" aria-label="Account">
-              <Icon icon="lucide:user" className="text-lg" />
-            </Button>
-          </Link>
+        <NavbarItem as={Link} to="/account">
+          <div
+            className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-default-100 cursor-pointer"
+            role="button"
+            tabIndex={0}
+            aria-label="Account"
+          >
+            <Icon icon="lucide:user" className="text-lg" />
+          </div>
         </NavbarItem>
-        <NavbarItem>
-          <Link to="/cart">
-            <Badge 
-              content={cartItemCount > 0 ? cartItemCount : null} 
-              color="primary" 
-              shape="circle" 
-              size="sm"
+        <NavbarItem as={Link} to="/cart">
+          <Badge
+            content={cartItemCount > 0 ? cartItemCount : null}
+            color="primary"
+            shape="circle"
+            size="sm"
+          >
+            <div
+              className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-default-100 cursor-pointer"
+              role="button"
+              tabIndex={0}
+              aria-label="Cart"
             >
-              <Button isIconOnly variant="light" radius="full" size="sm" aria-label="Cart">
-                <Icon icon="lucide:shopping-cart" className="text-lg" />
-              </Button>
-            </Badge>
-          </Link>
+              <Icon icon="lucide:shopping-cart" className="text-lg" />
+            </div>
+          </Badge>
         </NavbarItem>
       </NavbarContent>
     </Navbar>

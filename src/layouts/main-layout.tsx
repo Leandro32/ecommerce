@@ -1,9 +1,10 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { useLocation } from 'react-router-dom';
-import Header from '../components/header';
-import Footer from '../components/footer';
-import MobileNavigation from '../components/mobile-navigation';
+import React from "react";
+import { motion } from "framer-motion";
+import { useLocation } from "react-router-dom";
+import Header from "../components/header";
+import Footer from "../components/footer";
+import MobileNavigation from "../components/mobile-navigation";
+import NotificationToast from "../components/notifications";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -11,11 +12,11 @@ interface MainLayoutProps {
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const location = useLocation();
-  
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <motion.main 
+      <motion.main
         key={location.pathname}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -29,6 +30,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       </motion.main>
       <Footer />
       <MobileNavigation />
+      <NotificationToast />
     </div>
   );
 };
