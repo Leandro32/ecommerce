@@ -8,7 +8,6 @@ export default defineConfig({
   plugins: [react(), vitePluginInjectDataLocator()],
   server: {
     allowedHosts: true,
-    historyApiFallback: true,
   },
   build: {
     rollupOptions: {

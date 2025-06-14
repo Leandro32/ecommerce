@@ -11,3 +11,11 @@ build
 lerna-debug.log
 yarn-error.log
 *.orig
+
+# Editor specific
+.vscode/
+.idea/
+.zed/
+*.suo
+*.user
+*.sln.docstates
