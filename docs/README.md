@@ -13,7 +13,7 @@ Lightweight starter for any modern SPA—no CRA bloat, zero config gymnastics.
 ```bash
 git clone <repo> my-app && cd $_
 yarn        # install deps
-yarn dev    # local dev @ http://localhost:5173
+yarn dev    # local dev @ http://localhost:8000
 ```
 
 ## Scripts
@@ -37,7 +37,7 @@ src/
  ├─ components/    # shared UI
  ├─ hooks/         # custom hooks
  ├─ pages/         # routable views (react-router optional)
- ├─ styles/        # tailwind’s @layer stuff
+ ├─ styles/        # tailwind's @layer stuff
  └─ main.tsx       # app entry
 tailwind.config.js
 postcss.config.js
