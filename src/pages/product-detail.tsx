@@ -31,7 +31,22 @@ const ProductDetailPage: React.FC = () => {
     }
   }, [product]);
   
-  if (isLoading || !product) {
+  // Handle case where id is undefined
+  if (!id) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2">Product Not Found</h2>
+          <p className="text-default-500">No product ID provided.</p>
+          <Link to="/products" className="text-primary hover:underline mt-4 inline-block">
+            Back to Products
+          </Link>
+        </div>
+      </div>
+    );
+  }
+  
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center py-20">
         <div className="animate-pulse space-y-8 w-full max-w-4xl">
@@ -46,6 +61,20 @@ const ProductDetailPage: React.FC = () => {
               <div className="h-10 bg-default-200 rounded w-1/3 mt-8"></div>
             </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+  
+  if (!product) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold mb-2">Product Not Found</h2>
+          <p className="text-default-500">The product with ID "{id}" could not be found.</p>
+          <Link to="/products" className="text-primary hover:underline mt-4 inline-block">
+            Back to Products
+          </Link>
         </div>
       </div>
     );
@@ -92,19 +121,21 @@ const ProductDetailPage: React.FC = () => {
             />
             {product.isNew && (
               <Badge 
-                content="New" 
                 color="primary" 
                 placement="top-left"
                 className="absolute top-2 left-2"
-              />
+              >
+                New
+              </Badge>
             )}
             {product.discount > 0 && (
               <Badge 
-                content={`-${product.discount}%`} 
                 color="danger" 
                 placement="top-right"
                 className="absolute top-2 right-2"
-              />
+              >
+                -{product.discount}%
+              </Badge>
             )}
           </div>
           
@@ -153,7 +184,9 @@ const ProductDetailPage: React.FC = () => {
               </span>
             )}
             {product.discount > 0 && (
-              <Badge color="danger" content={`${product.discount}% OFF`} />
+              <Badge color="danger">
+                {product.discount}% OFF
+              </Badge>
             )}
           </div>
           
