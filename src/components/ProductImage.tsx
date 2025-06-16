@@ -15,7 +15,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
   src,
   alt,
   className = "",
-  fallbackSrc,
+  fallbackSrc = "/placeholder-product.jpg",
   onError,
   loading = "lazy",
   sizes,
@@ -24,8 +24,9 @@ const ProductImage: React.FC<ProductImageProps> = ({
     "loading" | "loaded" | "error"
   >("loading");
   const [currentSrc, setCurrentSrc] = React.useState<string>("");
-  const [hasAttemptedFallback, setHasAttemptedFallback] = React.useState(false);
+  const [attemptedSources, setAttemptedSources] = React.useState<string[]>([]);
   const imgRef = React.useRef<HTMLImageElement>(null);
+  const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
 
   // Get the primary image source
   const primarySrc = React.useMemo(() => {
@@ -40,27 +41,50 @@ const ProductImage: React.FC<ProductImageProps> = ({
     if (primarySrc) {
       setCurrentSrc(primarySrc);
       setImageState("loading");
-      setHasAttemptedFallback(false);
+      setAttemptedSources([]);
+      
+      // Set a timeout to prevent infinite loading
+      timeoutRef.current = setTimeout(() => {
+        setImageState("error");
+      }, 10000); // 10 second timeout
     } else {
       setImageState("error");
     }
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
   }, [primarySrc]);
 
   const handleImageLoad = React.useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
     setImageState("loaded");
   }, []);
 
   const handleImageError = React.useCallback(() => {
-    console.warn(`Failed to load image: ${currentSrc}`);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
 
-    // If we have multiple sources, try the next one first
+    console.warn(`Failed to load image: ${currentSrc}`);
+    setAttemptedSources(prev => [...prev, currentSrc]);
+
+    // If we have multiple sources, try the next one
     if (Array.isArray(src) && src.length > 1) {
-      const currentIndex = src.indexOf(currentSrc);
-      if (currentIndex !== -1 && currentIndex < src.length - 1) {
-        const nextSrc = src[currentIndex + 1];
+      const nextSrc = src.find(s => s !== currentSrc && !attemptedSources.includes(s));
+      if (nextSrc) {
         console.log(`Trying next image source: ${nextSrc}`);
         setCurrentSrc(nextSrc);
         setImageState("loading");
+        
+        // Set timeout for next attempt
+        timeoutRef.current = setTimeout(() => {
+          setImageState("error");
+        }, 5000);
         return;
       }
     }
@@ -68,21 +92,25 @@ const ProductImage: React.FC<ProductImageProps> = ({
     // Try fallback image if available and not already attempted
     if (
       fallbackSrc &&
-      !hasAttemptedFallback &&
       currentSrc !== fallbackSrc &&
-      fallbackSrc.startsWith("http")
+      !attemptedSources.includes(fallbackSrc) &&
+      (fallbackSrc.startsWith("http") || fallbackSrc.startsWith("/"))
     ) {
       console.log(`Attempting fallback image: ${fallbackSrc}`);
       setCurrentSrc(fallbackSrc);
-      setHasAttemptedFallback(true);
       setImageState("loading");
+      
+      // Set timeout for fallback attempt
+      timeoutRef.current = setTimeout(() => {
+        setImageState("error");
+      }, 5000);
       return;
     }
 
     // All sources failed, show placeholder
     setImageState("error");
     onError?.();
-  }, [currentSrc, fallbackSrc, hasAttemptedFallback, src, onError]);
+  }, [currentSrc, fallbackSrc, attemptedSources, src, onError]);
 
   // Cleanup function to prevent memory leaks
   React.useEffect(() => {
@@ -98,6 +126,15 @@ const ProductImage: React.FC<ProductImageProps> = ({
     }
   }, [handleImageLoad, handleImageError]);
 
+  // Cleanup timeout on unmount
+  React.useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
+
   // Show placeholder if no source or error state
   if (!currentSrc || imageState === "error") {
     return (
@@ -106,6 +143,21 @@ const ProductImage: React.FC<ProductImageProps> = ({
           className="w-full h-full absolute inset-0"
           type="product"
         />
+        {/* Optional retry button for broken images */}
+        {primarySrc && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 hover:opacity-100 transition-opacity">
+            <button
+              onClick={() => {
+                setCurrentSrc(primarySrc);
+                setImageState("loading");
+                setAttemptedSources([]);
+              }}
+              className="bg-white/90 text-gray-700 px-3 py-1 rounded text-sm hover:bg-white transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        )}
       </div>
     );
   }

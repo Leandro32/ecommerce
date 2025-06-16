@@ -1,0 +1,97 @@
+{
+  "titles": {
+    "checkout": "Checkout",
+    "orderSummary": "Order Summary",
+    "paymentMethod": "Payment Method",
+    "shippingAddress": "Shipping Address",
+    "billingAddress": "Billing Address",
+    "contactInformation": "Contact Information",
+    "orderConfirmation": "Order Confirmation",
+    "whatsappOrder": "WhatsApp Order"
+  },
+  "steps": {
+    "step1": "Contact Info",
+    "step2": "Shipping",
+    "step3": "Payment",
+    "step4": "Review",
+    "step5": "Confirmation"
+  },
+  "payment": {
+    "creditCard": "Credit Card",
+    "debitCard": "Debit Card",
+    "paypal": "PayPal",
+    "applePay": "Apple Pay",
+    "googlePay": "Google Pay",
+    "whatsapp": "WhatsApp Order",
+    "cardNumber": "Card Number",
+    "expiryDate": "Expiry Date",
+    "securityCode": "Security Code",
+    "nameOnCard": "Name on Card",
+    "paymentSecure": "Your payment information is secure and encrypted"
+  },
+  "shipping": {
+    "standardShipping": "Standard Shipping",
+    "expressShipping": "Express Shipping",
+    "overnightShipping": "Overnight Shipping",
+    "freeShipping": "Free Shipping",
+    "shippingCost": "Shipping Cost",
+    "estimatedDelivery": "Estimated Delivery",
+    "businessDays": "business days",
+    "sameAddress": "Same as shipping address"
+  },
+  "form": {
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "address": "Street Address",
+    "apartment": "Apartment, suite, etc.",
+    "city": "City",
+    "state": "State/Province",
+    "zipCode": "ZIP/Postal Code",
+    "country": "Country",
+    "saveInfo": "Save this information for next time",
+    "required": "Required",
+    "optional": "Optional"
+  },
+  "summary": {
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "tax": "Tax",
+    "discount": "Discount",
+    "total": "Total",
+    "items": "Items",
+    "quantity": "Qty"
+  },
+  "whatsapp": {
+    "title": "Order via WhatsApp",
+    "description": "Send your order details directly to our WhatsApp for quick processing",
+    "instructions": "Click the button below to send your order via WhatsApp. We'll confirm your order and provide payment instructions.",
+    "sendOrder": "Send Order via WhatsApp",
+    "orderNumber": "Order Number",
+    "customerInfo": "Customer Information",
+    "products": "Products",
+    "totalAmount": "Total Amount",
+    "shippingAddress": "Shipping Address",
+    "thankYou": "Thank you for your order!",
+    "preview": "Message Preview"
+  },
+  "messages": {
+    "orderPlaced": "Order placed successfully!",
+    "orderFailed": "Failed to place order",
+    "invalidForm": "Please fill in all required fields",
+    "paymentFailed": "Payment failed. Please try again.",
+    "processing": "Processing your order...",
+    "redirecting": "Redirecting to payment...",
+    "thankYou": "Thank you for your purchase!"
+  },
+  "buttons": {
+    "placeOrder": "Place Order",
+    "continueToPayment": "Continue to Payment",
+    "backToCart": "Back to Cart",
+    "editOrder": "Edit Order",
+    "printReceipt": "Print Receipt",
+    "trackOrder": "Track Order",
+    "sendWhatsApp": "Send via WhatsApp"
+  }
+} 

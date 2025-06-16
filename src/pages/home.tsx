@@ -1,12 +1,15 @@
 // Create the missing HomePage component
 import React from "react";
 import { motion } from "framer-motion";
+import { useTranslation } from 'react-i18next';
 import HeroBanner from "../components/hero-banner";
 import CategorySlider from "../components/category-slider";
 import FeaturedProducts from "../components/featured-products";
 import DevStatus from "../components/DevStatus";
 
 const HomePage: React.FC = () => {
+  const { t } = useTranslation('products');
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -17,20 +20,20 @@ const HomePage: React.FC = () => {
 
       <CategorySlider />
       <FeaturedProducts
-        title="Featured Products"
-        subtitle="Our handpicked favorites"
+        title={t('sections.featuredProducts')}
+        subtitle={t('sections.featuredSubtitle')}
         type="featured"
         limit={8}
       />
       <FeaturedProducts
-        title="New Arrivals"
-        subtitle="Check out our latest products"
+        title={t('sections.newArrivals')}
+        subtitle={t('sections.newArrivalsSubtitle')}
         type="new-arrivals"
         limit={8}
       />
       <FeaturedProducts
-        title="Best Sellers"
-        subtitle="Our most popular products"
+        title={t('sections.bestSellers')}
+        subtitle={t('sections.bestSellersSubtitle')}
         type="best-sellers"
         limit={8}
       />

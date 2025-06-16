@@ -1,9 +1,10 @@
 // Create the missing ProductDetailPage component
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Button, Tabs, Tab, Divider, Badge } from '@heroui/react';
-import { Icon } from '@iconify/react';
+import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
+import { Button, Chip, Image, Divider, Tabs, Tab } from '@heroui/react';
+import { Icon } from '@iconify/react';
 import FeaturedProducts from '../components/featured-products';
 import { useProduct } from '../hooks/use-product';
 import { useCart } from '../hooks/use-cart';
@@ -14,6 +15,7 @@ interface ProductDetailParams {
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<ProductDetailParams>();
+  const { t } = useTranslation(['products', 'navigation']);
   const { product, isLoading, relatedProducts } = useProduct(id);
   const { addToCart } = useCart();
   
@@ -36,10 +38,10 @@ const ProductDetailPage: React.FC = () => {
     return (
       <div className="flex justify-center items-center py-20">
         <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">Product Not Found</h2>
+          <h2 className="text-xl font-semibold mb-2">{t('products:messages.noProductIdProvided')}</h2>
           <p className="text-default-500">No product ID provided.</p>
           <Link to="/products" className="text-primary hover:underline mt-4 inline-block">
-            Back to Products
+            {t('products:messages.backToProducts')}
           </Link>
         </div>
       </div>
@@ -49,18 +51,9 @@ const ProductDetailPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center py-20">
-        <div className="animate-pulse space-y-8 w-full max-w-4xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-default-200 rounded-lg h-96"></div>
-            <div className="space-y-4">
-              <div className="h-8 bg-default-200 rounded w-3/4"></div>
-              <div className="h-6 bg-default-200 rounded w-1/4"></div>
-              <div className="h-4 bg-default-200 rounded w-full"></div>
-              <div className="h-4 bg-default-200 rounded w-full"></div>
-              <div className="h-4 bg-default-200 rounded w-3/4"></div>
-              <div className="h-10 bg-default-200 rounded w-1/3 mt-8"></div>
-            </div>
-          </div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mb-4"></div>
+          <p className="text-gray-600">{t('products:messages.loadingProducts')}</p>
         </div>
       </div>
     );
@@ -70,11 +63,19 @@ const ProductDetailPage: React.FC = () => {
     return (
       <div className="flex justify-center items-center py-20">
         <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">Product Not Found</h2>
+          <h2 className="text-xl font-semibold mb-2">{t('products:messages.productNotFound')}</h2>
           <p className="text-default-500">The product with ID "{id}" could not be found.</p>
-          <Link to="/products" className="text-primary hover:underline mt-4 inline-block">
-            Back to Products
-          </Link>
+          <div className="space-x-4 mt-4">
+            <Button 
+              color="primary" 
+              onPress={() => window.location.reload()}
+            >
+              {t('products:messages.tryAgain')}
+            </Button>
+            <Link to="/products" className="text-primary hover:underline">
+              {t('products:messages.backToProducts')}
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -104,9 +105,9 @@ const ProductDetailPage: React.FC = () => {
       className="py-6"
     >
       <div className="flex items-center text-sm text-default-500 mb-6">
-        <Link to="/" className="hover:text-primary">Home</Link>
+        <Link to="/" className="hover:text-primary">{t('navigation:main.home')}</Link>
         <Icon icon="lucide:chevron-right" className="mx-2 text-xs" />
-        <Link to="/products" className="hover:text-primary">Products</Link>
+        <Link to="/products" className="hover:text-primary">{t('navigation:main.products')}</Link>
         <Icon icon="lucide:chevron-right" className="mx-2 text-xs" />
         <span className="text-default-800">{product.name}</span>
       </div>
@@ -120,22 +121,20 @@ const ProductDetailPage: React.FC = () => {
               className="w-full aspect-square object-cover"
             />
             {product.isNew && (
-              <Badge 
+              <Chip 
                 color="primary" 
-                placement="top-left"
                 className="absolute top-2 left-2"
               >
-                New
-              </Badge>
+                {t('products:info.new')}
+              </Chip>
             )}
             {product.discount > 0 && (
-              <Badge 
+              <Chip 
                 color="danger" 
-                placement="top-right"
                 className="absolute top-2 right-2"
               >
                 -{product.discount}%
-              </Badge>
+              </Chip>
             )}
           </div>
           
@@ -173,7 +172,7 @@ const ProductDetailPage: React.FC = () => {
                 />
               ))}
             </div>
-            <span className="text-default-500">({product.reviewCount} reviews)</span>
+            <span className="text-default-500">({product.reviewCount} {t('products:reviews.reviews')})</span>
           </div>
           
           <div className="flex items-center gap-3 mb-6">
@@ -184,9 +183,9 @@ const ProductDetailPage: React.FC = () => {
               </span>
             )}
             {product.discount > 0 && (
-              <Badge color="danger">
+              <Chip color="danger">
                 {product.discount}% OFF
-              </Badge>
+              </Chip>
             )}
           </div>
           
@@ -194,73 +193,73 @@ const ProductDetailPage: React.FC = () => {
           
           <Divider className="my-6" />
           
-          {colors.length > 0 && (
-            <div className="mb-6">
-              <h3 className="text-sm font-medium mb-3">Color</h3>
-              <div className="flex flex-wrap gap-2">
-                {colors.map(color => (
-                  <Button
-                    key={color}
-                    size="sm"
-                    variant={selectedColor === color ? "solid" : "bordered"}
-                    color={selectedColor === color ? "primary" : "default"}
-                    onPress={() => setSelectedColor(color)}
-                  >
-                    {color}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          )}
-          
-          {sizes.length > 0 && (
-            <div className="mb-6">
-              <h3 className="text-sm font-medium mb-3">Size</h3>
-              <div className="flex flex-wrap gap-2">
-                {sizes.map(size => (
-                  <Button
-                    key={size}
-                    size="sm"
-                    variant={selectedSize === size ? "solid" : "bordered"}
-                    color={selectedSize === size ? "primary" : "default"}
-                    onPress={() => setSelectedSize(size)}
-                  >
-                    {size}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          )}
-          
+          {/* Color Selection */}
           <div className="mb-6">
-            <h3 className="text-sm font-medium mb-3">Quantity</h3>
-            <div className="flex items-center">
-              <Button
-                isIconOnly
-                variant="bordered"
-                size="sm"
-                onPress={decrementQuantity}
-                isDisabled={quantity <= 1}
-              >
-                <Icon icon="lucide:minus" />
-              </Button>
-              <span className="mx-4 min-w-[2rem] text-center">{quantity}</span>
-              <Button
-                isIconOnly
-                variant="bordered"
-                size="sm"
-                onPress={incrementQuantity}
-                isDisabled={quantity >= product.stock}
-              >
-                <Icon icon="lucide:plus" />
-              </Button>
-              <span className="ml-4 text-sm text-default-500">
-                {product.stock} available
-              </span>
+            <h3 className="text-lg font-medium mb-3">{t('products:details.color')}</h3>
+            <div className="flex gap-2">
+              {colors.map(color => (
+                <Button
+                  key={color}
+                  variant={selectedColor === color ? "solid" : "bordered"}
+                  color={selectedColor === color ? "primary" : "default"}
+                  size="sm"
+                  onPress={() => setSelectedColor(color)}
+                >
+                  {color}
+                </Button>
+              ))}
             </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 mt-8">
+          {/* Size Selection */}
+          <div className="mb-6">
+            <h3 className="text-lg font-medium mb-3">{t('products:details.size')}</h3>
+            <div className="flex gap-2">
+              {sizes.map(size => (
+                <Button
+                  key={size}
+                  variant={selectedSize === size ? "solid" : "bordered"}
+                  color={selectedSize === size ? "primary" : "default"}
+                  size="sm"
+                  onPress={() => setSelectedSize(size)}
+                >
+                  {size}
+                </Button>
+              ))}
+            </div>
+          </div>
+          
+          {/* Quantity */}
+          <div className="mb-6">
+            <h3 className="text-lg font-medium mb-3">{t('products:details.quantity')}</h3>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center">
+                <Button
+                  size="sm"
+                  variant="bordered"
+                  onPress={decrementQuantity}
+                  isDisabled={quantity <= 1}
+                >
+                  <Icon icon="lucide:minus" />
+                </Button>
+                <span className="mx-4 min-w-[2rem] text-center">{quantity}</span>
+                <Button
+                  size="sm"
+                  variant="bordered"
+                  onPress={incrementQuantity}
+                  isDisabled={quantity >= product.stock}
+                >
+                  <Icon icon="lucide:plus" />
+                </Button>
+                <span className="ml-4 text-sm text-default-500">
+                  {product.stock} {t('products:details.available')}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Add to Cart Buttons */}
+          <div className="space-y-3">
             <Button
               color="primary"
               size="lg"
@@ -268,91 +267,68 @@ const ProductDetailPage: React.FC = () => {
               onPress={handleAddToCart}
               startContent={<Icon icon="lucide:shopping-cart" />}
             >
-              Add to Cart
+              {t('products:actions.addToCart')}
             </Button>
+            
             <Button
-              variant="flat"
-              color="default"
+              variant="bordered"
               size="lg"
               fullWidth
               startContent={<Icon icon="lucide:heart" />}
             >
-              Add to Wishlist
+              {t('products:actions.addToWishlist')}
             </Button>
-          </div>
-          
-          <div className="mt-8 flex flex-col gap-3">
-            <div className="flex items-center gap-2 text-sm text-default-600">
-              <Icon icon="lucide:truck" className="text-default-500" />
-              <span>Free shipping on orders over $50</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-default-600">
-              <Icon icon="lucide:repeat" className="text-default-500" />
-              <span>30-day return policy</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-default-600">
-              <Icon icon="lucide:shield" className="text-default-500" />
-              <span>2-year warranty</span>
-            </div>
           </div>
         </div>
       </div>
       
-      <Tabs aria-label="Product information">
-        <Tab key="details" title="Details">
+      {/* Product Information Tabs */}
+      <Tabs aria-label="Product information" className="mb-8">
+        <Tab key="description" title={t('products:details.description')}>
           <div className="py-4">
-            <p className="mb-4">{product.description}</p>
-            <ul className="list-disc pl-5 space-y-2">
-              <li>Brand: {product.brand}</li>
-              <li>SKU: {product.sku || 'N/A'}</li>
-              <li>Category: {product.category}</li>
-              {product.tags && product.tags.length > 0 && (
-                <li>Tags: {product.tags.join(', ')}</li>
-              )}
-            </ul>
+            <p className="text-default-600">{product.description}</p>
           </div>
         </Tab>
-        <Tab key="specifications" title="Specifications">
+        
+        <Tab key="specifications" title={t('products:details.specifications')}>
           <div className="py-4">
-            <table className="w-full">
-              <tbody>
-                <tr className="border-b border-divider">
-                  <td className="py-2 font-medium">Material</td>
-                  <td className="py-2">Premium quality</td>
-                </tr>
-                <tr className="border-b border-divider">
-                  <td className="py-2 font-medium">Dimensions</td>
-                  <td className="py-2">Varies by size</td>
-                </tr>
-                <tr className="border-b border-divider">
-                  <td className="py-2 font-medium">Care Instructions</td>
-                  <td className="py-2">Machine wash cold, tumble dry low</td>
-                </tr>
-                <tr className="border-b border-divider">
-                  <td className="py-2 font-medium">Country of Origin</td>
-                  <td className="py-2">Imported</td>
-                </tr>
-              </tbody>
-            </table>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="font-medium">{t('products:details.category')}</span>
+                  <span className="text-default-600">{product.category}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">SKU</span>
+                  <span className="text-default-600">{product.id}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-medium">{t('products:details.rating')}</span>
+                  <span className="text-default-600">{product.rating}/5</span>
+                </div>
+              </div>
+            </div>
           </div>
         </Tab>
-        <Tab key="reviews" title={`Reviews (${product.reviewCount})`}>
+        
+        <Tab key="reviews" title={t('products:details.reviews')}>
           <div className="py-4">
-            <p className="text-default-500">
-              Customer reviews will be displayed here.
+            <p className="text-default-500 text-center py-8">
+              {t('products:messages.customerReviewsPlaceholder')}
             </p>
           </div>
         </Tab>
       </Tabs>
       
-      <div className="mt-12">
-        <FeaturedProducts 
-          title="You May Also Like" 
-          type="trending"
+      {/* Related Products */}
+      {relatedProducts && relatedProducts.length > 0 && (
+        <FeaturedProducts
+          title={t('products:titles.youMayLike')}
+          subtitle=""
+          type="featured"
           limit={4}
-          showViewAll={false}
         />
-      </div>
+      )}
     </motion.div>
   );
 };

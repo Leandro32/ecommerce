@@ -1,0 +1,47 @@
+{
+  "main": {
+    "home": "Inicio",
+    "products": "Todos los Productos",
+    "categories": "Categorías",
+    "about": "Acerca de",
+    "contact": "Contacto",
+    "cart": "Carrito",
+    "account": "Cuenta",
+    "wishlist": "Lista de Deseos",
+    "search": "Buscar productos...",
+    "menu": "Menú"
+  },
+  "footer": {
+    "company": "Empresa",
+    "about": "Acerca de Nosotros",
+    "careers": "Carreras",
+    "press": "Prensa",
+    "news": "Noticias",
+    "support": "Soporte",
+    "help": "Centro de Ayuda",
+    "contact": "Contáctanos",
+    "shipping": "Info de Envío",
+    "returns": "Devoluciones",
+    "legal": "Legal",
+    "privacy": "Política de Privacidad",
+    "terms": "Términos de Servicio",
+    "cookies": "Política de Cookies",
+    "followUs": "Síguenos",
+    "newsletter": "Boletín",
+    "subscribe": "Suscríbete a nuestro boletín"
+  },
+  "mobile": {
+    "home": "Inicio",
+    "categories": "Categorías",
+    "search": "Buscar",
+    "cart": "Carrito",
+    "account": "Cuenta"
+  },
+  "breadcrumb": {
+    "home": "Inicio",
+    "products": "Productos",
+    "cart": "Carrito",
+    "checkout": "Finalizar Compra",
+    "account": "Cuenta"
+  }
+} 

@@ -9,6 +9,7 @@ import {
   Divider,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from 'react-i18next';
 import { useProducts } from "../hooks/useProducts";
 import {
   getAvailableCategories,
@@ -29,6 +30,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   onClearFilters,
   isMobile = false,
 }) => {
+  const { t } = useTranslation('products');
   const { products } = useProducts();
 
   // Get available categories and brands from Google Sheets products
@@ -95,14 +97,14 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   return (
     <div className={containerClass}>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold">Filters</h3>
+        <h3 className="text-lg font-semibold">{t('filters.filters')}</h3>
         <Button
           size="sm"
           variant="light"
           onPress={onClearFilters}
           className="text-default-500 text-sm"
         >
-          Clear All
+          {t('filters.clearAll')}
         </Button>
       </div>
 
@@ -112,7 +114,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
         selectionMode="multiple"
         defaultExpandedKeys={["categories", "price"]}
       >
-        <AccordionItem key="categories" title="Categories">
+        <AccordionItem key="categories" title={t('filters.categories')}>
           <CheckboxGroup
             value={filters.categories}
             onValueChange={handleCategoryChange}
@@ -126,7 +128,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
           </CheckboxGroup>
         </AccordionItem>
 
-        <AccordionItem key="brands" title="Brands">
+        <AccordionItem key="brands" title={t('filters.brands')}>
           <CheckboxGroup
             value={filters.brands}
             onValueChange={handleBrandChange}
@@ -140,9 +142,9 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
           </CheckboxGroup>
         </AccordionItem>
 
-        <AccordionItem key="price" title="Price Range">
+        <AccordionItem key="price" title={t('filters.priceRange')}>
           <Slider
-            label="Price Range"
+            label={t('filters.priceRange')}
             step={10}
             minValue={priceRange.min}
             maxValue={priceRange.max}
@@ -153,7 +155,7 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
           />
         </AccordionItem>
 
-        <AccordionItem key="rating" title="Rating">
+        <AccordionItem key="rating" title={t('filters.rating')}>
           <CheckboxGroup
             value={filters.ratings.map(String)}
             onValueChange={handleRatingChange}

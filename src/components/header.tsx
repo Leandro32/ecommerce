@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useHistory } from "react-router-dom";
 import {
   Navbar,
   NavbarBrand,
@@ -14,12 +14,16 @@ import {
   DropdownItem,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
+import { useTranslation } from "react-i18next";
 import { useCart } from "../hooks/use-cart";
 import { useSearch } from "../hooks/use-search";
 import { useCategories } from "../hooks/use-categories";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const Header: React.FC = () => {
+  const { t } = useTranslation(['navigation', 'common']);
   const location = useLocation();
+  const history = useHistory();
   const { cartItems } = useCart();
   const { searchQuery, setSearchQuery, handleSearch } = useSearch();
   const { categories } = useCategories();
@@ -31,6 +35,10 @@ const Header: React.FC = () => {
 
   const isActive = (path: string) => {
     return location.pathname === path;
+  };
+
+  const handleCategoryNavigation = (categorySlug: string) => {
+    history.push(`/products/${categorySlug}`);
   };
 
   return (
@@ -46,7 +54,7 @@ const Header: React.FC = () => {
 
       <NavbarContent className="hidden md:flex gap-4" justify="center">
         <NavbarItem isActive={isActive("/")} as={Link} to="/">
-          Home
+          {t('navigation:main.home')}
         </NavbarItem>
         <Dropdown>
           <NavbarItem>
@@ -59,7 +67,7 @@ const Header: React.FC = () => {
                   <Icon icon="lucide:chevron-down" className="text-sm" />
                 }
               >
-                Categories
+                {t('navigation:main.categories')}
               </Button>
             </DropdownTrigger>
           </NavbarItem>
@@ -68,8 +76,7 @@ const Header: React.FC = () => {
               <DropdownItem
                 key={category.id}
                 textValue={category.name}
-                as={Link}
-                to={`/products/${category.slug}`}
+                onPress={() => handleCategoryNavigation(category.slug)}
               >
                 {category.name}
               </DropdownItem>
@@ -77,7 +84,7 @@ const Header: React.FC = () => {
           </DropdownMenu>
         </Dropdown>
         <NavbarItem isActive={isActive("/products")} as={Link} to="/products">
-          All Products
+          {t('navigation:main.products')}
         </NavbarItem>
       </NavbarContent>
 
@@ -89,7 +96,7 @@ const Header: React.FC = () => {
                 base: "max-w-full",
                 inputWrapper: "h-8",
               }}
-              placeholder="Search..."
+              placeholder={t('navigation:main.search')}
               size="sm"
               startContent={
                 <Icon
@@ -102,6 +109,9 @@ const Header: React.FC = () => {
               onValueChange={setSearchQuery}
             />
           </form>
+        </NavbarItem>
+        <NavbarItem>
+          <LanguageSwitcher />
         </NavbarItem>
         <NavbarItem as={Link} to="/account">
           <div

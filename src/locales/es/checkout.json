@@ -1,0 +1,97 @@
+{
+  "titles": {
+    "checkout": "Finalizar Compra",
+    "orderSummary": "Resumen del Pedido",
+    "paymentMethod": "Método de Pago",
+    "shippingAddress": "Dirección de Envío",
+    "billingAddress": "Dirección de Facturación",
+    "contactInformation": "Información de Contacto",
+    "orderConfirmation": "Confirmación del Pedido",
+    "whatsappOrder": "Pedido por WhatsApp"
+  },
+  "steps": {
+    "step1": "Info. Contacto",
+    "step2": "Envío",
+    "step3": "Pago",
+    "step4": "Revisar",
+    "step5": "Confirmación"
+  },
+  "payment": {
+    "creditCard": "Tarjeta de Crédito",
+    "debitCard": "Tarjeta de Débito",
+    "paypal": "PayPal",
+    "applePay": "Apple Pay",
+    "googlePay": "Google Pay",
+    "whatsapp": "Pedido por WhatsApp",
+    "cardNumber": "Número de Tarjeta",
+    "expiryDate": "Fecha de Vencimiento",
+    "securityCode": "Código de Seguridad",
+    "nameOnCard": "Nombre en la Tarjeta",
+    "paymentSecure": "Tu información de pago está segura y encriptada"
+  },
+  "shipping": {
+    "standardShipping": "Envío Estándar",
+    "expressShipping": "Envío Express",
+    "overnightShipping": "Envío Nocturno",
+    "freeShipping": "Envío Gratis",
+    "shippingCost": "Costo de Envío",
+    "estimatedDelivery": "Entrega Estimada",
+    "businessDays": "días hábiles",
+    "sameAddress": "Misma dirección de envío"
+  },
+  "form": {
+    "firstName": "Nombre",
+    "lastName": "Apellido",
+    "email": "Correo Electrónico",
+    "phone": "Número de Teléfono",
+    "address": "Dirección",
+    "apartment": "Apartamento, suite, etc.",
+    "city": "Ciudad",
+    "state": "Estado/Provincia",
+    "zipCode": "Código Postal",
+    "country": "País",
+    "saveInfo": "Guardar esta información para la próxima vez",
+    "required": "Requerido",
+    "optional": "Opcional"
+  },
+  "summary": {
+    "subtotal": "Subtotal",
+    "shipping": "Envío",
+    "tax": "Impuesto",
+    "discount": "Descuento",
+    "total": "Total",
+    "items": "Artículos",
+    "quantity": "Cant."
+  },
+  "whatsapp": {
+    "title": "Pedido por WhatsApp",
+    "description": "Envía los detalles de tu pedido directamente a nuestro WhatsApp para un procesamiento rápido",
+    "instructions": "Haz clic en el botón de abajo para enviar tu pedido por WhatsApp. Confirmaremos tu pedido y te proporcionaremos instrucciones de pago.",
+    "sendOrder": "Enviar Pedido por WhatsApp",
+    "orderNumber": "Número de Pedido",
+    "customerInfo": "Información del Cliente",
+    "products": "Productos",
+    "totalAmount": "Monto Total",
+    "shippingAddress": "Dirección de Envío",
+    "thankYou": "¡Gracias por tu pedido!",
+    "preview": "Vista Previa del Mensaje"
+  },
+  "messages": {
+    "orderPlaced": "¡Pedido realizado con éxito!",
+    "orderFailed": "Error al realizar el pedido",
+    "invalidForm": "Por favor completa todos los campos requeridos",
+    "paymentFailed": "Pago fallido. Por favor inténtalo de nuevo.",
+    "processing": "Procesando tu pedido...",
+    "redirecting": "Redirigiendo al pago...",
+    "thankYou": "¡Gracias por tu compra!"
+  },
+  "buttons": {
+    "placeOrder": "Realizar Pedido",
+    "continueToPayment": "Continuar al Pago",
+    "backToCart": "Volver al Carrito",
+    "editOrder": "Editar Pedido",
+    "printReceipt": "Imprimir Recibo",
+    "trackOrder": "Rastrear Pedido",
+    "sendWhatsApp": "Enviar por WhatsApp"
+  }
+} 

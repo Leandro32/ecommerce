@@ -5,6 +5,9 @@ import App from "./App.tsx";
 import AppProvider from "./context/AppProvider";
 import "./index.css";
 
+// Initialize i18n
+import "./i18n";
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <HeroUIProvider>

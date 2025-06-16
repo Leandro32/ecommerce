@@ -2,8 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@heroui/react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const HeroBanner: React.FC = () => {
+  const { t } = useTranslation('products');
+
   return (
     <div className="relative rounded-lg overflow-hidden mb-8">
       <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/20 z-10" />
@@ -21,10 +24,10 @@ const HeroBanner: React.FC = () => {
           transition={{ duration: 0.5, delay: 0.2 }}
         >
           <h1 className="text-white text-2xl sm:text-3xl md:text-4xl font-bold mb-2 max-w-md">
-            Summer Collection 2025
+            {t('hero.title')}
           </h1>
           <p className="text-white/80 text-sm sm:text-base mb-6 max-w-md">
-            Discover our latest arrivals designed for the modern lifestyle. Sustainable materials meet innovative design.
+            {t('hero.subtitle')}
           </p>
           <div className="flex flex-wrap gap-3">
             <Button 
@@ -34,7 +37,7 @@ const HeroBanner: React.FC = () => {
               size="lg"
               className="font-medium"
             >
-              Shop Now
+              {t('hero.shopNow')}
             </Button>
             <Button 
               as={Link}
@@ -44,7 +47,7 @@ const HeroBanner: React.FC = () => {
               size="lg"
               className="bg-white/20 text-white font-medium"
             >
-              View All
+              {t('hero.viewAll')}
             </Button>
           </div>
         </motion.div>

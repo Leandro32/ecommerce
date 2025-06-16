@@ -24,18 +24,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           }}
           loading="lazy"
         />
-          {product.featured && (
-            <span className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
-              Featured
-            </span>
-          )}
-          {hasDiscount && (
-            <span className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">
-              Sale
-            </span>
-          )}
-        </div>
-      )}
+        {product.featured && (
+          <span className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
+            Featured
+          </span>
+        )}
+        {hasDiscount && (
+          <span className="absolute top-2 right-2 bg-green-500 text-white px-2 py-1 rounded text-xs font-bold">
+            Sale
+          </span>
+        )}
+      </div>
 
       <div className="p-4">
         <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">

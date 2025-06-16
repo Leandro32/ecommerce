@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 import { Button, Card, CardBody, Divider } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import CartItem from '../components/cart-item';
 import { useCart } from '../hooks/use-cart';
 
 const CartPage: React.FC = () => {
+  const { t } = useTranslation('common');
   const { cartItems, cartTotal, cartOriginalTotal, cartSavings, clearCart } = useCart();
   
   if (cartItems.length === 0) {
@@ -17,9 +19,9 @@ const CartPage: React.FC = () => {
         className="flex flex-col items-center justify-center py-20"
       >
         <Icon icon="lucide:shopping-cart" className="text-6xl text-default-300 mb-4" />
-        <h1 className="text-2xl font-semibold mb-2">Your cart is empty</h1>
+        <h1 className="text-2xl font-semibold mb-2">{t('cart.emptyTitle')}</h1>
         <p className="text-default-500 mb-8 text-center max-w-md">
-          Looks like you haven't added any products to your cart yet.
+          {t('cart.emptyMessage')}
         </p>
         <Button 
           as={Link}
@@ -28,7 +30,7 @@ const CartPage: React.FC = () => {
           size="lg"
           className="font-medium"
         >
-          Start Shopping
+          {t('buttons.startShopping')}
         </Button>
       </motion.div>
     );
@@ -40,7 +42,7 @@ const CartPage: React.FC = () => {
       animate={{ opacity: 1 }}
       className="py-6"
     >
-      <h1 className="text-2xl font-semibold mb-6">Shopping Cart</h1>
+      <h1 className="text-2xl font-semibold mb-6">{t('cart.title')}</h1>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
@@ -48,7 +50,7 @@ const CartPage: React.FC = () => {
             <CardBody>
               <div className="flex justify-between items-center mb-4">
                 <p className="text-default-500">
-                  {cartItems.length} {cartItems.length === 1 ? 'item' : 'items'}
+                  {cartItems.length} {cartItems.length === 1 ? t('units.item') : t('units.items')}
                 </p>
                 <Button
                   size="sm"
@@ -57,7 +59,7 @@ const CartPage: React.FC = () => {
                   onPress={clearCart}
                   startContent={<Icon icon="lucide:trash-2" className="text-sm" />}
                 >
-                  Clear Cart
+                  {t('buttons.clearCart')}
                 </Button>
               </div>
               
@@ -75,30 +77,30 @@ const CartPage: React.FC = () => {
         <div>
           <Card>
             <CardBody>
-              <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
+              <h2 className="text-lg font-semibold mb-4">{t('cart.orderSummary')}</h2>
               
               <div className="space-y-3 mb-4">
                 <div className="flex justify-between">
-                  <span className="text-default-600">Subtotal</span>
+                  <span className="text-default-600">{t('labels.subtotal')}</span>
                   <span>${cartOriginalTotal.toFixed(2)}</span>
                 </div>
                 
                 {cartSavings > 0 && (
                   <div className="flex justify-between text-success">
-                    <span>Savings</span>
+                    <span>{t('cart.savings')}</span>
                     <span>-${cartSavings.toFixed(2)}</span>
                   </div>
                 )}
                 
                 <div className="flex justify-between">
-                  <span className="text-default-600">Shipping</span>
-                  <span>Free</span>
+                  <span className="text-default-600">{t('labels.shipping')}</span>
+                  <span>{t('cart.free')}</span>
                 </div>
                 
                 <Divider />
                 
                 <div className="flex justify-between font-semibold">
-                  <span>Total</span>
+                  <span>{t('labels.total')}</span>
                   <span>${cartTotal.toFixed(2)}</span>
                 </div>
               </div>
@@ -111,7 +113,7 @@ const CartPage: React.FC = () => {
                 fullWidth
                 className="font-medium"
               >
-                Proceed to Checkout
+                {t('buttons.proceedToCheckout')}
               </Button>
               
               <div className="mt-4">
@@ -122,12 +124,12 @@ const CartPage: React.FC = () => {
                   fullWidth
                   startContent={<Icon icon="lucide:arrow-left" className="text-sm" />}
                 >
-                  Continue Shopping
+                  {t('buttons.continueShopping')}
                 </Button>
               </div>
               
               <div className="mt-6">
-                <p className="text-tiny text-default-500 mb-2">We accept:</p>
+                <p className="text-tiny text-default-500 mb-2">{t('cart.weAccept')}</p>
                 <div className="flex gap-2">
                   <Icon icon="logos:visa" className="text-2xl" />
                   <Icon icon="logos:mastercard" className="text-2xl" />

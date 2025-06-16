@@ -4,8 +4,11 @@ import { Link } from 'react-router-dom';
 import { Button } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const NotFoundPage: React.FC = () => {
+  const { t } = useTranslation('common');
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -13,9 +16,9 @@ const NotFoundPage: React.FC = () => {
       className="flex flex-col items-center justify-center py-20 text-center"
     >
       <div className="text-8xl font-bold text-primary mb-4">404</div>
-      <h1 className="text-2xl font-semibold mb-2">Page Not Found</h1>
+      <h1 className="text-2xl font-semibold mb-2">{t('pages.notFound')}</h1>
       <p className="text-default-500 mb-8 max-w-md">
-        The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
+        {t('pages.notFoundMessage')}
       </p>
       <div className="flex flex-wrap gap-4 justify-center">
         <Button 
@@ -25,7 +28,7 @@ const NotFoundPage: React.FC = () => {
           size="lg"
           startContent={<Icon icon="lucide:home" />}
         >
-          Go to Homepage
+          {t('buttons.goToHomepage')}
         </Button>
         <Button 
           as={Link}
@@ -33,7 +36,7 @@ const NotFoundPage: React.FC = () => {
           variant="flat"
           size="lg"
         >
-          Browse Products
+          {t('buttons.browseProducts')}
         </Button>
       </div>
     </motion.div>

@@ -16,8 +16,11 @@
     "@iconify/react": "latest",
     "framer-motion": "^11.18.2",
     "googleapis": "^150.0.1",
+    "i18next": "^25.2.1",
+    "i18next-browser-languagedetector": "^8.2.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-i18next": "^15.5.3",
     "react-router-dom": "5.3.4",
     "source-map-js": "^1.2.1"
   },
