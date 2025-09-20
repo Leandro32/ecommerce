@@ -43,7 +43,7 @@ This document tracks the implementation of critical features and bug fixes for t
 
 ### Root Cause Analysis
 - [x] Investigate `useProducts` and `useProductsByCategory` re-execution
-- [x] Check `transformGoogleSheetsProducts` image URL preservation  
+- [x] Check `transformGoogleSheetsProducts` image URL preservation
 - [x] Analyze cache invalidation in `googleSheetsService`
 
 **ISSUES IDENTIFIED & FIXED:**
@@ -59,7 +59,7 @@ This document tracks the implementation of critical features and bug fixes for t
 - [x] Implement smart caching that survives filter changes
 
 ### Image Loading Fixes
-- [x] Review image URL transformation in `productUtils.ts` 
+- [x] Review image URL transformation in `productUtils.ts`
 - [x] Implement fallback for broken images
 - [x] Add loading states for individual images
 - [x] Test with different filter combinations
@@ -92,48 +92,54 @@ This document tracks the implementation of critical features and bug fixes for t
 - [ ] `/privacy`, `/terms`, `/cookies`
 
 ---
-
-## 📱 **TASK 4: WHATSAPP CHECKOUT INTEGRATION**
+📱 **TASK 4: WHATSAPP CHECKOUT WITH LOCAL STORAGE PERSISTENCE**
 **Priority: HIGH** | **Status: ❌ NOT STARTED**
+*Implement a checkout flow that saves the order in the user's browser via `localStorage` before redirecting to WhatsApp. This approach provides persistence for the user's cart at the point of checkout without requiring a backend, making it a robust client-side MVP.*
 
-### WhatsApp Message Generation
-- [ ] Create `WhatsAppMessage` interface
-- [ ] Implement message formatter with order details
-- [ ] Include customer info, cart items, totals, shipping address
-- [ ] Add order number generation
+### 1. Local Order Persistence
+- [ ] Choose `localStorage` as the storage mechanism for its persistence across sessions.
+- [ ] Define a clear data structure for the saved order. It should include:
+    - `id`: A unique client-side ID (e.g., using `Date.now()` or `crypto.randomUUID()`).
+    - `items`: A copy of the cart items.
+    - `total`: The final price.
+    - `timestamp`: When the order was created.
+    - `status`: A default status, e.g., `"pending_whatsapp_confirmation"`.
+- [ ] Create a utility module (e.g., `src/utils/localOrderManager.ts`) with functions to manage local orders (`saveOrder`, `getOrders`, etc.).
 
-### Checkout Integration
-- [ ] Add "WhatsApp Order" tab to checkout
-- [ ] Create WhatsApp message preview
-- [ ] Implement mobile/web detection (whatsapp:// vs wa.me)
-- [ ] URL encode message properly
+### 2. Updated Checkout Flow & User Experience
+- [ ] When the user clicks "Checkout with WhatsApp":
+    1.  The system will first save the current cart as an "order" object in `localStorage`.
+    2.  The UI must update to give feedback to the user, for example: *"¡Perfecto! Hemos guardado tu pedido en este navegador. Ahora, envíanos el mensaje por WhatsApp para confirmarlo."*
+    3.  Only after the save is successful, present the button/link to open WhatsApp.
+- [ ] This flow ensures that if the user accidentally closes the tab or doesn't send the message, their intended order is not lost and can be retrieved from their browser.
 
-### User Experience
-- [ ] Maintain traditional payment options as alternative
-- [ ] Add clear instructions for WhatsApp process
-- [ ] Implement order tracking system for WhatsApp orders
-- [ ] Test on both mobile and desktop
+### 3. WhatsApp Message Generation
+- [ ] Create a function that generates the `wa.me` link.
+- [ ] The message content must be properly URL-encoded using `encodeURIComponent` to handle special characters and line breaks.
+- [ ] The seller's WhatsApp number must be stored as an environment variable (`NEXT_PUBLIC_WHATSAPP_NUMBER`) to avoid hardcoding it.
+- [ ] The message template will not include an order number, as per the requirements.
 
-### Message Template
+#### Message Template
 ```
-🛍️ *PEDIDO #${orderNumber}*
+Hola, buen dia!
+Quiero comprar estos productos:
 
-👤 *Cliente:*
-${firstName} ${lastName}
-📧 ${email}
-📱 ${phone}
-
-📦 *Productos:*
 ${cartItems.map(item => `• ${item.name} x${item.quantity} - $${item.price}`)}
 
 💰 *Total: $${cartTotal}*
 
-📍 *Dirección de envío:*
-${address}, ${city}, ${state} ${zipCode}
-
-¡Gracias por tu pedido!
+Muchas gracias!
 ```
 
+### 4. Client-Side Order History (Highly Recommended)
+- [ ] Create a simple component or view where the user can see a list of the orders they've placed, pulling the data directly from `localStorage`.
+- [ ] This gives the user confidence and a way to track their actions, showing a list of "pending" orders.
+- [ ] Each item in the history could even have a "Reintentar envío por WhatsApp" button in case the first attempt failed.
+
+### 5. Technical Considerations & Limitations to Acknowledge
+- **No Stock Reservation**: This flow does not communicate with a backend, so stock cannot be reserved. Multiple users could try to buy the last item in stock.
+- **Data is Local**: The order is only stored on the user's device. If they clear their browser data or switch devices, the history is lost. This must be acceptable for the MVP.
+- **Manual Confirmation**: The seller's process remains 100% manual. The order is only "known" to the business once the WhatsApp message is received.
 ---
 
 ## 🔧 **TECHNICAL CONSIDERATIONS**
@@ -178,4 +184,4 @@ ${address}, ${city}, ${state} ${zipCode}
 ---
 
 *Last Updated: 2024-12-19*
-*Estimated Remaining Time: 1.5-2 days* 
+*Estimated Remaining Time: 1.5-2 days*
