@@ -6,29 +6,45 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import CartItem from '../components/cart-item';
 import { useCart } from '../hooks/use-cart';
+import { getOrders } from '../utils/localOrderManager';
+import { Order } from '../types/order';
+import OrderHistory from '../components/OrderHistory';
+
 
 const CartPage: React.FC = () => {
   const { t } = useTranslation('common');
   const { cartItems, cartTotal, cartOriginalTotal, cartSavings, clearCart } = useCart();
   
+  const [orders, setOrders] = React.useState<Order[]>([]);
+
+  React.useEffect(() => {
+    setOrders(getOrders().reverse());
+  }, []);
+
   if (cartItems.length === 0) {
     return (
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="flex flex-col items-center justify-center py-20"
+        className="flex flex-col items-center justify-center py-12"
       >
-        <Icon icon="lucide:shopping-cart" className="text-6xl text-default-300 mb-4" />
-        <h1 className="text-2xl font-semibold mb-2">{t('cart.emptyTitle')}</h1>
-        <p className="text-default-500 mb-8 text-center max-w-md">
-          {t('cart.emptyMessage')}
-        </p>
+        {orders.length > 0 ? (
+          <OrderHistory orders={orders} />
+        ) : (
+          <>
+            <Icon icon="lucide:shopping-cart" className="text-6xl text-default-300 mb-4" />
+            <h1 className="text-2xl font-semibold mb-2">{t('cart.emptyTitle')}</h1>
+            <p className="text-default-500 mb-8 text-center max-w-md">
+              {t('cart.emptyMessage')}
+            </p>
+          </>
+        )}
         <Button 
           as={Link}
           to="/products"
           color="primary"
           size="lg"
-          className="font-medium"
+          className="font-medium mt-8"
         >
           {t('buttons.startShopping')}
         </Button>

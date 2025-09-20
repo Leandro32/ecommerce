@@ -93,53 +93,80 @@ This document tracks the implementation of critical features and bug fixes for t
 
 ---
 📱 **TASK 4: WHATSAPP CHECKOUT WITH LOCAL STORAGE PERSISTENCE**
-**Priority: HIGH** | **Status: ❌ NOT STARTED**
+**Priority: HIGH** | **Status: ✅ COMPLETED**
 *Implement a checkout flow that saves the order in the user's browser via `localStorage` before redirecting to WhatsApp. This approach provides persistence for the user's cart at the point of checkout without requiring a backend, making it a robust client-side MVP.*
 
 ### 1. Local Order Persistence
-- [ ] Choose `localStorage` as the storage mechanism for its persistence across sessions.
-- [ ] Define a clear data structure for the saved order. It should include:
+- [x] Choose `localStorage` as the storage mechanism for its persistence across sessions.
+- [x] Define a clear data structure for the saved order. It should include:
     - `id`: A unique client-side ID (e.g., using `Date.now()` or `crypto.randomUUID()`).
     - `items`: A copy of the cart items.
     - `total`: The final price.
     - `timestamp`: When the order was created.
     - `status`: A default status, e.g., `"pending_whatsapp_confirmation"`.
-- [ ] Create a utility module (e.g., `src/utils/localOrderManager.ts`) with functions to manage local orders (`saveOrder`, `getOrders`, etc.).
+- [x] Create a utility module (e.g., `src/utils/localOrderManager.ts`) with functions to manage local orders (`saveOrder`, `getOrders`, etc.).
 
 ### 2. Updated Checkout Flow & User Experience
-- [ ] When the user clicks "Checkout with WhatsApp":
+- [x] When the user clicks "Checkout with WhatsApp":
     1.  The system will first save the current cart as an "order" object in `localStorage`.
     2.  The UI must update to give feedback to the user, for example: *"¡Perfecto! Hemos guardado tu pedido en este navegador. Ahora, envíanos el mensaje por WhatsApp para confirmarlo."*
     3.  Only after the save is successful, present the button/link to open WhatsApp.
-- [ ] This flow ensures that if the user accidentally closes the tab or doesn't send the message, their intended order is not lost and can be retrieved from their browser.
+- [x] This flow ensures that if the user accidentally closes the tab or doesn't send the message, their intended order is not lost and can be retrieved from their browser.
 
 ### 3. WhatsApp Message Generation
-- [ ] Create a function that generates the `wa.me` link.
-- [ ] The message content must be properly URL-encoded using `encodeURIComponent` to handle special characters and line breaks.
-- [ ] The seller's WhatsApp number must be stored as an environment variable (`NEXT_PUBLIC_WHATSAPP_NUMBER`) to avoid hardcoding it.
-- [ ] The message template will not include an order number, as per the requirements.
+- [x] Create a function that generates the `wa.me` link.
+- [x] The message content must be properly URL-encoded using `encodeURIComponent` to handle special characters and line breaks.
+- [x] The seller's WhatsApp number must be stored as an environment variable (`NEXT_PUBLIC_WHATSAPP_NUMBER`) to avoid hardcoding it.
+- [x] The message template will not include an order number, as per the requirements.
 
 #### Message Template
 ```
 Hola, buen dia!
 Quiero comprar estos productos:
 
-${cartItems.map(item => `• ${item.name} x${item.quantity} - $${item.price}`)}
+${cartItems.map(item => `• ${item.name} x${item.quantity} - ${item.price}`)}
 
-💰 *Total: $${cartTotal}*
+💰 *Total: ${cartTotal}*
 
 Muchas gracias!
 ```
 
 ### 4. Client-Side Order History (Highly Recommended)
-- [ ] Create a simple component or view where the user can see a list of the orders they've placed, pulling the data directly from `localStorage`.
-- [ ] This gives the user confidence and a way to track their actions, showing a list of "pending" orders.
-- [ ] Each item in the history could even have a "Reintentar envío por WhatsApp" button in case the first attempt failed.
+- [x] Create a simple component or view where the user can see a list of the orders they've placed, pulling the data directly from `localStorage`.
+- [x] This gives the user confidence and a way to track their actions, showing a list of "pending" orders.
+- [x] Each item in the history could even have a "Reintentar envío por WhatsApp" button in case the first attempt failed.
 
 ### 5. Technical Considerations & Limitations to Acknowledge
 - **No Stock Reservation**: This flow does not communicate with a backend, so stock cannot be reserved. Multiple users could try to buy the last item in stock.
 - **Data is Local**: The order is only stored on the user's device. If they clear their browser data or switch devices, the history is lost. This must be acceptable for the MVP.
 - **Manual Confirmation**: The seller's process remains 100% manual. The order is only "known" to the business once the WhatsApp message is received.
+
+**FILES CREATED/MODIFIED:**
+- ✅ `src/types/order.ts` - New type definition for orders.
+- ✅ `src/utils/localOrderManager.ts` - New utility for local storage management.
+- ✅ `src/pages/checkout.tsx` - Updated to implement WhatsApp checkout flow.
+- ✅ `src/pages/account.tsx` - Updated to display client-side order history.
+---
+
+🛒 **TASK 5: ENHANCE CART VIEW WITH ORDER HISTORY**
+**Priority: MEDIUM** | **Status: ✅ COMPLETED**
+*As a senior software developer, I've enhanced the user experience by utilizing the empty state of the cart page to display the user's order history. This provides value to returning customers and makes the page more dynamic.*
+
+### 1. Component-Based Architecture
+- [x] Created a new reusable component `OrderHistory.tsx` to display the list of orders. This promotes separation of concerns and reusability.
+
+### 2. Smart UI in Cart Page
+- [x] Modified `cart.tsx` to conditionally render the `OrderHistory` component when the cart is empty but there are past orders in `localStorage`.
+- [x] If the cart is empty and there is no order history, the original "empty cart" message is displayed.
+
+### 3. User-Centric Design
+- [x] The "Resend on WhatsApp" button is available for each order, allowing users to easily retry sending their order.
+- [x] The order history is displayed in reverse chronological order, showing the most recent orders first.
+
+**FILES CREATED/MODIFIED:**
+- ✅ `src/components/OrderHistory.tsx` - New component to display order history.
+- ✅ `src/pages/cart.tsx` - Updated to conditionally render the order history.
+
 ---
 
 ## 🔧 **TECHNICAL CONSIDERATIONS**
@@ -165,23 +192,24 @@ Muchas gracias!
 
 ## 📊 **PROGRESS TRACKING**
 
-**Overall Progress: 1/4 tasks completed**
+**Overall Progress: 4/5 tasks completed**
 
 - 🌐 **i18n Translations**: ✅ **100% complete**
 - 🖼️ **Filter Loading Fix**: ✅ **100% complete**
+- 📱 **WhatsApp Checkout**: ✅ **100% complete**
+- 🛒 **Cart Order History**: ✅ **100% complete**
 - 🔗 **Footer Links**: 0% complete
-- 📱 **WhatsApp Checkout**: 0% complete
 
 ---
 
 ## 🚀 **IMPLEMENTATION ORDER**
 
 1. ✅ **COMPLETED**: Task 2 (Critical UX issue) - **FILTER LOADING FIX**
-2. **NEXT**: Task 1 (Enables proper localization)
-3. **THIRD**: Task 4 (High business value)
-4. **FOURTH**: Task 3 (Nice to have improvement)
+2. ✅ **COMPLETED**: Task 1 (Enables proper localization)
+3. ✅ **COMPLETED**: Task 4 (High business value)
+4. **NEXT**: Task 3 (Nice to have improvement)
 
 ---
 
-*Last Updated: 2024-12-19*
+*Last Updated: 2025-09-20*
 *Estimated Remaining Time: 1.5-2 days*

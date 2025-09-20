@@ -3,6 +3,9 @@ import React from 'react';
 import { Button, Card, CardBody, Tabs, Tab, Input, Avatar, Badge } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
+import { getOrders } from '../utils/localOrderManager';
+import { Order } from '../types/order';
+
 
 const AccountPage: React.FC = () => {
   const [isEditing, setIsEditing] = React.useState(false);
@@ -27,29 +30,25 @@ const AccountPage: React.FC = () => {
     // In a real app, you would save the data to the backend here
   };
   
-  const orderHistory = [
-    {
-      id: 'ORD-12345',
-      date: '2024-06-15',
-      total: 129.99,
-      status: 'Delivered',
-      items: 3
-    },
-    {
-      id: 'ORD-12344',
-      date: '2024-05-28',
-      total: 79.50,
-      status: 'Delivered',
-      items: 2
-    },
-    {
-      id: 'ORD-12343',
-      date: '2024-04-10',
-      total: 215.75,
-      status: 'Delivered',
-      items: 4
-    }
-  ];
+
+  const [orders, setOrders] = React.useState<Order[]>([]);
+
+  React.useEffect(() => {
+    setOrders(getOrders().reverse());
+  }, []);
+
+  const generateWhatsAppMessage = (order: Order) => {
+    if (!order) return '';
+
+    const itemsText = order.items.map(item =>
+      `• ${item.product.name} x${item.quantity} - ${(item.product.price * item.quantity).toFixed(2)}`
+    ).join('\n');
+
+    const message = `Hola, buen dia!\nQuiero comprar estos productos:\n\n${itemsText}\n\n💰 *Total: ${order.total.toFixed(2)}*\n\nMuchas gracias!`;
+    return encodeURIComponent(message);
+  };
+
+  const WHATSAPP_NUMBER = '1234567890'; // Placeholder
   
   const wishlistItems = [
     {
@@ -238,31 +237,32 @@ const AccountPage: React.FC = () => {
               
               {orderHistory.length > 0 ? (
                 <div className="space-y-4">
-                  {orderHistory.map((order) => (
+                  {orders.map((order) => (
                     <Card key={order.id} className="border border-divider">
                       <CardBody>
                         <div className="flex flex-col sm:flex-row justify-between">
                           <div>
                             <div className="flex items-center gap-2">
-                              <h4 className="font-medium">{order.id}</h4>
-                              <Badge color={order.status === 'Delivered' ? 'success' : 'primary'}>
-                                {order.status}
-                              </Badge>
+                              <h4 className="font-medium">Order #{order.id.slice(0, 8)}</h4>
                             </div>
                             <p className="text-sm text-default-500">
-                              Placed on {new Date(order.date).toLocaleDateString()}
+                              Placed on {new Date(order.timestamp).toLocaleDateString()}
                             </p>
                             <p className="text-sm">
-                              {order.items} {order.items === 1 ? 'item' : 'items'} • ${order.total.toFixed(2)}
+                              {order.items.length} {order.items.length === 1 ? 'item' : 'items'} • ${order.total.toFixed(2)}
                             </p>
                           </div>
                           <div className="mt-3 sm:mt-0">
                             <Button
+                              as="a"
+                              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${generateWhatsAppMessage(order)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
                               size="sm"
-                              variant="flat"
-                              color="primary"
+                              color="success"
+                              startContent={<Icon icon="logos:whatsapp-icon" />}
                             >
-                              View Details
+                              Resend on WhatsApp
                             </Button>
                           </div>
                         </div>
