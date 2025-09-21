@@ -216,34 +216,39 @@ Muchas gracias!
 
 ---
 
-## 🚀 **TASK 6: MIGRATE APPLICATION FROM VITE TO NEXT.JS (REVISED)**
+## 🚀 **TASK 6: MIGRATE APPLICATION FROM VITE TO NEXT.JS**
 **Priority: CRITICAL** | **Status: ❌ NOT STARTED**
-*A revised, comprehensive plan to migrate the existing React + Vite SPA to Next.js. This architectural upgrade will enhance performance, SEO, and security by leveraging Server-Side Rendering (SSR), the App Router, and server-side data fetching, while addressing i18n and advanced state management.*
+*A comprehensive plan to migrate the existing React + Vite SPA to Next.js. This architectural upgrade will enhance performance, SEO, and security by leveraging Server-Side Rendering (SSR), the App Router, and server-side data fetching.*
+
+### **Strategy**
+- The migration will be performed iteratively, on a route-by-route basis, to ensure stability and make debugging manageable.
+- The process will begin with the base layout and home page, then progressively expand to other routes.
 
 ### **Phase 1: Project Scaffolding & Dependency Migration**
-- [ ] Initialize a new Next.js project in a separate directory: `npx create-next-app@latest --typescript --tailwind ecommerce-nextjs`
-- [ ] Analyze the current `package.json` and install all necessary dependencies (`@heroui/react`, `googleapis`, `i18next`, etc.) into the new project.
-- [ ] Install required development dependencies (`@types/...`, `autoprefixer`, etc.).
+- [ ] Initialize a new Next.js project: `npx create-next-app@latest --typescript --tailwind ecommerce-nextjs`
+- [ ] Analyze the current `package.json` and install all necessary dependencies into the new project.
+- [ ] Install required development dependencies.
 - [ ] Migrate configurations from `tailwind.config.js` and `postcss.config.js`.
-- [ ] Ensure global styles from the old `src/styles/index.css` are correctly imported into the new `app/layout.tsx`.
+- [ ] Ensure global styles from `src/index.css` are correctly imported into the new `app/layout.tsx`.
 
 ### **Phase 2: Asset & Component Migration**
 - [ ] Copy the contents of `src/components`, `src/hooks`, `src/locales`, `src/types`, `src/utils`, and `public/` directories into the new project structure.
-- [ ] Audit all copied components and add the `'use client';` directive to any component that uses React Hooks (`useState`, `useEffect`) or browser-only APIs (`localStorage`).
+- [ ] Audit all copied components and add the `'use client';` directive to any component that uses React Hooks or browser-only APIs.
 - [ ] Create a new `.env.local` file and migrate environment variables, renaming the prefix from `VITE_` to `NEXT_PUBLIC_` for browser-exposed variables.
 
 ### **Phase 3: Routing, Layout, and i18n Refactor**
-- [ ] Recreate the application's page structure inside the Next.js `app/` directory (e.g., `app/products/page.tsx`, `app/cart/page.tsx`).
+- [ ] Recreate the application's page structure inside the Next.js `app/` directory (e.g., `app/products/page.tsx`).
 - [ ] Create a root layout in `app/layout.tsx` and integrate shared components like `Header` and `Footer`.
 - [ ] Replace all instances of `react-router-dom`'s `<Link>` component with `next/link`.
-- [ ] **(NEW)** Design and implement a server-aware i18n strategy. Replace browser-based language detection with a Next.js middleware that detects language from headers or URL paths (e.g., `/en/products`). Load translations on the server for Server Components.
+- [ ] Implement a server-aware i18n strategy by replacing `i18next-browser-languagedetector` with a library compatible with the Next.js App Router (e.g., `next-intl`). Use middleware to detect language from the URL and load translations on the server.
 - [ ] Replace programmatic navigation hooks (`useHistory`) with the `useRouter` hook from `next/navigation`.
 
 ### **Phase 4: Server-Side Data Fetching & State Management**
 - [ ] Create a `lib/` directory and move the data fetching logic (`googleSheetsService.ts`) into it.
-- [ ] Refactor pages to be async Server Components that fetch data directly on the server before rendering.
-- [ ] **(NEW)** Define the new filtering strategy: User interactions in client-side filter components will update URL query parameters (e.g., `?category=electronics`). This will trigger a server-side refetch and re-render of the product list, keeping the client-side state minimal.
-- [ ] **(NEW)** Replace the custom 5-minute cache in `googleSheetsService.ts` with Next.js's integrated data cache, using its time-based revalidation feature for better performance and control.
+- [ ] Refactor pages to be async Server Components that fetch data directly on the server.
+- [ ] Define the new filtering strategy: User interactions in client-side filter components will update URL query parameters (e.g., `?category=electronics`), which will trigger a server-side refetch and re-render of the product list.
+- [ ] Replace the custom 5-minute cache in `googleSheetsService.ts` with Next.js's integrated data cache, using its time-based revalidation feature.
+- [ ] Manage client-side state (e.g., `CartContext`, `AuthContext`) by creating a root "Providers" component marked with `'use client';`. This component will wrap the application in `app/layout.tsx` to make contexts available across the app.
 - [ ] Secure the Google Sheets API key by removing the `NEXT_PUBLIC_` prefix from its variable in `.env.local`, making it a server-only secret.
 - [ ] Update the data fetching logic to read the API key from `process.env`.
 
@@ -251,6 +256,6 @@ Muchas gracias!
 - [ ] Uninstall all Vite and React Router dependencies: `vite`, `@vitejs/plugin-react`, `react-router-dom`.
 - [ ] Delete obsolete configuration files like `vite.config.ts`.
 - [ ] Update the `scripts` in `package.json` to use Next.js commands (`next dev`, `next build`, `next start`, `next lint`).
-- [ ] Conduct a full regression test of the application to ensure all features work as expected.
-- [ ] Verify in the browser's developer tools that API keys are no longer exposed and that initial page content is server-rendered.
+- [ ] Conduct a full regression test of the application.
+- [ ] Verify that API keys are no longer exposed in the browser and that initial page content is server-rendered.
 - [ ] Update the `README.md` to reflect the new technology stack and commands.
