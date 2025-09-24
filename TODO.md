@@ -75,11 +75,6 @@ This document tracks the implementation of critical features and bug fixes for t
 ## 🔗 **TASK 3: HIDE NON-EXISTENT FOOTER LINKS**
 **Priority: LOW** | **Status: ❌ NOT STARTED**
 
-### Route Validation System
-- [ ] Create `useRouteExists(path: string)` hook
-- [ ] Create `src/config/routes.ts` with available routes
-- [ ] Implement route checking against React Router
-
 ### Footer Intelligence
 - [ ] Update `Footer.tsx` with conditional rendering
 - [ ] Add "Coming Soon" placeholder for planned routes
@@ -259,3 +254,32 @@ Muchas gracias!
 - [x] Conduct a full regression test of the application.
 - [x] Verify that API keys are no longer exposed in the browser and that initial page content is server-rendered.
 - [x] Update the `README.md` to reflect the new technology stack and commands.
+
+## 🔐 TASK 7: CREATE SECURE ADMIN PANEL FOR INVENTORY MANAGEMENT
+**Priority: HIGH** | **Status: ❌ NOT STARTED**
+*Develop a secure, lightweight admin panel. The architecture will consist of a standalone Node.js/Express API deployed as serverless functions for maximum resource efficiency, and a new set of protected frontend routes in the existing React application.*
+
+### 1. Backend: Lightweight Node.js API
+- [ ] Create a new `/api` directory for the backend code.
+- [ ] Initialize a Node.js project with Express.js.
+- [ ] **Choose Database**: A serverless PostgreSQL provider (e.g., Vercel Postgres, Neon) is recommended for its low cost and scalability.
+- [ ] **Implement Authentication**: Use JSON Web Tokens (JWT). Create endpoints for login (`/api/auth/login`) that returns a token, and a middleware to protect all admin routes.
+- [ ] **Implement Product API Endpoints**:
+    - `GET /api/products`
+    - `POST /api/products`
+    - `PUT /api/products/:id`
+    - `DELETE /api/products/:id`
+- [ ] **Data Validation**: Use a library like `Zod` to validate all incoming requests.
+- [ ] **Deployment**: Configure the Express app to be deployed as serverless functions on Vercel/Netlify.
+
+### 2. Frontend: React Admin Interface
+- [ ] Create a new set of "admin" routes in your React app using your current router (e.g., React Router).
+    - `/admin/login`
+    - `/admin/dashboard` (this will be a protected route)
+- [ ] **Create a `useAuth` Hook**: This hook will manage the JWT token in `localStorage`, handle login/logout, and provide authentication status to components.
+- [ ] **Create Protected Routes**: Implement a wrapper component that checks for a valid token using the `useAuth` hook. If the user is not logged in, redirect them to `/admin/login`.
+- [ ] **Build UI Components**:
+    - A login form.
+    - A data table to display and manage products.
+    - A form (using `react-hook-form`) for creating/editing products.
+    - These components will fetch data from and send data to the Node.js API.
