@@ -1,6 +1,18 @@
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { AuthState, AuthAction, LoginCredentials, RegisterData, User } from '../types/auth';
-import { authReducer, initialAuthState } from '../store/authReducer';
+import React, {
+  createContext,
+  useContext,
+  useReducer,
+  useEffect,
+  ReactNode,
+} from "react";
+import {
+  AuthState,
+  AuthAction,
+  LoginCredentials,
+  RegisterData,
+  User,
+} from "../types/auth";
+import { authReducer, initialAuthState } from "../store/authReducer";
 
 interface AuthContextType {
   state: AuthState;
@@ -17,8 +29,8 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const AUTH_TOKEN_KEY = 'ecommerce-auth-token';
-const AUTH_USER_KEY = 'ecommerce-auth-user';
+const AUTH_TOKEN_KEY = "ecommerce-auth-token";
+const AUTH_USER_KEY = "ecommerce-auth-user";
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -36,11 +48,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         const user = JSON.parse(userString);
         dispatch({
-          type: 'AUTH_SUCCESS',
-          payload: { user, token }
+          type: "AUTH_SUCCESS",
+          payload: { user, token },
         });
       } catch (error) {
-        console.error('Failed to parse stored user data:', error);
+        console.error("Failed to parse stored user data:", error);
         localStorage.removeItem(AUTH_TOKEN_KEY);
         localStorage.removeItem(AUTH_USER_KEY);
       }
@@ -59,97 +71,101 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [state.isAuthenticated, state.user, state.token]);
 
   const login = async (credentials: LoginCredentials) => {
-    dispatch({ type: 'AUTH_START' });
+    dispatch({ type: "AUTH_START" });
 
     try {
       // Make API call to login endpoint
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(credentials),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Login failed');
+        throw new Error(errorData.message || "Login failed");
       }
 
       const { user, token } = await response.json();
 
       dispatch({
-        type: 'AUTH_SUCCESS',
-        payload: { user, token }
+        type: "AUTH_SUCCESS",
+        payload: { user, token },
       });
     } catch (error) {
       // For demo purposes, simulate authentication
+      console.error(error);
       const mockUsers = {
-        'demo@example.com': {
-          id: '1',
-          email: 'demo@example.com',
-          firstName: 'Demo',
-          lastName: 'User',
-          avatar: '',
-          phone: '+1234567890',
+        "demo@example.com": {
+          id: "1",
+          email: "demo@example.com",
+          firstName: "Demo",
+          lastName: "User",
+          avatar: "",
+          phone: "+1234567890",
           addresses: [],
           preferences: {
-            theme: 'system' as const,
-            language: 'en',
-            currency: 'USD',
+            theme: "system" as const,
+            language: "en",
+            currency: "USD",
             notifications: {
               email: true,
               sms: false,
               push: true,
             },
           },
-          createdAt: '2024-01-01T00:00:00Z',
-          updatedAt: '2024-01-01T00:00:00Z',
+          createdAt: "2024-01-01T00:00:00Z",
+          updatedAt: "2024-01-01T00:00:00Z",
         },
       };
 
-      if (credentials.email === 'demo@example.com' && credentials.password === 'password') {
-        const user = mockUsers['demo@example.com'];
-        const token = 'mock-jwt-token-' + Date.now();
+      if (
+        credentials.email === "demo@example.com" &&
+        credentials.password === "password"
+      ) {
+        const user = mockUsers["demo@example.com"];
+        const token = "mock-jwt-token-" + Date.now();
 
         dispatch({
-          type: 'AUTH_SUCCESS',
-          payload: { user, token }
+          type: "AUTH_SUCCESS",
+          payload: { user, token },
         });
       } else {
         dispatch({
-          type: 'AUTH_FAILURE',
-          payload: error instanceof Error ? error.message : 'Login failed'
+          type: "AUTH_FAILURE",
+          payload: error instanceof Error ? error.message : "Login failed",
         });
       }
     }
   };
 
   const register = async (data: RegisterData) => {
-    dispatch({ type: 'AUTH_START' });
+    dispatch({ type: "AUTH_START" });
 
     try {
       // Make API call to register endpoint
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(data),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Registration failed');
+        throw new Error(errorData.message || "Registration failed");
       }
 
       const { user, token } = await response.json();
 
       dispatch({
-        type: 'AUTH_SUCCESS',
-        payload: { user, token }
+        type: "AUTH_SUCCESS",
+        payload: { user, token },
       });
-    } catch (error) {
+    } catch {
       // For demo purposes, simulate successful registration
       const newUser: User = {
         id: Date.now().toString(),
@@ -159,9 +175,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         phone: data.phone,
         addresses: [],
         preferences: {
-          theme: 'system',
-          language: 'en',
-          currency: 'USD',
+          theme: "system",
+          language: "en",
+          currency: "USD",
           notifications: {
             email: true,
             sms: false,
@@ -172,27 +188,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         updatedAt: new Date().toISOString(),
       };
 
-      const token = 'mock-jwt-token-' + Date.now();
+      const token = "mock-jwt-token-" + Date.now();
 
       dispatch({
-        type: 'AUTH_SUCCESS',
-        payload: { user: newUser, token }
+        type: "AUTH_SUCCESS",
+        payload: { user: newUser, token },
       });
     }
   };
 
   const logout = () => {
-    dispatch({ type: 'LOGOUT' });
+    dispatch({ type: "LOGOUT" });
     localStorage.removeItem(AUTH_TOKEN_KEY);
     localStorage.removeItem(AUTH_USER_KEY);
   };
 
   const updateUser = (userData: Partial<User>) => {
-    dispatch({ type: 'UPDATE_USER', payload: userData });
+    dispatch({ type: "UPDATE_USER", payload: userData });
   };
 
   const clearError = () => {
-    dispatch({ type: 'CLEAR_ERROR' });
+    dispatch({ type: "CLEAR_ERROR" });
   };
 
   const value: AuthContextType = {
@@ -208,17 +224,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     token: state.token,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };

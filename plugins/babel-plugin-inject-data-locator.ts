@@ -149,7 +149,7 @@ const createPluginLogic = (babel: {types: typeof BabelTypes}, options: CustomPlu
 
 // Babel plugin signature: a function that returns the plugin object.
 // Receives babel object (with types, etc.) as first argument, and plugin options as second.
-export default function (
+export default function dataLocatorPlugin(
   babelAPI: {types: typeof BabelTypes; assertVersion: (version: number) => void},
   options: CustomPluginOptions,
 ) {

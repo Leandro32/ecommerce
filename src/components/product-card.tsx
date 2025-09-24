@@ -63,7 +63,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                   color="primary"
                   placement="top-left"
                   className="absolute top-2 left-2"
-                  children={""}
                 />
               )}
               {hasProductDiscount && discountPercentage > 0 && (
@@ -72,9 +71,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                   color="danger"
                   placement="top-right"
                   className="absolute top-2 right-2"
-                >
-                  {""}
-                </Badge>
+                />
               )}
             </div>
 

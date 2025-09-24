@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Card, CardBody, Badge } from '@heroui/react';
+import { Button, Card, CardBody } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { Order } from '../types/order';
 

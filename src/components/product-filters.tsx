@@ -13,9 +13,16 @@ import {
 import { Icon } from "@iconify/react";
 import { useTranslation } from 'react-i18next';
 
+interface FilterState {
+  categories: string[];
+  brands: string[];
+  price: { min: number; max: number };
+  ratings: number[];
+}
+
 interface ProductFiltersProps {
-  onFilterChange: (filters: any) => void;
-  filters: any;
+  onFilterChange: (filters: FilterState) => void;
+  filters: FilterState;
   onClearFilters: () => void;
   isMobile?: boolean;
   availableCategories: string[];

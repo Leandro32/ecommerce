@@ -19,7 +19,6 @@ import {
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 import { useCart } from "../context/CartContext";
-import { useSearch } from "../hooks/use-search";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 interface Category {

@@ -1,5 +1,5 @@
 import { CartState, CartAction } from '../types/store';
-import { CartItem } from '../types/cart';
+import { CartItem, Coupon, ShippingMethod, CartVariant } from '../types/cart';
 
 export const initialCartState: CartState = {
   items: [],
@@ -13,7 +13,7 @@ export const initialCartState: CartState = {
   estimatedShipping: 0,
 };
 
-const calculateTotals = (items: CartItem[], appliedCoupon?: any, shippingMethod?: any) => {
+const calculateTotals = (items: CartItem[], appliedCoupon?: Coupon, shippingMethod?: ShippingMethod) => {
   const subtotal = items.reduce((total, item) => total + (item.product.price * item.quantity), 0);
   const totalItems = items.reduce((total, item) => total + item.quantity, 0);
 
@@ -41,7 +41,7 @@ const calculateTotals = (items: CartItem[], appliedCoupon?: any, shippingMethod?
   };
 };
 
-const findItemIndex = (items: CartItem[], productId: string, variant?: any) => {
+const findItemIndex = (items: CartItem[], productId: string, variant?: CartVariant) => {
   return items.findIndex(item => {
     if (item.product.id !== productId) return false;
 

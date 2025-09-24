@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -34,7 +35,7 @@ const CheckoutPage: React.FC = () => {
         color: "success",
       });
       clearCart();
-    } catch (error) {
+    } catch {
       addToast({
         title: "Error",
         description: "There was an error saving your order. Please try again.",
@@ -124,9 +125,11 @@ const CheckoutPage: React.FC = () => {
                 {cartItems.map((item) => (
                   <div key={item.id} className="flex items-center gap-3 py-3 border-b border-divider">
                     <div className="relative w-16 h-16 rounded-md overflow-hidden flex-shrink-0">
-                      <img 
+                      <Image 
                         src={item.product.image} 
                         alt={item.product.name}
+                        width={64}
+                        height={64}
                         className="w-full h-full object-cover"
                       />
                       <div className="absolute top-0 right-0 bg-primary text-white w-5 h-5 flex items-center justify-center rounded-full text-tiny">

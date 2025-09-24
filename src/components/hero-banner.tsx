@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import React from "react";
 import Link from "next/link";
 import { Button } from "@heroui/react";
@@ -11,9 +12,11 @@ const HeroBanner: React.FC = () => {
     <div className="relative rounded-lg overflow-hidden mb-8">
       <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/20 z-10" />
 
-      <img
+      <Image
         src="https://img.heroui.chat/image/fashion?w=1200&h=600&u=1"
         alt="New Collection"
+        width={1200}
+        height={600}
         className="w-full h-[300px] sm:h-[400px] md:h-[500px] object-cover"
       />
 

@@ -3,10 +3,6 @@ import HomePageClient from '../src/components/home-page-client';
 import {
   transformGoogleSheetsProducts,
   getAvailableCategories,
-  getAvailableBrands,
-  getPriceRange,
-  getDisplayPrice,
-  sortProducts,
 } from '../src/utils/productUtils';
 import {
   MOCK_PRODUCTS,

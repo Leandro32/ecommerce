@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import React from "react";
 import Link from "next/link";
 import { Card, CardBody } from "@heroui/react";
@@ -9,6 +10,7 @@ interface Category {
   id: string;
   name: string;
   slug: string;
+  image: string;
 }
 
 interface CategorySliderProps {
@@ -34,9 +36,11 @@ const CategorySlider: React.FC<CategorySliderProps> = ({ categories }) => {
                   disableRipple
                 >
                   <CardBody className="p-0 overflow-hidden">
-                    <img
+                    <Image
                       src={category.image}
                       alt={category.name}
+                      width={160}
+                      height={140}
                       className="w-full h-[70%] object-cover"
                     />
                     <div className="p-3 flex items-center justify-center h-[30%]">

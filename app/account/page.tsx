@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import React from 'react';
 import { Button, Card, CardBody, Tabs, Tab, Input, Avatar } from '@heroui/react';
 import { Icon } from '@iconify/react';
@@ -272,7 +273,7 @@ const AccountPage: React.FC = () => {
               ) : (
                 <div className="text-center py-8">
                   <Icon icon="lucide:package" className="text-4xl text-default-300 mx-auto mb-4" />
-                  <p className="text-default-500">You haven't placed any orders yet.</p>
+                                    <p className="text-default-500">You haven&apos;t placed any orders yet.</p>
                 </div>
               )}
             </CardBody>
@@ -289,9 +290,11 @@ const AccountPage: React.FC = () => {
                   {wishlistItems.map((item) => (
                     <Card key={item.id} className="border border-divider">
                       <CardBody className="p-0">
-                        <img 
+                        <Image 
                           src={item.image} 
                           alt={item.name}
+                          width={200}
+                          height={200}
                           className="w-full aspect-square object-cover"
                         />
                         <div className="p-3">

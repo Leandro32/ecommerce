@@ -136,7 +136,7 @@ const CartDebug: React.FC = () => {
         {cartItems.length > 0 ? (
           <div className="space-y-2">
             <h4 className="font-medium">Cart Items:</h4>
-            {cartItems.map((item, index) => (
+            {cartItems.map((item) => (
               <div key={item.id} className="flex justify-between items-center p-2 bg-default-100 rounded">
                 <div className="flex-1">
                   <p className="text-sm font-medium">{item.product.name}</p>

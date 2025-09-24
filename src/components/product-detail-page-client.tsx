@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import React from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
@@ -65,9 +66,11 @@ const ProductDetailPageClient: React.FC<ProductDetailPageClientProps> = ({ produ
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
         <div>
           <div className="relative rounded-lg overflow-hidden mb-4">
-            <img 
+            <Image 
               src={product.images?.[selectedImage] || product.image} 
               alt={product.name}
+              width={600}
+              height={600}
               className="w-full aspect-square object-cover"
             />
             {product.isNew && (
@@ -98,9 +101,11 @@ const ProductDetailPageClient: React.FC<ProductDetailPageClientProps> = ({ produ
                     selectedImage === index ? 'border-primary' : 'border-transparent'
                   }`}
                 >
-                  <img 
+                  <Image 
                     src={image} 
                     alt={`${product.name} view ${index + 1}`}
+                    width={100}
+                    height={100}
                     className="w-full aspect-square object-cover"
                   />
                 </button>

@@ -188,8 +188,6 @@ export const useCart = () => {
   const {
     items,
     total,
-    originalTotal,
-    savings,
     addToCart: addToCartContext,
     removeFromCart: removeFromCartContext,
     updateQuantity: updateQuantityContext,
@@ -218,7 +216,7 @@ export const useCart = () => {
 
       addToCartContext(cartItem);
       showSuccess(`${product.name} added to cart`);
-    } catch (error) {
+    } catch {
       showError("Failed to add item to cart");
     }
   };
@@ -226,7 +224,7 @@ export const useCart = () => {
   const updateCartItemQuantity = (itemId: string, quantity: number) => {
     try {
       updateQuantityContext(itemId, quantity);
-    } catch (error) {
+    } catch {
       showError("Failed to update quantity");
     }
   };
@@ -238,7 +236,7 @@ export const useCart = () => {
       if (item) {
         showSuccess(`${item.product.name} removed from cart`);
       }
-    } catch (error) {
+    } catch {
       showError("Failed to remove item from cart");
     }
   };
@@ -251,7 +249,7 @@ export const useCart = () => {
       }
       clearCartContext();
       showSuccess("Cart cleared successfully");
-    } catch (error) {
+    } catch {
       showError("Failed to clear cart");
     }
   };

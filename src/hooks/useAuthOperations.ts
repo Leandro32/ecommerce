@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useUI } from '../context/UIContext';
-import { LoginCredentials, RegisterData } from '../types/auth';
+import { LoginCredentials, RegisterData, User } from '../types/auth';
 
 export const useAuthOperations = () => {
   const {
@@ -22,8 +22,8 @@ export const useAuthOperations = () => {
       await login(credentials);
       showSuccess(`Welcome back, ${credentials.email}!`);
       return true;
-    } catch (error) {
-      showError(error instanceof Error ? error.message : 'Login failed');
+    } catch (error: unknown) {
+      showError((error as Error)?.message ?? 'Login failed');
       return false;
     }
   }, [login, showSuccess, showError]);
@@ -33,8 +33,8 @@ export const useAuthOperations = () => {
       await register(data);
       showSuccess(`Welcome, ${data.firstName}! Your account has been created.`);
       return true;
-    } catch (error) {
-      showError(error instanceof Error ? error.message : 'Registration failed');
+    } catch (error: unknown) {
+      showError((error as Error)?.message ?? 'Registration failed');
       return false;
     }
   }, [register, showSuccess, showError]);
@@ -44,18 +44,18 @@ export const useAuthOperations = () => {
       logout();
       showInfo('You have been logged out successfully');
       return true;
-    } catch (error) {
+    } catch {
       showError('Failed to logout');
       return false;
     }
   }, [logout, showInfo, showError]);
 
-  const updateUserProfile = useCallback(async (userData: any) => {
+  const updateUserProfile = useCallback(async (userData: Partial<User>) => {
     try {
       updateUser(userData);
       showSuccess('Profile updated successfully');
       return true;
-    } catch (error) {
+    } catch {
       showError('Failed to update profile');
       return false;
     }
@@ -89,7 +89,7 @@ export const useAuthOperations = () => {
 
       // Consider token expired after 24 hours (86400000 ms)
       return tokenAge > 86400000;
-    } catch (error) {
+    } catch {
       return true;
     }
   }, [token]);
@@ -105,7 +105,7 @@ export const useAuthOperations = () => {
       logoutUser();
       showError('Your session has expired. Please log in again.');
       return false;
-    } catch (error) {
+    } catch {
       logoutUser();
       return false;
     }
@@ -139,7 +139,7 @@ export const useAuthOperations = () => {
     return user.email.charAt(0).toUpperCase();
   }, [user]);
 
-  const hasPermission = useCallback((permission: string) => {
+  const hasPermission = useCallback(() => {
     // In a real app, you would check user roles/permissions
     // For now, all authenticated users have all permissions
     return isAuthenticated;

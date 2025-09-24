@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useCart } from '../context/CartContext';
 import { useUI } from '../context/UIContext';
 import { Product } from '../types/product';
-import { CartItem, CartVariant } from '../types/cart';
+import { CartItem, CartVariant, Coupon } from '../types/cart';
 
 export const useCartOperations = () => {
   const {
@@ -37,7 +37,7 @@ export const useCartOperations = () => {
       addToCart(cartItem);
       showSuccess(`${product.name} added to cart`);
       return true;
-    } catch (error) {
+    } catch {
       showError('Failed to add item to cart');
       return false;
     }
@@ -48,7 +48,7 @@ export const useCartOperations = () => {
       removeFromCart(itemId);
       showSuccess(`${productName || 'Item'} removed from cart`);
       return true;
-    } catch (error) {
+    } catch {
       showError('Failed to remove item from cart');
       return false;
     }
@@ -71,7 +71,7 @@ export const useCartOperations = () => {
     try {
       updateQuantity(itemId, newQuantity);
       return true;
-    } catch (error) {
+    } catch {
       showError('Failed to update quantity');
       return false;
     }
@@ -107,7 +107,7 @@ export const useCartOperations = () => {
         clearCart();
         showSuccess('Cart cleared successfully');
         return true;
-      } catch (error) {
+      } catch {
         showError('Failed to clear cart');
         return false;
       }
@@ -189,7 +189,7 @@ export const useCartOperations = () => {
 };
 
 // Helper function to calculate discount
-const calculateDiscount = (subtotal: number, coupon: any) => {
+const calculateDiscount = (subtotal: number, coupon: Coupon) => {
   if (coupon.type === 'percentage') {
     let discount = (subtotal * coupon.value) / 100;
     if (coupon.maxDiscount) {

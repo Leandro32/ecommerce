@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import React from "react";
 import Link from "next/link";
 import { Button, Input } from "@heroui/react";
@@ -26,9 +27,11 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-4 border-b border-divider">
       <div className="relative w-24 h-24 rounded-md overflow-hidden flex-shrink-0">
         <Link href={`/product/${item.product.id}`}>
-          <img
+          <Image
             src={item.product.image}
             alt={item.product.name}
+            width={96}
+            height={96}
             className="w-full h-full object-cover"
           />
         </Link>
