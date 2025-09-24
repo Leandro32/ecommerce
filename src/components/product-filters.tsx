@@ -1,3 +1,5 @@
+'use client';
+
 import React from "react";
 import {
   Accordion,
@@ -10,18 +12,15 @@ import {
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useTranslation } from 'react-i18next';
-import { useProducts } from "../hooks/useProducts";
-import {
-  getAvailableCategories,
-  getAvailableBrands,
-  getPriceRange,
-} from "../utils/productUtils";
 
 interface ProductFiltersProps {
   onFilterChange: (filters: any) => void;
   filters: any;
   onClearFilters: () => void;
   isMobile?: boolean;
+  availableCategories: string[];
+  availableBrands: string[];
+  priceRange: { min: number; max: number };
 }
 
 const ProductFilters: React.FC<ProductFiltersProps> = ({
@@ -29,52 +28,11 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   filters,
   onClearFilters,
   isMobile = false,
+  availableCategories,
+  availableBrands,
+  priceRange,
 }) => {
   const { t } = useTranslation('products');
-  const { products } = useProducts();
-
-  // Get available categories and brands from Google Sheets products
-  const availableCategories = React.useMemo(() => {
-    if (!products) return [];
-    return getAvailableCategories(
-      products.map((p) => ({
-        ...p,
-        categories: p.categories || [],
-        tags: p.tags || [],
-        brand: p.tags?.find((tag) =>
-          ["apple", "samsung", "nike", "adidas", "sony", "microsoft"].includes(
-            tag.toLowerCase(),
-          ),
-        ),
-      })),
-    );
-  }, [products]);
-
-  const availableBrands = React.useMemo(() => {
-    if (!products) return [];
-    return getAvailableBrands(
-      products.map((p) => ({
-        ...p,
-        categories: p.categories || [],
-        tags: p.tags || [],
-        brand: p.tags?.find((tag) =>
-          ["apple", "samsung", "nike", "adidas", "sony", "microsoft"].includes(
-            tag.toLowerCase(),
-          ),
-        ),
-      })),
-    );
-  }, [products]);
-
-  const priceRange = React.useMemo(() => {
-    if (!products) return { min: 0, max: 1000 };
-    return getPriceRange(
-      products.map((p) => ({
-        ...p,
-        price: p.salePrice || p.price,
-      })),
-    );
-  }, [products]);
 
   const handleCategoryChange = (selectedCategories: string[]) => {
     onFilterChange({ ...filters, categories: selectedCategories });

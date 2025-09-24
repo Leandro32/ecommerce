@@ -1,10 +1,9 @@
-import type { Product as GoogleSheetsProduct } from '../services/googleSheetsService';
 import type { Product } from '../types/product';
 
 /**
  * Transform Google Sheets product to be compatible with existing components
  */
-export const transformGoogleSheetsProduct = (gsProduct: GoogleSheetsProduct): Product => {
+export const transformGoogleSheetsProduct = (gsProduct: Product): Product => {
   // Calculate discount percentage if there's a sale price
   const discount = gsProduct.salePrice && gsProduct.originalPrice
     ? Math.round(((gsProduct.originalPrice - gsProduct.salePrice) / gsProduct.originalPrice) * 100)
@@ -42,7 +41,7 @@ export const transformGoogleSheetsProduct = (gsProduct: GoogleSheetsProduct): Pr
 /**
  * Transform array of Google Sheets products
  */
-export const transformGoogleSheetsProducts = (gsProducts: GoogleSheetsProduct[]): Product[] => {
+export const transformGoogleSheetsProducts = (gsProducts: Product[]): Product[] => {
   return gsProducts.map(transformGoogleSheetsProduct);
 };
 

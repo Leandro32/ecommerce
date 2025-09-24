@@ -1,5 +1,8 @@
+"use client";
+
 import React from "react";
-import { Link, useLocation, useHistory } from "react-router-dom";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Navbar,
   NavbarBrand,
@@ -15,18 +18,32 @@ import {
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
-import { useCart } from "../hooks/use-cart";
+import { useCart } from "../context/CartContext";
 import { useSearch } from "../hooks/use-search";
-import { useCategories } from "../hooks/use-categories";
 import LanguageSwitcher from "./LanguageSwitcher";
 
-const Header: React.FC = () => {
-  const { t } = useTranslation(['navigation', 'common']);
-  const location = useLocation();
-  const history = useHistory();
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+interface HeaderProps {
+  categories: Category[];
+}
+
+const Header: React.FC<HeaderProps> = ({ categories }) => {
+  const { t } = useTranslation(["navigation", "common"]);
+  const pathname = usePathname();
+  const router = useRouter();
   const { cartItems } = useCart();
-  const { searchQuery, setSearchQuery, handleSearch } = useSearch();
-  const { categories } = useCategories();
+  const [searchQuery, setSearchQuery] = React.useState("");
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    router.push(`/products?search=${encodeURIComponent(searchQuery)}`);
+  };
 
   const cartItemCount = cartItems.reduce(
     (total, item) => total + item.quantity,
@@ -34,27 +51,27 @@ const Header: React.FC = () => {
   );
 
   const isActive = (path: string) => {
-    return location.pathname === path;
+    return pathname === path;
   };
 
   const handleCategoryNavigation = (categorySlug: string) => {
-    history.push(`/products/${categorySlug}`);
+    router.push(`/products/${categorySlug}`);
   };
 
   return (
     <Navbar
       className="fixed top-0 w-full z-50 border-b border-divider bg-background/80 backdrop-blur-md"
-      maxWidth="xl"
+      maxWidth="7xl"
       height="3.5rem"
     >
-      <NavbarBrand as={Link} to="/" className="gap-2">
+      <NavbarBrand as={Link} href="/" className="gap-2">
         <Icon icon="lucide:shopping-bag" className="text-primary text-xl" />
         <p className="font-semibold text-inherit">NOVA</p>
       </NavbarBrand>
 
       <NavbarContent className="hidden md:flex gap-4" justify="center">
-        <NavbarItem isActive={isActive("/")} as={Link} to="/">
-          {t('navigation:main.home')}
+        <NavbarItem isActive={isActive("/")} as={Link} href="/">
+          {t("navigation:main.home")}
         </NavbarItem>
         <Dropdown>
           <NavbarItem>
@@ -67,7 +84,7 @@ const Header: React.FC = () => {
                   <Icon icon="lucide:chevron-down" className="text-sm" />
                 }
               >
-                {t('navigation:main.categories')}
+                {t("navigation:main.categories")}
               </Button>
             </DropdownTrigger>
           </NavbarItem>
@@ -83,8 +100,8 @@ const Header: React.FC = () => {
             ))}
           </DropdownMenu>
         </Dropdown>
-        <NavbarItem isActive={isActive("/products")} as={Link} to="/products">
-          {t('navigation:main.products')}
+        <NavbarItem isActive={isActive("/products")} as={Link} href="/products">
+          {t("navigation:main.products")}
         </NavbarItem>
       </NavbarContent>
 
@@ -96,7 +113,7 @@ const Header: React.FC = () => {
                 base: "max-w-full",
                 inputWrapper: "h-8",
               }}
-              placeholder={t('navigation:main.search')}
+              placeholder={t("navigation:main.search")}
               size="sm"
               startContent={
                 <Icon
@@ -113,7 +130,7 @@ const Header: React.FC = () => {
         <NavbarItem>
           <LanguageSwitcher />
         </NavbarItem>
-        <NavbarItem as={Link} to="/account">
+        <NavbarItem as={Link} href="/account">
           <div
             className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-default-100 cursor-pointer"
             role="button"
@@ -123,7 +140,7 @@ const Header: React.FC = () => {
             <Icon icon="lucide:user" className="text-lg" />
           </div>
         </NavbarItem>
-        <NavbarItem as={Link} to="/cart">
+        <NavbarItem as={Link} href="/cart">
           <Badge
             content={cartItemCount > 0 ? cartItemCount : null}
             color="primary"

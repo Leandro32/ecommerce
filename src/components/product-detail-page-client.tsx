@@ -1,22 +1,22 @@
-// Create the missing ProductDetailPage component
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+'use client';
+
+import React from 'react';
+import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Button, Chip, Image, Divider, Tabs, Tab } from '@heroui/react';
+import { Button, Chip, Divider, Tabs, Tab } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import FeaturedProducts from '../components/featured-products';
-import { useProduct } from '../hooks/use-product';
-import { useCart } from '../hooks/use-cart';
+import FeaturedProducts from './featured-products';
+import { useCart } from '../context/CartContext';
+import type { Product } from '../types/product';
 
-interface ProductDetailParams {
-  id: string;
+interface ProductDetailPageClientProps {
+  product: Product;
+  relatedProducts: Product[];
 }
 
-const ProductDetailPage: React.FC = () => {
-  const { id } = useParams<ProductDetailParams>();
+const ProductDetailPageClient: React.FC<ProductDetailPageClientProps> = ({ product, relatedProducts }) => {
   const { t } = useTranslation(['products', 'navigation']);
-  const { product, isLoading, relatedProducts } = useProduct(id);
   const { addToCart } = useCart();
   
   const [selectedImage, setSelectedImage] = React.useState(0);
@@ -25,62 +25,12 @@ const ProductDetailPage: React.FC = () => {
   const [selectedSize, setSelectedSize] = React.useState<string | null>(null);
   
   React.useEffect(() => {
-    if (product) {
-      setSelectedImage(0);
-      setQuantity(1);
-      setSelectedColor(null);
-      setSelectedSize(null);
-    }
-  }, [product]);
-  
-  // Handle case where id is undefined
-  if (!id) {
-    return (
-      <div className="flex justify-center items-center py-20">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">{t('products:messages.noProductIdProvided')}</h2>
-          <p className="text-default-500">No product ID provided.</p>
-          <Link to="/products" className="text-primary hover:underline mt-4 inline-block">
-            {t('products:messages.backToProducts')}
-          </Link>
-        </div>
-      </div>
-    );
-  }
-  
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center py-20">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mb-4"></div>
-          <p className="text-gray-600">{t('products:messages.loadingProducts')}</p>
-        </div>
-      </div>
-    );
-  }
-  
-  if (!product) {
-    return (
-      <div className="flex justify-center items-center py-20">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold mb-2">{t('products:messages.productNotFound')}</h2>
-          <p className="text-default-500">The product with ID "{id}" could not be found.</p>
-          <div className="space-x-4 mt-4">
-            <Button 
-              color="primary" 
-              onPress={() => window.location.reload()}
-            >
-              {t('products:messages.tryAgain')}
-            </Button>
-            <Link to="/products" className="text-primary hover:underline">
-              {t('products:messages.backToProducts')}
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  
+    setSelectedImage(0);
+    setQuantity(1);
+    setSelectedColor(null);
+    setSelectedSize(null);
+  }, [product.id]);
+
   const handleAddToCart = () => {
     addToCart(
       product, 
@@ -105,9 +55,9 @@ const ProductDetailPage: React.FC = () => {
       className="py-6"
     >
       <div className="flex items-center text-sm text-default-500 mb-6">
-        <Link to="/" className="hover:text-primary">{t('navigation:main.home')}</Link>
+        <Link href="/" className="hover:text-primary">{t('navigation:main.home')}</Link>
         <Icon icon="lucide:chevron-right" className="mx-2 text-xs" />
-        <Link to="/products" className="hover:text-primary">{t('navigation:main.products')}</Link>
+        <Link href="/products" className="hover:text-primary">{t('navigation:main.products')}</Link>
         <Icon icon="lucide:chevron-right" className="mx-2 text-xs" />
         <span className="text-default-800">{product.name}</span>
       </div>
@@ -128,7 +78,7 @@ const ProductDetailPage: React.FC = () => {
                 {t('products:info.new')}
               </Chip>
             )}
-            {product.discount > 0 && (
+            {product.discount && product.discount > 0 && (
               <Chip 
                 color="danger" 
                 className="absolute top-2 right-2"
@@ -167,12 +117,12 @@ const ProductDetailPage: React.FC = () => {
               {[...Array(5)].map((_, i) => (
                 <Icon 
                   key={i}
-                  icon={i < Math.floor(product.rating) ? "lucide:star" : "lucide:star"}
-                  className={i < Math.floor(product.rating) ? "text-warning-500" : "text-default-300"}
+                  icon={i < Math.floor(product.rating || 0) ? "lucide:star" : "lucide:star"}
+                  className={i < Math.floor(product.rating || 0) ? "text-warning-500" : "text-default-300"}
                 />
               ))}
             </div>
-            <span className="text-default-500">({product.reviewCount} {t('products:reviews.reviews')})</span>
+            <span className="text-default-500">({product.reviewCount || 0} {t('products:reviews.reviews')})</span>
           </div>
           
           <div className="flex items-center gap-3 mb-6">
@@ -182,7 +132,7 @@ const ProductDetailPage: React.FC = () => {
                 ${product.originalPrice.toFixed(2)}
               </span>
             )}
-            {product.discount > 0 && (
+            {product.discount && product.discount > 0 && (
               <Chip color="danger">
                 {product.discount}% OFF
               </Chip>
@@ -247,12 +197,12 @@ const ProductDetailPage: React.FC = () => {
                   size="sm"
                   variant="bordered"
                   onPress={incrementQuantity}
-                  isDisabled={quantity >= product.stock}
+                  isDisabled={quantity >= (product.stock || 100)}
                 >
                   <Icon icon="lucide:plus" />
                 </Button>
                 <span className="ml-4 text-sm text-default-500">
-                  {product.stock} {t('products:details.available')}
+                  {product.stock || 0} {t('products:details.available')}
                 </span>
               </div>
             </div>
@@ -324,13 +274,11 @@ const ProductDetailPage: React.FC = () => {
       {relatedProducts && relatedProducts.length > 0 && (
         <FeaturedProducts
           title={t('products:titles.youMayLike')}
-          subtitle=""
-          type="featured"
-          limit={4}
+          products={relatedProducts}
         />
       )}
     </motion.div>
   );
 };
 
-export default ProductDetailPage;
+export default ProductDetailPageClient;

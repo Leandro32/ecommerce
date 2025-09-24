@@ -1,11 +1,11 @@
-// Create the missing AccountPage component
+'use client';
+
 import React from 'react';
-import { Button, Card, CardBody, Tabs, Tab, Input, Avatar, Badge } from '@heroui/react';
+import { Button, Card, CardBody, Tabs, Tab, Input, Avatar } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
-import { getOrders } from '../utils/localOrderManager';
-import { Order } from '../types/order';
-
+import { getOrders } from '../../src/utils/localOrderManager';
+import { Order } from '../../src/types/order';
 
 const AccountPage: React.FC = () => {
   const [isEditing, setIsEditing] = React.useState(false);
@@ -30,7 +30,6 @@ const AccountPage: React.FC = () => {
     // In a real app, you would save the data to the backend here
   };
   
-
   const [orders, setOrders] = React.useState<Order[]>([]);
 
   React.useEffect(() => {
@@ -48,7 +47,7 @@ const AccountPage: React.FC = () => {
     return encodeURIComponent(message);
   };
 
-  const WHATSAPP_NUMBER = '1234567890'; // Placeholder
+  const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '1234567890';
   
   const wishlistItems = [
     {
@@ -235,7 +234,7 @@ const AccountPage: React.FC = () => {
             <CardBody>
               <h3 className="text-lg font-semibold mb-6">Your Orders</h3>
               
-              {orderHistory.length > 0 ? (
+              {orders.length > 0 ? (
                 <div className="space-y-4">
                   {orders.map((order) => (
                     <Card key={order.id} className="border border-divider">

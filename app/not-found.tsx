@@ -1,6 +1,7 @@
-// Create the missing NotFoundPage component
+'use client';
+
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { Button } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
@@ -23,7 +24,7 @@ const NotFoundPage: React.FC = () => {
       <div className="flex flex-wrap gap-4 justify-center">
         <Button 
           as={Link}
-          to="/"
+          href="/"
           color="primary"
           size="lg"
           startContent={<Icon icon="lucide:home" />}
@@ -32,7 +33,7 @@ const NotFoundPage: React.FC = () => {
         </Button>
         <Button 
           as={Link}
-          to="/products"
+          href="/products"
           variant="flat"
           size="lg"
         >

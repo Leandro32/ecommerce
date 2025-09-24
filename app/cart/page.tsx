@@ -1,15 +1,16 @@
+'use client';
+
 import React from 'react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import { Button, Card, CardBody, Divider } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import CartItem from '../components/cart-item';
-import { useCart } from '../hooks/use-cart';
-import { getOrders } from '../utils/localOrderManager';
-import { Order } from '../types/order';
-import OrderHistory from '../components/OrderHistory';
-
+import CartItem from '../../src/components/cart-item';
+import { useCart } from '../../src/context/CartContext';
+import { getOrders } from '../../src/utils/localOrderManager';
+import { Order } from '../../src/types/order';
+import OrderHistory from '../../src/components/OrderHistory';
 
 const CartPage: React.FC = () => {
   const { t } = useTranslation('common');
@@ -41,7 +42,7 @@ const CartPage: React.FC = () => {
         )}
         <Button 
           as={Link}
-          to="/products"
+          href="/products"
           color="primary"
           size="lg"
           className="font-medium mt-8"
@@ -123,7 +124,7 @@ const CartPage: React.FC = () => {
               
               <Button
                 as={Link}
-                to="/checkout"
+                href="/checkout"
                 color="primary"
                 size="lg"
                 fullWidth
@@ -135,7 +136,7 @@ const CartPage: React.FC = () => {
               <div className="mt-4">
                 <Button
                   as={Link}
-                  to="/products"
+                  href="/products"
                   variant="flat"
                   fullWidth
                   startContent={<Icon icon="lucide:arrow-left" className="text-sm" />}

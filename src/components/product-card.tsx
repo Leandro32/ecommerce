@@ -1,9 +1,9 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { Card, CardBody, Button, Badge } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { motion } from "framer-motion";
-import { useCart } from "../hooks/use-cart";
+import { useCart } from "../context/CartContext";
 import { Product } from "../types/product";
 import ProductImage from "./ProductImage";
 import {
@@ -43,7 +43,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     <motion.div whileHover={{ y: -5 }} transition={{ duration: 0.2 }}>
       <Card className="overflow-visible h-full w-full" disableRipple>
         <CardBody className="p-0 overflow-visible">
-          <Link to={`/product/${product.id}`} className="block">
+          <Link href={`/product/${product.id}`} className="block">
             <div className="relative w-full aspect-[3/4] bg-default-100 rounded-t-lg overflow-hidden">
               <ProductImage
                 src={displayImage || product.images}
@@ -132,7 +132,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               </div>
             </div>
           </Link>
-          
+
           {/* Add to Cart Button - Outside of Link */}
           <div className="absolute bottom-2 right-2">
             <Button
@@ -146,12 +146,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               aria-label="Add to cart"
               isDisabled={!isInStock}
             >
-              <Icon 
-                icon="lucide:shopping-cart" 
+              <Icon
+                icon="lucide:shopping-cart"
                 className="group-hover:opacity-0 transition-opacity duration-200"
               />
-              <Icon 
-                icon="lucide:plus" 
+              <Icon
+                icon="lucide:plus"
                 className="absolute opacity-0 group-hover:opacity-100 transition-opacity duration-200"
               />
             </Button>
