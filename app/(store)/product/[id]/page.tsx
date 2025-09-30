@@ -1,11 +1,11 @@
-import ProductDetailPageClient from '../../../src/components/product-detail-page-client';
+import ProductDetailPageClient from '../../../../src/components/product-detail-page-client';
 // Removed imports from lib/googleSheetsService
-import { transformGoogleSheetsProduct, transformGoogleSheetsProducts } from '../../../src/utils/productUtils';
+import { transformGoogleSheetsProduct, transformGoogleSheetsProducts } from '../../../../src/utils/productUtils';
 import { notFound } from 'next/navigation';
 import {
   getMockProductById,
   getMockFeaturedProducts,
-} from '../../../src/data/mockProducts'; // Import mock data functions
+} from '../../../../src/data/mockProducts'; // Import mock data functions
 
 // The new Next.js page is an async Server Component
 export default async function ProductDetailPage({

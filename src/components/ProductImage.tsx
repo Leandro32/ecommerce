@@ -196,6 +196,8 @@ const ProductImage: React.FC<ProductImageProps> = ({
         alt={alt}
         loading={loading}
         sizes={sizes}
+        width={50}
+        height={50}
         className={`
           w-full h-full object-cover transition-opacity duration-200
           ${imageState === "loaded" ? "opacity-100" : "opacity-0"}

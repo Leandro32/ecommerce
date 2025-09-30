@@ -1,13 +1,13 @@
-import HomePageClient from '../src/components/home-page-client';
+import HomePageClient from '../../src/components/home-page-client';
 // Removed imports from lib/googleSheetsService
 import {
   transformGoogleSheetsProducts,
   getAvailableCategories,
-} from '../src/utils/productUtils';
+} from '../../src/utils/productUtils';
 import {
   MOCK_PRODUCTS,
   getMockFeaturedProducts,
-} from '../src/data/mockProducts'; // Import mock data functions
+} from '../../src/data/mockProducts'; // Import mock data functions
 
 // The new Next.js page is an async Server Component
 export default async function HomePage() {

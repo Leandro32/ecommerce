@@ -1,4 +1,4 @@
-import ProductListPageClient from '../../src/components/product-list-page-client';
+import ProductListPageClient from '../../../src/components/product-list-page-client';
 import { 
   transformGoogleSheetsProducts,
   getAvailableCategories,
@@ -6,8 +6,8 @@ import {
   getPriceRange,
   getDisplayPrice,
   sortProducts,
-} from '../../src/utils/productUtils';
-import { MOCK_PRODUCTS } from '../../src/data/mockProducts'; // Import mock data
+} from '../../../src/utils/productUtils';
+import { MOCK_PRODUCTS } from '../../../src/data/mockProducts'; // Import mock data
 
 // The new Next.js page is an async Server Component
 export default async function ProductsPage({

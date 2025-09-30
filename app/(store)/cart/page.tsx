@@ -6,11 +6,11 @@ import { Button, Card, CardBody, Divider } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import CartItem from '../../src/components/cart-item';
-import { useCart } from '../../src/context/CartContext';
-import { getOrders } from '../../src/utils/localOrderManager';
-import { Order } from '../../src/types/order';
-import OrderHistory from '../../src/components/OrderHistory';
+import CartItem from '../../../src/components/cart-item';
+import { useCart } from '../../../src/context/CartContext';
+import { getOrders } from '../../../src/utils/localOrderManager';
+import { Order } from '../../../src/types/order';
+import OrderHistory from '../../../src/components/OrderHistory';
 
 const CartPage: React.FC = () => {
   const { t } = useTranslation('common');

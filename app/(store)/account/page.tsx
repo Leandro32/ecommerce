@@ -5,8 +5,8 @@ import React from 'react';
 import { Button, Card, CardBody, Tabs, Tab, Input, Avatar } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
-import { getOrders } from '../../src/utils/localOrderManager';
-import { Order } from '../../src/types/order';
+import { getOrders } from '../../../src/utils/localOrderManager';
+import { Order } from '../../../src/types/order';
 
 const AccountPage: React.FC = () => {
   const [isEditing, setIsEditing] = React.useState(false);

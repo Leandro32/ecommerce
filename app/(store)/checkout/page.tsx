@@ -7,10 +7,10 @@ import { useRouter } from 'next/navigation';
 import { Button, Card, CardBody, Divider } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
-import { useCart } from '../../src/hooks/use-cart';
+import { useCart } from '../../../src/hooks/use-cart';
 import { addToast } from '@heroui/react';
-import { saveOrder } from '../../src/utils/localOrderManager';
-import { Order } from '../../src/types/order';
+import { saveOrder } from '../../../src/utils/localOrderManager';
+import { Order } from '../../../src/types/order';
 
 const CheckoutPage: React.FC = () => {
   const router = useRouter();
