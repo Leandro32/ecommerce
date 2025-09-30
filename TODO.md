@@ -75,6 +75,11 @@ This document tracks the implementation of critical features and bug fixes for t
 ## 🔗 **TASK 3: HIDE NON-EXISTENT FOOTER LINKS**
 **Priority: LOW** | **Status: ❌ NOT STARTED**
 
+### Route Validation System
+- [ ] Create `useRouteExists(path: string)` hook
+- [ ] Create `src/config/routes.ts` with available routes
+- [ ] Implement route checking against React Router
+
 ### Footer Intelligence
 - [ ] Update `Footer.tsx` with conditional rendering
 - [ ] Add "Coming Soon" placeholder for planned routes
@@ -83,7 +88,7 @@ This document tracks the implementation of critical features and bug fixes for t
 
 ### Non-existent Routes Identified
 - [ ] `/help`, `/shipping`, `/returns`, `/contact`
-- [ ] `/about`, `/careers`, `/sustainability`, `/press`
+- [ ] `/about`, `/careers`, `sustainability`, `/press`
 - [ ] `/privacy`, `/terms`, `/cookies`
 
 ---
@@ -216,70 +221,103 @@ Muchas gracias!
 *A comprehensive plan to migrate the existing React + Vite SPA to Next.js. This architectural upgrade will enhance performance, SEO, and security by leveraging Server-Side Rendering (SSR), the App Router, and server-side data fetching.*
 
 ### **Strategy**
-- The migration will be performed iteratively, on a route-by-route basis, to ensure stability and make debugging manageable.
-- The process will begin with the base layout and home page, then progressively expand to other routes.
+- The migration was performed iteratively, on a route-by-route basis, to ensure stability and make debugging manageable.
+- The process began with the base layout and home page, then progressively expanded to other routes.
 
-### **Phase 1: Project Scaffolding & Dependency Migration**
-- [x] Initialize a new Next.js project: `npx create-next-app@latest --typescript --tailwind ecommerce-nextjs`
-- [x] Analyze the current `package.json` and install all necessary dependencies into the new project.
-- [x] Install required development dependencies.
-- [x] Migrate configurations from `tailwind.config.js` and `postcss.config.js`.
-- [x] Ensure global styles from `src/index.css` are correctly imported into the new `app/layout.tsx`.
+*(Details of migration phases omitted for brevity as they are complete)*
 
-### **Phase 2: Asset & Component Migration**
-- [x] Copy the contents of `src/components`, `src/hooks`, `src/locales`, `src/types`, `src/utils`, and `public/` directories into the new project structure.
-- [x] Audit all copied components and add the `'use client';` directive to any component that uses React Hooks or browser-only APIs.
-- [x] Create a new `.env.local` file and migrate environment variables, renaming the prefix from `VITE_` to `NEXT_PUBLIC_` for browser-exposed variables.
-
-### **Phase 3: Routing, Layout, and i18n Refactor**
-- [x] Recreate the application's page structure inside the Next.js `app/` directory (e.g., `app/products/page.tsx`).
-- [x] Create a root layout in `app/layout.tsx` and integrate shared components like `Header` and `Footer`.
-- [x] Replace all instances of `react-router-dom`'s `<Link>` component with `next/link`.
-- [x] Implement a server-aware i18n strategy by replacing `i18next-browser-languagedetector` with a library compatible with the Next.js App Router (e.g., `next-intl`). Use middleware to detect language from the URL and load translations on the server.
-- [x] Replace programmatic navigation hooks (`useHistory`) with the `useRouter` hook from `next/navigation`.
-
-### **Phase 4: Server-Side Data Fetching & State Management**
-- [x] Create a `lib/` directory and move the data fetching logic (`googleSheetsService.ts`) into it.
-- [x] Refactor pages to be async Server Components that fetch data directly on the server.
-- [x] Define the new filtering strategy: User interactions in client-side filter components will update URL query parameters (e.g., `?category=electronics`), which will trigger a server-side refetch and re-render of the product list.
-- [x] Replace the custom 5-minute cache in `googleSheetsService.ts` with Next.js's integrated data cache, using its time-based revalidation feature.
-- [x] Manage client-side state (e.g., `CartContext`, `AuthContext`) by creating a root "Providers" component marked with `'use client';`. This component will wrap the application in `app/layout.tsx` to make contexts available across the app.
-- [x] Secure the Google Sheets API key by removing the `NEXT_PUBLIC_` prefix from its variable in `.env.local`, making it a server-only secret.
-- [x] Update the data fetching logic to read the API key from `process.env`.
-
-### **Phase 5: Cleanup and Finalization**
-- [x] Uninstall all Vite and React Router dependencies: `vite`, `@vitejs/plugin-react`, `react-router-dom`.
-- [x] Delete obsolete configuration files like `vite.config.ts`.
-- [x] Update the `scripts` in `package.json` to use Next.js commands (`next dev`, `next build`, `next start`, `next lint`).
-- [x] Conduct a full regression test of the application.
-- [x] Verify that API keys are no longer exposed in the browser and that initial page content is server-rendered.
-- [x] Update the `README.md` to reflect the new technology stack and commands.
+---
 
 ## 🔐 TASK 7: CREATE SECURE ADMIN PANEL FOR INVENTORY MANAGEMENT
 **Priority: HIGH** | **Status: ❌ NOT STARTED**
-*Develop a secure, lightweight admin panel. The architecture will consist of a standalone Node.js/Express API deployed as serverless functions for maximum resource efficiency, and a new set of protected frontend routes in the existing React application.*
+*Develop a secure, full-featured admin panel integrated into the Next.js application. This panel will manage products and the entire order lifecycle, from manual creation to final fulfillment. It will leverage Next.js API Routes for the backend and `NextAuth.js` for robust security.*
 
-### 1. Backend: Lightweight Node.js API
-- [ ] Create a new `/api` directory for the backend code.
-- [ ] Initialize a Node.js project with Express.js.
-- [ ] **Choose Database**: A serverless PostgreSQL provider (e.g., Vercel Postgres, Neon) is recommended for its low cost and scalability.
-- [ ] **Implement Authentication**: Use JSON Web Tokens (JWT). Create endpoints for login (`/api/auth/login`) that returns a token, and a middleware to protect all admin routes.
-- [ ] **Implement Product API Endpoints**:
-    - `GET /api/products`
-    - `POST /api/products`
-    - `PUT /api/products/:id`
-    - `DELETE /api/products/:id`
-- [ ] **Data Validation**: Use a library like `Zod` to validate all incoming requests.
-- [ ] **Deployment**: Configure the Express app to be deployed as serverless functions on Vercel/Netlify.
+### 1. Backend: Next.js API Routes & Authentication
+- [ ] **Authentication**: Implement `NextAuth.js` with a Credentials Provider. Store admin username and a hashed password in environment variables (`ADMIN_USERNAME`, `ADMIN_PASSWORD_HASH`).
+- [ ] **API Structure**: Create all backend logic within the `app/api/admin/` directory.
+- [ ] **Secure Endpoints**: Protect all admin API routes by checking for a valid `NextAuth.js` session.
+- [ ] **Database**: Utilize a serverless PostgreSQL provider (e.g., Vercel Postgres, Neon) for the database.
+- [ ] **Implement Product CRUD Endpoints**:
+    - `GET /api/admin/products`
+    - `POST /api/admin/products`
+    - `PUT /api/admin/products/[id]`
+    - `DELETE /api/admin/products/[id]`
+- [ ] **Implement Order Management Endpoints**:
+    - `GET /api/admin/orders`
+    - `POST /api/admin/orders` (for creating new orders)
+    - `PUT /api/admin/orders/[id]` (for updating status)
+- [ ] **Data Validation**: Use a library like `Zod` to validate the body of all `POST` and `PUT` requests.
 
-### 2. Frontend: React Admin Interface
-- [ ] Create a new set of "admin" routes in your React app using your current router (e.g., React Router).
-    - `/admin/login`
-    - `/admin/dashboard` (this will be a protected route)
-- [ ] **Create a `useAuth` Hook**: This hook will manage the JWT token in `localStorage`, handle login/logout, and provide authentication status to components.
-- [ ] **Create Protected Routes**: Implement a wrapper component that checks for a valid token using the `useAuth` hook. If the user is not logged in, redirect them to `/admin/login`.
-- [ ] **Build UI Components**:
-    - A login form.
-    - A data table to display and manage products.
-    - A form (using `react-hook-form`) for creating/editing products.
-    - These components will fetch data from and send data to the Node.js API.
+### 2. Frontend: Admin UI (A Guide for Junior Developers)
+*This section breaks down the frontend work into smaller, more manageable tasks, explaining the "why" behind each step in a Next.js App Router environment.*
+
+#### **Sub-Task 2.1: Core Layout & Routing**
+*Goal: Create a protected area for the admin panel with consistent navigation.*
+- [ ] **Create Route Group**: In the `app/` directory, create a new folder named `(admin)`. This is a "route group" – it lets us create a special layout for admin pages without changing the URL (e.g., the page will be `/dashboard`, not `/(admin)/dashboard`).
+- [ ] **Implement Root Layout (`app/(admin)/layout.tsx`)**: This is a **Server Component**. Its job is to protect all child pages.
+    - [ ] Inside this component, get the user's session from `NextAuth.js` on the server.
+    - [ ] If there is no session, immediately redirect the user to the `/login` page using `redirect` from `next/navigation`.
+    - [ ] If there is a session, render the child pages. This layout should include a `<Sidebar />` component and a main content area.
+- [ ] **Create Sidebar Component**: This will be a **Client Component** (`'use client'`) because it will manage interactive states (like which link is active).
+    - [ ] Use the `<Link>` component from `next/link` for navigation to Dashboard, Products, and Orders.
+    - [ ] Add a "Logout" button that calls the `signOut()` function from `next-auth/react`.
+
+#### **Sub-Task 2.2: Login Page**
+*Goal: Build a form to allow the admin to sign in.*
+- [ ] **Create Login Page (`app/(admin)/login/page.tsx`)**: This must be a **Client Component** (`'use client'`) because it handles user input.
+    - [ ] Use `useState` hooks to manage the `username` and `password` fields.
+    - [ ] On form submission, call the `signIn('credentials', ...)` function from `NextAuth.js`.
+    - [ ] Provide user feedback for loading states (e.g., disable the button) and display any login errors.
+
+#### **Sub-Task 2.3: Dashboard Page**
+*Goal: Show a high-level overview of the store's activity.*
+- [ ] **Create Dashboard Page (`app/(admin)/dashboard/page.tsx`)**: This is a **Server Component**. It will fetch data directly.
+    - [ ] Inside the component (`async function DashboardPage()`), fetch the data needed for the KPI cards (e.g., total revenue, new order count) from your API.
+    - [ ] Create a small, reusable `<KpiCard />` component to display each metric.
+    - [ ] Create a `<RecentOrdersList />` component (can also be a Server Component) that fetches and displays the last 5-10 orders.
+
+#### **Sub-Task 2.4: Products - List View**
+*Goal: Display all products in a table with search and filter functionality.*
+- [ ] **Create Product List Page (`app/(admin)/products/page.tsx`)**: This is a **Server Component**.
+    - [ ] It will read the URL's search parameters (e.g., `?q=...` or `?category=...`) to fetch the correctly filtered list of products from the API.
+- [ ] **Create Product Table Component (`<ProductTable />`)**: This is a **Client Component** (`'use client'`) that receives the product data as a prop from the page.
+    - [ ] It is responsible for rendering the `<table>` structure.
+    - [ ] It will manage UI state, such as which "delete confirmation" dialog is open, using `useState`.
+- [ ] **Create Filter Components (`<SearchInput />`, `<CategoryFilter />`)**: These are **Client Components**.
+    - [ ] When the user types in the search bar or selects a category, use the `useRouter` hook from `next/navigation` to update the URL's query parameters. This will automatically trigger Next.js to re-run the Server Component page with the new parameters, re-fetching the data.
+
+#### **Sub-Task 2.5: Products - Create/Edit Form**
+*Goal: Build a form to create and update product details.*
+- [ ] **Create Product Form Page (`app/(admin)/products/new/page.tsx`, `.../[id]/edit/page.tsx`)**: This must be a **Client Component** (`'use client'`) because forms are highly interactive.
+    - [ ] Use `react-hook-form` to manage form state, validation, and submission.
+    - [ ] For the `description` field, integrate a rich text editor library like `react-quill`.
+    - [ ] For image uploads, use a library like `react-dropzone`. When a file is added, upload it to your backend via a dedicated API route, and store the returned URL in your form's state.
+    - [ ] The final `onSubmit` handler will call your API to either `POST` (create) or `PUT` (update) the product.
+
+#### **Sub-Task 2.6: Orders - List View & Detail View**
+*Goal: Display and manage all orders and their lifecycle.*
+- [ ] **Create Order List Page (`app/(admin)/orders/page.tsx`)**: Follow the same pattern as the Product List page (Server Component for data fetching, Client Component for the interactive table).
+    - [ ] **Create Status Badge Component (`<StatusBadge />`)**: This component will take a status string as a prop and render a colored badge. This is crucial for at-a-glance understanding. The required statuses and their colors are:
+        - `Solicitud / Nuevo`: **Blue**
+        - `Enviado / En Proceso`: **Orange**
+        - `Aceptado`: **Light Green**
+        - `Cancelado`: **Red**
+        - `Enviado / Cumplido`: **Purple**
+        - `Recibido / Conforme`: **Teal**
+        - `Facturado / Pagado`: **Dark Green**
+        - `Cerrado`: **Gray**
+- [ ] **Create Order Detail Page (`app/(admin)/orders/[id]/page.tsx`)**: This page will fetch all data for a single order on the server.
+    - [ ] **Create Status Updater Component (`<StatusUpdater />`)**: This is a **Client Component** that gets the `orderId` and current `status` as props.
+        - [ ] It will contain a `<select>` dropdown pre-populated with all possible order statuses listed above.
+        - [ ] When the user selects a new status and clicks a "Save" button, it calls the `PUT /api/admin/orders/[id]` endpoint with the new status.
+    - [ ] **Create Internal Notes Component (`<InternalNotes />`)**: This is a **Client Component**. It will have a `<textarea>` and a "Add Note" button to post new notes. It will also fetch and display the list of existing notes for that order.
+
+#### **Sub-Task 2.7: Orders - Create Form**
+*Goal: Build the form for the admin to manually create a new order.*
+- [ ] **Create Order Form Page (`app/(admin)/orders/new/page.tsx`)**: This is a complex **Client Component**.
+    - [ ] **Create Line Item Builder (`<LineItemBuilder />`)**:
+        - [ ] Use a debounced search input (`<ProductSearchInput />`) to find products.
+        - [ ] Manage the list of selected products in an array in state. Ensure the UI can handle adding and removing items from this list.
+        - [ ] Automatically calculate totals whenever the list of items or their quantities change.
+    - [ ] The final "Save Order" button should be disabled during the API call.
+    - [ ] On success, show a success toast and redirect the user to the newly created order's detail page.
