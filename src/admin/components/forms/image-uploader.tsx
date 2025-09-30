@@ -1,6 +1,7 @@
 import React from "react";
 import { Button, Card } from "@heroui/react";
 import { Icon } from "@iconify/react";
+import Image from "next/image";
 
 interface ImageUploaderProps {
   images: string[];
@@ -20,7 +21,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange }
     
     // In a real app, you would upload these files to your server/cloud storage
     // For this demo, we'll create fake image URLs
-    const newImages = Array.from(files).map((_, index) => {
+    const newImages = Array.from(files).map(() => {
       // Generate a unique ID for the image
       const uniqueId = Math.random().toString(36).substring(2, 15);
       return `https://img.heroui.chat/image/product?w=400&h=400&u=${uniqueId}`;
@@ -45,9 +46,11 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange }
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         {images.map((image, index) => (
           <div key={index} className="relative group">
-            <img 
+            <Image 
               src={image} 
               alt={`Product image ${index + 1}`} 
+              width={128}
+              height={128}
               className="w-full h-32 object-cover rounded-md border border-gray-200"
             />
             <Button

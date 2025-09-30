@@ -7,10 +7,50 @@ import { StatusBadge } from "./dashboard-page";
 import { StatusUpdater } from "../components/orders/status-updater";
 import { InternalNotes } from "../components/orders/internal-notes";
 
+interface OrderItem {
+  id: string;
+  name: string;
+  sku: string;
+  quantity: number;
+  price: number;
+}
+
+interface Address {
+  name: string;
+  street: string;
+  city: string;
+  state: string;
+  zip: string;
+  country: string;
+  phone: string;
+}
+
+interface Note {
+  id: number | string;
+  text: string;
+  author: string;
+  date: string;
+}
+
+interface Order {
+  id: string;
+  status: string;
+  date: string;
+  customer: string;
+  items: OrderItem[];
+  subtotal: number;
+  shipping: number;
+  tax: number;
+  total: number;
+  shipping_address: Address;
+  billing_address: Address;
+  notes: Note[];
+}
+
 export const OrderDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [isLoading, setIsLoading] = React.useState(true);
-  const [order, setOrder] = React.useState<any>(null);
+  const [order, setOrder] = React.useState<Order | null>(null);
   
   React.useEffect(() => {
     // Simulate API call to get order data
@@ -40,7 +80,7 @@ export const OrderDetailPage: React.FC = () => {
         <CardBody className="flex flex-col items-center justify-center py-12">
           <Icon icon="lucide:alert-circle" className="text-danger text-4xl mb-4" />
           <h2 className="text-xl font-semibold mb-2">Order Not Found</h2>
-          <p className="text-gray-500 mb-6">The order you're looking for doesn't exist or has been removed.</p>
+          <p className="text-gray-500 mb-6">The order you&apos;re looking for doesn&apos;t exist or has been removed.</p>
           <Button as={Link} to="/admin/orders" color="primary">
             Back to Orders
           </Button>

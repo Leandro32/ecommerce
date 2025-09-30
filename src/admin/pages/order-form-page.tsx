@@ -546,7 +546,7 @@ export const OrderFormPage: React.FC = () => {
                   </Button>
                   
                   <p className="text-xs text-center text-gray-500">
-                    This will create a new order with status "Solicitud / Nuevo"
+                    This will create a new order with status &quot;Solicitud / Nuevo&quot;
                   </p>
                 </div>
               </CardBody>

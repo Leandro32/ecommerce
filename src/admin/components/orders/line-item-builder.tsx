@@ -2,6 +2,15 @@ import React from "react";
 import { Input, Button, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { mockProducts } from "../../data/mock-data";
+import { useDebounce } from "../../hooks/useDebounce";
+
+interface Product {
+  id: string;
+  name: string;
+  sku: string;
+  price: number;
+  stock: number;
+}
 
 interface LineItem {
   id: string;
@@ -18,47 +27,37 @@ interface LineItemBuilderProps {
 
 export const LineItemBuilder: React.FC<LineItemBuilderProps> = ({ items, onChange }) => {
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [searchResults, setSearchResults] = React.useState<any[]>([]);
+  const [searchResults, setSearchResults] = React.useState<Product[]>([]);
   const [isSearching, setIsSearching] = React.useState(false);
-  
-  const debouncedSearch = React.useCallback(
-    debounce((query: string) => {
-      if (!query.trim()) {
-        setSearchResults([]);
-        return;
-      }
-      
-      setIsSearching(true);
-      
-      // Simulate API search
-      setTimeout(() => {
-        const results = mockProducts.filter(product => 
-          product.name.toLowerCase().includes(query.toLowerCase()) ||
-          product.sku.toLowerCase().includes(query.toLowerCase())
-        ).slice(0, 5);
-        
-        setSearchResults(results);
-        setIsSearching(false);
-      }, 300);
-    }, 300),
-    []
-  );
-  
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
   React.useEffect(() => {
-    debouncedSearch(searchQuery);
-  }, [searchQuery, debouncedSearch]);
+    if (!debouncedSearchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    // Simulate API search
+    setTimeout(() => {
+      const results = mockProducts.filter(product => 
+        product.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+        product.sku.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
+      ).slice(0, 5);
+      
+      setSearchResults(results);
+      setIsSearching(false);
+    }, 300);
+  }, [debouncedSearchQuery]);
   
-  const handleAddProduct = (product: any) => {
-    // Check if product already exists in items
+  const handleAddProduct = (product: Product) => {
     const existingItemIndex = items.findIndex(item => item.id === product.id);
     
     if (existingItemIndex >= 0) {
-      // Update quantity if product already exists
       const updatedItems = [...items];
       updatedItems[existingItemIndex].quantity += 1;
       onChange(updatedItems);
     } else {
-      // Add new product
       onChange([...items, {
         id: product.id,
         name: product.name,
@@ -68,7 +67,6 @@ export const LineItemBuilder: React.FC<LineItemBuilderProps> = ({ items, onChang
       }]);
     }
     
-    // Clear search
     setSearchQuery("");
     setSearchResults([]);
   };
@@ -142,7 +140,7 @@ export const LineItemBuilder: React.FC<LineItemBuilderProps> = ({ items, onChang
             <TableColumn>ACTIONS</TableColumn>
           </TableHeader>
           <TableBody items={items}>
-            {(item) => (
+            {(item: LineItem) => (
               <TableRow key={item.id}>
                 <TableCell>
                   <div>
@@ -206,23 +204,3 @@ export const LineItemBuilder: React.FC<LineItemBuilderProps> = ({ items, onChang
     </div>
   );
 };
-
-// Debounce helper function
-function debounce<T extends (...args: any[]) => any>(
-  func: T,
-  wait: number
-): (...args: Parameters<T>) => void {
-  let timeout: ReturnType<typeof setTimeout> | null = null;
-  
-  return function(...args: Parameters<T>) {
-    const later = () => {
-      timeout = null;
-      func(...args);
-    };
-    
-    if (timeout !== null) {
-      clearTimeout(timeout);
-    }
-    timeout = setTimeout(later, wait);
-  };
-}

@@ -11,11 +11,10 @@ interface Note {
 }
 
 interface InternalNotesProps {
-  orderId: string | number;
   initialNotes: Note[];
 }
 
-export const InternalNotes: React.FC<InternalNotesProps> = ({ orderId, initialNotes }) => {
+export const InternalNotes: React.FC<InternalNotesProps> = ({ initialNotes }) => {
   const [notes, setNotes] = React.useState<Note[]>(initialNotes);
   const [newNote, setNewNote] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);

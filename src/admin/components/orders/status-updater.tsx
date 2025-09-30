@@ -23,7 +23,7 @@ export const StatusUpdater: React.FC<StatusUpdaterProps> = ({ orderId, currentSt
     "Cerrado"
   ];
   
-  const handleStatusChange = (keys: any) => {
+  const handleStatusChange = (keys: Set<React.Key>) => {
     const selected = Array.from(keys)[0] as string;
     setStatus(selected);
   };

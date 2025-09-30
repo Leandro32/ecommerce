@@ -1,43 +1,48 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "useDefineForClassFields": true,
     "lib": [
-      "ES2020",
       "DOM",
-      "DOM.Iterable"
+      "DOM.Iterable",
+      "ESNext"
     ],
-    "module": "ESNext",
+    "allowJs": true,
     "skipLibCheck": true,
-    /* Bundler mode */
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "ESNext",
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
     "jsx": "preserve",
-    /* Linting */
-    "strict": false,
-    "allowJs": true,
     "incremental": true,
-    "esModuleInterop": true,
     "plugins": [
       {
         "name": "next"
       }
     ],
-    "strictNullChecks": true
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    }
   },
   "include": [
-    "src",
-    ".next/types/**/*.ts"
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "src/admin/hooks/useDebounce.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "heroui-project"
   ],
   "references": [
     {
       "path": "./tsconfig.node.json"
     }
-  ],
-  "exclude": [
-    "node_modules"
   ]
 }
