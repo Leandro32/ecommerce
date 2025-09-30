@@ -1,5 +1,6 @@
 import React from "react";
 import PlaceholderImage from "./PlaceholderImage";
+import Image from "next/image";
 
 interface ProductImageProps {
   src: string | string[];
@@ -189,7 +190,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
       )}
 
       {/* Actual image */}
-      <img
+      <Image
         ref={imgRef}
         src={currentSrc}
         alt={alt}

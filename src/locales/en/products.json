@@ -116,7 +116,6 @@
     "totalProducts": "{{count}} products",
     "reviewCount": "{{count}} reviews",
     "averageRating": "{{rating}} out of 5 stars",
-    "discount": "Save {{percentage}}%",
     "freeShipping": "Free shipping",
     "freeShippingOver": "Free shipping on orders over $50",
     "returnPolicy": "30-day return policy",
@@ -148,9 +147,9 @@
   "sections": {
     "featuredProducts": "Featured Products",
     "featuredSubtitle": "Our handpicked favorites",
-    "newArrivals": "New Arrivals", 
+    "newArrivals": "New Arrivals",
     "newArrivalsSubtitle": "Check out our latest products",
     "bestSellers": "Best Sellers",
     "bestSellersSubtitle": "Our most popular products"
   }
-} 
+}
