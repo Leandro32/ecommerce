@@ -9,12 +9,12 @@ import {
 
 // The new Next.js page is an async Server Component
 export default async function ProductDetailPage({
-  params,
+  params: { id },
 }: {
   params: { id: string };
 }) {
   // Fetch the main product and related products in parallel
-  const productData = getMockProductById(params.id); // Replaced getProduct
+  const productData = getMockProductById(id); // Replaced getProduct
   const relatedProductsData = getMockFeaturedProducts(); // Replaced getFeaturedProducts
 
   // If no product is found, render the 404 page

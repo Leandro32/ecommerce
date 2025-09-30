@@ -64,7 +64,8 @@
     "features": "Features",
     "weight": "Weight",
     "materials": "Materials",
-    "care": "Care Instructions"
+    "care": "Care Instructions",
+    "rating": "Rating"
   },
   "actions": {
     "addToCart": "Add to Cart",

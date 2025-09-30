@@ -11,6 +11,7 @@ interface Category {
   id: string;
   name: string;
   slug: string;
+  image?: string;
 }
 
 export const metadata: Metadata = {

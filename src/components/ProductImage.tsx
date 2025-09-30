@@ -15,7 +15,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
   src,
   alt,
   className = "",
-  fallbackSrc = "/placeholder-product.jpg",
+  fallbackSrc = "/placeholder-product.svg",
   onError,
   loading = "lazy",
   sizes,
@@ -42,7 +42,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
       setCurrentSrc(primarySrc);
       setImageState("loading");
       setAttemptedSources([]);
-      
+
       // Set a timeout to prevent infinite loading
       timeoutRef.current = setTimeout(() => {
         setImageState("error");
@@ -71,16 +71,18 @@ const ProductImage: React.FC<ProductImageProps> = ({
     }
 
     console.warn(`Failed to load image: ${currentSrc}`);
-    setAttemptedSources(prev => [...prev, currentSrc]);
+    setAttemptedSources((prev) => [...prev, currentSrc]);
 
     // If we have multiple sources, try the next one
     if (Array.isArray(src) && src.length > 1) {
-      const nextSrc = src.find(s => s !== currentSrc && !attemptedSources.includes(s));
+      const nextSrc = src.find(
+        (s) => s !== currentSrc && !attemptedSources.includes(s),
+      );
       if (nextSrc) {
         console.log(`Trying next image source: ${nextSrc}`);
         setCurrentSrc(nextSrc);
         setImageState("loading");
-        
+
         // Set timeout for next attempt
         timeoutRef.current = setTimeout(() => {
           setImageState("error");
@@ -99,7 +101,7 @@ const ProductImage: React.FC<ProductImageProps> = ({
       console.log(`Attempting fallback image: ${fallbackSrc}`);
       setCurrentSrc(fallbackSrc);
       setImageState("loading");
-      
+
       // Set timeout for fallback attempt
       timeoutRef.current = setTimeout(() => {
         setImageState("error");

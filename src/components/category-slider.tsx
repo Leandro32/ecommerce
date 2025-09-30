@@ -10,7 +10,7 @@ interface Category {
   id: string;
   name: string;
   slug: string;
-  image: string;
+  image?: string;
 }
 
 interface CategorySliderProps {
@@ -37,7 +37,7 @@ const CategorySlider: React.FC<CategorySliderProps> = ({ categories }) => {
                 >
                   <CardBody className="p-0 overflow-hidden">
                     <Image
-                      src={category.image}
+                      src={category.image || "/placeholder-category.svg"}
                       alt={category.name}
                       width={160}
                       height={140}
