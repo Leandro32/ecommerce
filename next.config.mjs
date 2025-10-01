@@ -20,9 +20,6 @@ const nextConfig = {
         protocol: "https",
         hostname: "invalid-domain-that-does-not-exist.xyz",
       },
-      {
-        protocol: "https",
-      },
     ],
   },
 };
