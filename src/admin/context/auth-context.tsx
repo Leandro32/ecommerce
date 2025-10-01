@@ -2,6 +2,7 @@
 
 import React from "react";
 import { addToast } from "@heroui/react";
+import { useSession, signIn, signOut } from "next-auth/react";
 
 interface User {
   id: string;
@@ -21,45 +22,26 @@ interface AuthContextType {
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = React.useState<User | null>(null);
-  const [isLoading, setIsLoading] = React.useState<boolean>(true);
-
-  React.useEffect(() => {
-    // Check if user is already logged in
-    const storedUser = localStorage.getItem("admin_user");
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setIsLoading(false);
-  }, []);
+  const { data: session, status } = useSession();
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    setIsLoading(true);
-    
     try {
-      // In a real app, this would be an API call
-      // For demo purposes, we'll simulate a successful login with mock data
-      if (email === "admin@example.com" && password === "password") {
-        const userData: User = {
-          id: "1",
-          name: "Admin User",
-          email: "admin@example.com",
-          role: "admin"
-        };
-        
-        setUser(userData);
-        localStorage.setItem("admin_user", JSON.stringify(userData));
-        setIsLoading(false);
-        return true;
-      }
-      
-      addToast({
-        title: "Login Failed",
-        description: "Invalid email or password",
-        severity: "danger"
+      const result = await signIn('credentials', {
+        redirect: false,
+        email,
+        password,
       });
-      setIsLoading(false);
-      return false;
+
+      if (result?.error) {
+        addToast({
+          title: "Login Failed",
+          description: result.error,
+          severity: "danger"
+        });
+        return false;
+      }
+
+      return true;
     } catch (error) {
       console.error("Login error:", error);
       addToast({
@@ -67,14 +49,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: "An unexpected error occurred",
         severity: "danger"
       });
-      setIsLoading(false);
       return false;
     }
   };
 
   const logout = () => {
-    setUser(null);
-    localStorage.removeItem("admin_user");
+    signOut();
     addToast({
       title: "Logged Out",
       description: "You have been successfully logged out",
@@ -82,12 +62,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   };
 
+  const user = session?.user ? {
+    id: (session.user as any).id || '',
+    name: session.user.name || '',
+    email: session.user.email || '',
+    role: 'admin',
+  } : null;
+
   const value = {
     user,
-    isLoading,
+    isLoading: status === 'loading',
     login,
     logout,
-    isAuthenticated: !!user
+    isAuthenticated: status === 'authenticated'
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

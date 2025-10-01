@@ -208,54 +208,29 @@ Muchas gracias!
 *Develop a secure, full-featured admin panel integrated into the Next.js application. This panel will manage products and the entire order lifecycle, from manual creation to final fulfillment. It will leverage Next.js API Routes for the backend and `NextAuth.js` for robust security.*
 
 ### 1. Backend: Next.js API Routes & Authentication
-- [ ] **Authentication**: Implement `NextAuth.js` with a Credentials Provider.
-    - [ ] Store admin credentials in the database (e.g., an `Admin` model).
-    - [ ] Create a seeding script to create the initial admin user with a hashed password.
-    - [ ] Use `bcrypt` to compare the provided password with the hashed password stored in the database.
-    - [ ] Configure session management to use JSON Web Tokens (JWT) for stateless authentication.
-- [ ] **API Structure**: Create all backend logic within the `app/api/v1/admin/` directory to version the API from the start.
-- [ ] **Secure Endpoints**: Protect all admin API routes.
-    - [ ] Implement middleware in `app/api/v1/admin/` to centralize session validation, ensuring only authenticated admins can access endpoints.
-    - [ ] Define robust error handling, using `try-catch` blocks and returning consistent JSON error responses (e.g., `{ "error": "Unauthorized" }` with a `401` status code).
-- [ ] **Database**: Utilize a serverless PostgreSQL provider (e.g., Vercel Postgres, Neon).
-    - [ ] Integrate `Prisma` as the ORM for type-safe database access.
-    - [ ] Define the database schema for `Admin`, `Product`, and `Order` models.
-- [ ] **Implement Product CRUD Endpoints**:
-    - [ ] `GET /api/v1/admin/products`: Fetch all products.
-        - **Auth**: Admin session required.
-        - **Success Response**: `200 OK` with `{ "data": [Product] }`.
-        - **Error Response**: `401 Unauthorized`.
-    - [ ] `POST /api/v1/admin/products`: Create a new product.
-        - **Auth**: Admin session required.
-        - **Request Body**: `{ "name": "string", "description": "string", "price": "number", "stock": "number", "imageUrl": "string" }`.
-        - **Success Response**: `201 Created` with `{ "data": Product }`.
-        - **Error Response**: `400 Bad Request` if validation fails, `401 Unauthorized`.
-    - [ ] `PUT /api/v1/admin/products/[id]`: Update an existing product.
-        - **Auth**: Admin session required.
-        - **Request Body**: Partial product object, e.g., `{ "price": "number", "stock": "number" }`.
-        - **Success Response**: `200 OK` with `{ "data": Product }`.
-        - **Error Response**: `400 Bad Request` if validation fails, `401 Unauthorized`, `404 Not Found`.
-    - [ ] `DELETE /api/v1/admin/products/[id]`: Delete a product.
-        - **Auth**: Admin session required.
-        - **Success Response**: `204 No Content`.
-        - **Error Response**: `401 Unauthorized`, `404 Not Found`.
+- [x] **Authentication**: Implement `NextAuth.js` with a Credentials Provider.
+    - [x] Store admin credentials in the database (e.g., an `Admin` model).
+    - [x] Create a seeding script to create the initial admin user with a hashed password.
+    - [x] Use `bcrypt` to compare the provided password with the hashed password stored in the database.
+    - [x] Configure session management to use JSON Web Tokens (JWT) for stateless authentication.
+- [x] **API Structure**: Create all backend logic within the `app/api/v1/admin/` directory to version the API from the start.
+- [x] **Secure Endpoints**: Protect all admin API routes.
+    - [x] Implement middleware in `app/api/v1/admin/` to centralize session validation, ensuring only authenticated admins can access endpoints.
+    - [x] Define robust error handling, using `try-catch` blocks and returning consistent JSON error responses (e.g., `{ "error": "Unauthorized" }` with a `401` status code).
+- [x] **Database**: Utilize a serverless PostgreSQL provider (e.g., Vercel Postgres, Neon).
+    - [x] Integrate `Prisma` as the ORM for type-safe database access.
+    - [x] Define the database schema for `Admin`, `Product`, and `Order` models.
+- [x] **Implement Product CRUD Endpoints**:
+    - [x] `GET /api/v1/admin/products`: Fetch all products.
+    - [x] `POST /api/v1/admin/products`: Create a new product.
+    - [x] `PUT /api/v1/admin/products/[id]`: Update an existing product.
+    - [x] `DELETE /api/v1/admin/products/[id]`: Delete a product.
     - [ ] **Image Handling**: Implement image uploads to a cloud storage service (e.g., AWS S3, Cloudinary). The `Product` model should store the image URL.
-- [ ] **Implement Order Management Endpoints**:
-    - [ ] `GET /api/v1/admin/orders`: Fetch all orders.
-        - **Auth**: Admin session required.
-        - **Success Response**: `200 OK` with `{ "data": [Order] }`.
-        - **Error Response**: `401 Unauthorized`.
-    - [ ] `POST /api/v1/admin/orders`: Create a new order (manual creation).
-        - **Auth**: Admin session required.
-        - **Request Body**: `{ "customerName": "string", "items": [{ "productId": "string", "quantity": "number" }], "status": "'pending' | 'shipped' | 'delivered' | 'cancelled'" }`.
-        - **Success Response**: `201 Created` with `{ "data": Order }`.
-        - **Error Response**: `400 Bad Request`, `401 Unauthorized`.
-    - [ ] `PUT /api/v1/admin/orders/[id]`: Update the status of an order.
-        - **Auth**: Admin session required.
-        - **Request Body**: `{ "status": "'pending' | 'shipped' | 'delivered' | 'cancelled'" }`.
-        - **Success Response**: `200 OK` with `{ "data": Order }`.
-        - **Error Response**: `400 Bad Request`, `401 Unauthorized`, `404 Not Found`.
-- [ ] **Data Validation**: Use a library like `Zod` to validate the body of all `POST` and `PUT` requests to ensure data integrity.
+- [x] **Implement Order Management Endpoints**:
+    - [x] `GET /api/v1/admin/orders`: Fetch all orders.
+    - [x] `POST /api/v1/admin/orders`: Create a new order (manual creation).
+    - [x] `PUT /api/v1/admin/orders/[id]`: Update the status of an order.
+- [x] **Data Validation**: Use a library like `Zod` to validate the body of all `POST` and `PUT` requests to ensure data integrity.
 
 ### 2. Frontend: Admin UI (A Guide for Junior Developers)
 *This section breaks down the frontend work into smaller, more manageable tasks, explaining the "why" behind each step in a Next.js App Router environment.*
@@ -274,9 +249,9 @@ Muchas gracias!
 #### **Sub-Task 2.2: Login Page**
 *Goal: Build a form to allow the admin to sign in.*
 - [x] **Create Login Page (`app/(admin)/login/page.tsx`)**: This must be a **Client Component** (`'use client'`) because it handles user input.
-    - [ ] Use `useState` hooks to manage the `username` and `password` fields.
-    - [ ] On form submission, call the `signIn('credentials', ...)` function from `NextAuth.js`.
-    - [ ] Provide user feedback for loading states (e.g., disable the button) and display any login errors.
+    - [x] Use `useState` hooks to manage the `username` and `password` fields.
+    - [x] On form submission, call the `signIn('credentials', ...)` function from `NextAuth.js`.
+    - [x] Provide user feedback for loading states (e.g., disable the button) and display any login errors.
 
 #### **Sub-Task 2.3: Dashboard Page**
 *Goal: Show a high-level overview of the store's activity.*

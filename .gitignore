@@ -22,3 +22,5 @@ yarn-error.log
 *.suo
 *.user
 *.sln.docstates
+
+/generated/prisma
