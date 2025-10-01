@@ -208,45 +208,79 @@ Muchas gracias!
 *Develop a secure, full-featured admin panel integrated into the Next.js application. This panel will manage products and the entire order lifecycle, from manual creation to final fulfillment. It will leverage Next.js API Routes for the backend and `NextAuth.js` for robust security.*
 
 ### 1. Backend: Next.js API Routes & Authentication
-- [ ] **Authentication**: Implement `NextAuth.js` with a Credentials Provider. Store admin username and a hashed password in environment variables (`ADMIN_USERNAME`, `ADMIN_PASSWORD_HASH`).
-- [ ] **API Structure**: Create all backend logic within the `app/api/admin/` directory.
-- [ ] **Secure Endpoints**: Protect all admin API routes by checking for a valid `NextAuth.js` session.
-- [ ] **Database**: Utilize a serverless PostgreSQL provider (e.g., Vercel Postgres, Neon) for the database.
+- [ ] **Authentication**: Implement `NextAuth.js` with a Credentials Provider.
+    - [ ] Store admin credentials in the database (e.g., an `Admin` model).
+    - [ ] Create a seeding script to create the initial admin user with a hashed password.
+    - [ ] Use `bcrypt` to compare the provided password with the hashed password stored in the database.
+    - [ ] Configure session management to use JSON Web Tokens (JWT) for stateless authentication.
+- [ ] **API Structure**: Create all backend logic within the `app/api/v1/admin/` directory to version the API from the start.
+- [ ] **Secure Endpoints**: Protect all admin API routes.
+    - [ ] Implement middleware in `app/api/v1/admin/` to centralize session validation, ensuring only authenticated admins can access endpoints.
+    - [ ] Define robust error handling, using `try-catch` blocks and returning consistent JSON error responses (e.g., `{ "error": "Unauthorized" }` with a `401` status code).
+- [ ] **Database**: Utilize a serverless PostgreSQL provider (e.g., Vercel Postgres, Neon).
+    - [ ] Integrate `Prisma` as the ORM for type-safe database access.
+    - [ ] Define the database schema for `Admin`, `Product`, and `Order` models.
 - [ ] **Implement Product CRUD Endpoints**:
-    - `GET /api/admin/products`
-    - `POST /api/admin/products`
-    - `PUT /api/admin/products/[id]`
-    - `DELETE /api/admin/products/[id]`
+    - [ ] `GET /api/v1/admin/products`: Fetch all products.
+        - **Auth**: Admin session required.
+        - **Success Response**: `200 OK` with `{ "data": [Product] }`.
+        - **Error Response**: `401 Unauthorized`.
+    - [ ] `POST /api/v1/admin/products`: Create a new product.
+        - **Auth**: Admin session required.
+        - **Request Body**: `{ "name": "string", "description": "string", "price": "number", "stock": "number", "imageUrl": "string" }`.
+        - **Success Response**: `201 Created` with `{ "data": Product }`.
+        - **Error Response**: `400 Bad Request` if validation fails, `401 Unauthorized`.
+    - [ ] `PUT /api/v1/admin/products/[id]`: Update an existing product.
+        - **Auth**: Admin session required.
+        - **Request Body**: Partial product object, e.g., `{ "price": "number", "stock": "number" }`.
+        - **Success Response**: `200 OK` with `{ "data": Product }`.
+        - **Error Response**: `400 Bad Request` if validation fails, `401 Unauthorized`, `404 Not Found`.
+    - [ ] `DELETE /api/v1/admin/products/[id]`: Delete a product.
+        - **Auth**: Admin session required.
+        - **Success Response**: `204 No Content`.
+        - **Error Response**: `401 Unauthorized`, `404 Not Found`.
+    - [ ] **Image Handling**: Implement image uploads to a cloud storage service (e.g., AWS S3, Cloudinary). The `Product` model should store the image URL.
 - [ ] **Implement Order Management Endpoints**:
-    - `GET /api/admin/orders`
-    - `POST /api/admin/orders` (for creating new orders)
-    - `PUT /api/admin/orders/[id]` (for updating status)
-- [ ] **Data Validation**: Use a library like `Zod` to validate the body of all `POST` and `PUT` requests.
+    - [ ] `GET /api/v1/admin/orders`: Fetch all orders.
+        - **Auth**: Admin session required.
+        - **Success Response**: `200 OK` with `{ "data": [Order] }`.
+        - **Error Response**: `401 Unauthorized`.
+    - [ ] `POST /api/v1/admin/orders`: Create a new order (manual creation).
+        - **Auth**: Admin session required.
+        - **Request Body**: `{ "customerName": "string", "items": [{ "productId": "string", "quantity": "number" }], "status": "'pending' | 'shipped' | 'delivered' | 'cancelled'" }`.
+        - **Success Response**: `201 Created` with `{ "data": Order }`.
+        - **Error Response**: `400 Bad Request`, `401 Unauthorized`.
+    - [ ] `PUT /api/v1/admin/orders/[id]`: Update the status of an order.
+        - **Auth**: Admin session required.
+        - **Request Body**: `{ "status": "'pending' | 'shipped' | 'delivered' | 'cancelled'" }`.
+        - **Success Response**: `200 OK` with `{ "data": Order }`.
+        - **Error Response**: `400 Bad Request`, `401 Unauthorized`, `404 Not Found`.
+- [ ] **Data Validation**: Use a library like `Zod` to validate the body of all `POST` and `PUT` requests to ensure data integrity.
 
 ### 2. Frontend: Admin UI (A Guide for Junior Developers)
 *This section breaks down the frontend work into smaller, more manageable tasks, explaining the "why" behind each step in a Next.js App Router environment.*
 
 #### **Sub-Task 2.1: Core Layout & Routing**
 *Goal: Create a protected area for the admin panel with consistent navigation.*
-- [ ] **Create Route Group**: In the `app/` directory, create a new folder named `(admin)`. This is a "route group" – it lets us create a special layout for admin pages without changing the URL (e.g., the page will be `/dashboard`, not `/(admin)/dashboard`).
-- [ ] **Implement Root Layout (`app/(admin)/layout.tsx`)**: This is a **Server Component**. Its job is to protect all child pages.
+- [x] **Create Route Group**: In the `app/` directory, create a new folder named `(admin)`. This is a "route group" – it lets us create a special layout for admin pages without changing the URL (e.g., the page will be `/dashboard`, not `/(admin)/dashboard`).
+- [x] **Implement Root Layout (`app/(admin)/layout.tsx`)**: This is a **Server Component**. Its job is to protect all child pages.
     - [ ] Inside this component, get the user's session from `NextAuth.js` on the server.
     - [ ] If there is no session, immediately redirect the user to the `/login` page using `redirect` from `next/navigation`.
     - [ ] If there is a session, render the child pages. This layout should include a `<Sidebar />` component and a main content area.
-- [ ] **Create Sidebar Component**: This will be a **Client Component** (`'use client'`) because it will manage interactive states (like which link is active).
+- [x] **Create Sidebar Component**: This will be a **Client Component** (`'use client'`) because it will manage interactive states (like which link is active).
     - [ ] Use the `<Link>` component from `next/link` for navigation to Dashboard, Products, and Orders.
     - [ ] Add a "Logout" button that calls the `signOut()` function from `next-auth/react`.
 
 #### **Sub-Task 2.2: Login Page**
 *Goal: Build a form to allow the admin to sign in.*
-- [ ] **Create Login Page (`app/(admin)/login/page.tsx`)**: This must be a **Client Component** (`'use client'`) because it handles user input.
+- [x] **Create Login Page (`app/(admin)/login/page.tsx`)**: This must be a **Client Component** (`'use client'`) because it handles user input.
     - [ ] Use `useState` hooks to manage the `username` and `password` fields.
     - [ ] On form submission, call the `signIn('credentials', ...)` function from `NextAuth.js`.
     - [ ] Provide user feedback for loading states (e.g., disable the button) and display any login errors.
 
 #### **Sub-Task 2.3: Dashboard Page**
 *Goal: Show a high-level overview of the store's activity.*
-- [ ] **Create Dashboard Page (`app/(admin)/dashboard/page.tsx`)**: This is a **Server Component**. It will fetch data directly.
+- [x] **Create Dashboard Page (`app/(admin)/dashboard/page.tsx`)**: This is a **Server Component**. It will fetch data directly.
     - [ ] Inside the component (`async function DashboardPage()`), fetch the data needed for the KPI cards (e.g., total revenue, new order count) from your API.
     - [ ] Create a small, reusable `<KpiCard />` component to display each metric.
     - [ ] Create a `<RecentOrdersList />` component (can also be a Server Component) that fetches and displays the last 5-10 orders.
