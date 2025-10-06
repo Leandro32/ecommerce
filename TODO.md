@@ -43,7 +43,6 @@ This document tracks the implementation of critical features and bug fixes for t
 
 ### Root Cause Analysis
 - [x] Investigate `useProducts` and `useProductsByCategory` re-execution
-- [x] Check `transformGoogleSheetsProducts` image URL preservation
 - [x] Analyze cache invalidation in `googleSheetsService`
 
 **ISSUES IDENTIFIED & FIXED:**
@@ -308,6 +307,159 @@ Muchas gracias!
 
 ---
 
+## 🏷️ **TASK 11: IMPLEMENT PRODUCT CATEGORIES (CRUD)**
+**Priority: HIGH** | **Status: ❌ NOT STARTED**
+
+*This task involves implementing a full CRUD (Create, Read, Update, Delete) system for product categories. Products will be associated with a single category.*
+
+### 1. Database - Category Model
+- [ ] **Update `prisma/schema.prisma`:**
+    - [ ] Create a new `Category` model with `id` (String, @id, @default(cuid())), `name` (String, @unique), and `slug` (String, @unique).
+    - [ ] Add a `categoryId` field to the `Product` model, linking it to the `Category` model via a foreign key.
+    - [ ] Add a `products` relation to the `Category` model to easily fetch products belonging to a category.
+- [ ] **Run Prisma Migrations:** Generate and apply new Prisma migrations to update the database schema.
+
+### 2. Backend - Category API Endpoints
+- [ ] **Create `app/api/v1/admin/categories/route.ts`:**
+    - [ ] `GET /api/v1/admin/categories`: Fetch all categories.
+    - [ ] `POST /api/v1/admin/categories`: Create a new category.
+- [ ] **Create `app/api/v1/admin/categories/[id]/route.ts`:**
+    - [ ] `GET /api/v1/admin/categories/[id]`: Fetch a single category by ID.
+    - [ ] `PUT /api/v1/admin/categories/[id]`: Update an existing category.
+    - [ ] `DELETE /api/v1/admin/categories/[id]`: Delete a category.
+- [ ] **Update Product API Endpoints:**
+    - [ ] Modify `POST /api/v1/admin/products` and `PUT /api/v1/admin/products/[id]` to accept `categoryId`.
+    - [ ] Modify `GET /api/v1/admin/products` and `GET /api/v1/admin/products/[id]` to include category information.
+- [ ] **Create Public Category Endpoints:**
+    - [ ] `GET /api/v1/categories`: Fetch all categories (for storefront navigation).
+    - [ ] `GET /api/v1/categories/[slug]/products`: Fetch products by category slug (for storefront product listing).
+
+### 3. Frontend - Admin Panel Category Management
+- [ ] **Create Category List Page (`app/(admin)/categories/page.tsx`):**
+    - [ ] Display a table of all categories with options to edit or delete.
+    - [ ] Include a button to create a new category.
+- [ ] **Create Category Form Page (`app/(admin)/categories/new/page.tsx`, `.../[id]/edit/page.tsx`):**
+    - [ ] Form for creating and editing category `name` and `slug`.
+    - [ ] Implement validation for unique slug.
+- [ ] **Integrate Category Selection into Product Form (`src/admin/pages/product-form-page.tsx`):**
+    - [ ] Replace the current `category` field with a dropdown/select input to choose from existing categories.
+    - [ ] Fetch available categories from `GET /api/v1/admin/categories`.
+
+### 4. Frontend - Storefront Integration
+- [ ] **Update `src/types/product.ts`:** Add `category` field (or `categoryId` and `categoryName`).
+- [ ] **Update `app/(store)/layout.tsx`:** Fetch categories from `GET /api/v1/categories` and pass them to the `Header` component.
+- [ ] **Update `src/components/header.tsx`:** Re-enable the categories dropdown using the fetched categories.
+- [ ] **Update Product List Page (`app/(store)/products/page.tsx`):**
+    - [ ] Implement filtering by category using the `GET /api/v1/categories/[slug]/products` endpoint or by passing `categoryId` to `GET /api/v1/products`.
+    - [ ] Re-enable category filters in `src/components/product-filters.tsx`.
+- [ ] **Update Home Page (`app/(store)/page.tsx`):** Re-enable `CategorySlider` using the fetched categories.
+
+---
+
+## 🖼️ **TASK 12: IMPLEMENT CUSTOMIZABLE HERO BANNER**
+**Priority: MEDIUM** | **Status: ❌ NOT STARTED**
+
+*This task involves making the home page hero banner customizable via the admin panel. Admins will be able to create, update, and delete hero banner configurations.*
+
+### 1. Database - HeroBanner Model
+- [ ] **Update `prisma/schema.prisma`:**
+    - [ ] Create a new `HeroBanner` model with `id` (String, @id, @default(cuid())), `title` (String), `subtitle` (String), `imageUrl` (String), `linkUrl` (String), and `isActive` (Boolean, @default(true)).
+- [ ] **Run Prisma Migrations:** Generate and apply new Prisma migrations to update the database schema.
+
+### 2. Backend - HeroBanner API Endpoints
+- [ ] **Create `app/api/v1/admin/hero-banners/route.ts`:**
+    - [ ] `GET /api/v1/admin/hero-banners`: Fetch all hero banners.
+    - [ ] `POST /api/v1/admin/hero-banners`: Create a new hero banner.
+- [ ] **Create `app/api/v1/admin/hero-banners/[id]/route.ts`:**
+    - [ ] `GET /api/v1/admin/hero-banners/[id]`: Fetch a single hero banner by ID.
+    - [ ] `PUT /api/v1/admin/hero-banners/[id]`: Update an existing hero banner.
+    - [ ] `DELETE /api/v1/admin/hero-banners/[id]`: Delete a hero banner.
+- [ ] **Create Public HeroBanner Endpoint:**
+    - [ ] `GET /api/v1/hero-banners/active`: Fetch active hero banners for the storefront.
+
+### 3. Frontend - Admin Panel Hero Banner Management
+- [ ] **Create Hero Banner List Page (`app/(admin)/hero-banners/page.tsx`):**
+    - [ ] Display a table of all hero banners with options to edit or delete.
+    - [ ] Include a button to create a new hero banner.
+- [ ] **Create Hero Banner Form Page (`app/(admin)/hero-banners/new/page.tsx`, `.../[id]/edit/page.tsx`):**
+    - [ ] Form for creating and editing `title`, `subtitle`, `imageUrl` (using the existing image upload system), `linkUrl`, and `isActive`.
+
+### 4. Frontend - Storefront Integration
+- [ ] **Update Home Page (`app/(store)/page.tsx`):**
+    - [ ] Fetch active hero banners from `GET /api/v1/hero-banners/active`.
+    - [ ] Pass the fetched data to the `HeroBanner` component.
+- [ ] **Update `src/components/hero-banner.tsx`:** Modify to accept and display dynamic data.
+
+---
+
+## 📸 **TASK 10: IMPLEMENT SERVER-SIDE IMAGE UPLOAD AND SERVING**
+**Priority: HIGH** | **Status: ✅ COMPLETED**
+
+*This task involves implementing a robust system for uploading product images directly to the Next.js server's `public` directory and serving them from there. This approach avoids external cloud storage dependencies and simplifies `next.config.js` configuration.*
+
+### 1. Backend - Image Upload API
+- [x] **Install Dependencies:** Install `formidable` for handling multipart form data and `uuid` for generating unique filenames.
+- [x] **Create `POST /api/v1/admin/upload-image` API Route (`app/api/v1/admin/upload-image/route.ts`):**
+    - [x] Configure the API route to handle `multipart/form-data` requests.
+    - [x] Use `formidable` to parse the incoming file upload.
+    - [x] Generate a unique filename for each uploaded image (e.g., using `uuid` and preserving the original file extension).
+    - [x] Save the uploaded image file to a designated directory within the `public` folder (e.g., `public/uploads/products`). Create this directory if it doesn't exist.
+    - [x] Return the relative URL of the saved image (e.g., `/uploads/products/unique-filename.jpg`) in the API response.
+    - [x] Implement error handling for file size limits, invalid file types, and disk write errors.
+
+### 2. Frontend - Integrate Image Upload in Admin Product Form
+- [x] **Product Form Page (`src/admin/pages/product-form-page.tsx`):**
+    - [x] **Add File Input:** Integrated a file input element into the product creation/edit form.
+    - [x] **Handle File Selection:** Implemented a function to handle file selection and upload.
+    - [x] **Upload Logic:** Called the `POST /api/v1/admin/upload-image` API route.
+    - [x] **Update `imageUrl`:** Updated the `imageUrl` field in the product form's state with the returned URL.
+    - [x] **Display Preview:** Displayed a preview of the selected/uploaded image.
+
+### 3. Frontend - Update `next.config.mjs`
+- [x] **Remove External Domains:** Removed all external image domains from `images.remotePatterns` in `next.config.mjs`.
+- [x] **Configure Local Images:** Ensured `next/image` is configured to allow images from your own domain (which is the default for images in `/public`, so no explicit `remotePatterns` entry is needed for your own domain).
+
+### 4. Data Migration (Consideration)
+- [ ] **Existing External Images:** For any existing product data that still points to external domains, consider a one-time script to download these images, upload them to your server via the new API, and update their `imageUrl` in the database. This is outside the scope of this task but is a necessary follow-up for a complete solution.
+
+---
+
+## 🔗 **TASK 9: CONNECT FRONTEND COMPONENTS TO BACKEND API**
+**Priority: CRITICAL** | **Status: ✅ COMPLETED**
+
+*This task involves creating public API endpoints for the storefront and connecting all frontend components (both the public ecommerce site and the admin panel) to the newly created backend APIs.*
+
+### 1. Create Public API Endpoints (Backend)
+
+- [x] **API Structure:** Create all public-facing backend logic within the `app/api/v1/` directory for versioning consistency.
+- [x] **Product Endpoints:**
+    - [x] `GET /api/v1/products`: Create an endpoint to fetch all products.
+    - [x] `GET /api/v1/products/[id]`: Create an endpoint to fetch a single product by ID.
+- [x] **Order Endpoint:**
+    - [x] `POST /api/v1/orders`: Create a public endpoint for customers to submit new orders.
+        - [x] **Crucial:** This endpoint must perform **stock validation** before creating an order. If an item is out of stock, it should return a `400 Bad Request` error.
+        - [x] On successful order creation, it must **decrement the stock** for the purchased products.
+
+### 2. Connect Ecommerce Frontend to API
+
+- [x] **Data Fetching Strategy:**
+    - [x] Introduce and configure a data-fetching library like **SWR** or **TanStack Query (React Query)** to manage server state, caching, and revalidation.
+- [x] **Product Pages:**
+    - [x] Refactor the product list and detail pages to fetch data from the new `/api/v1/products` endpoints instead of using mock data.
+    - [x] Implement proper loading and error states.
+- [x] **Checkout Process:**
+    - [x] **Replace WhatsApp Flow:** The checkout page will be modified to submit orders directly to the `POST /api/v1/orders` endpoint. The `localStorage` and WhatsApp logic will be removed.
+    - [x] Provide clear success or error feedback to the user based on the API response (e.g., "Order placed successfully!" or "Some items are out of stock.").
+
+### 3. Connect Admin Panel Frontend to API
+
+- [x] **Follow the detailed plan in TASK 8 (Section 2: Frontend: Admin UI)**, which already provides a comprehensive guide for connecting all admin components to the existing `/api/v1/admin/*` endpoints. This includes:
+    - [x] Dashboard Page
+    - [x] Product Management (List, Create, Edit)
+    - [x] Order Management (List, Details, Status Update)
+
+---
+
 ## 🔧 **TECHNICAL CONSIDERATIONS**
 
 ### Testing Strategy
@@ -331,7 +483,7 @@ Muchas gracias!
 
 ## 📊 **PROGRESS TRACKING**
 
-**Overall Progress: 5/6 tasks in progress or completed**
+**Overall Progress: 8/12 tasks completed**
 
 - 🌐 **i18n Translations**: ✅ **100% complete**
 - 🖼️ **Filter Loading Fix**: ✅ **100% complete**
@@ -339,6 +491,9 @@ Muchas gracias!
 - 🛒 **Cart Order History**: ✅ **100% complete**
 - 🔐 **Admin Panel UI Integration**: ✅ **100% complete**
 - 🔗 **Footer Links**: 0% complete
+- 📸 **Server-side Image Upload**: ✅ **100% complete**
+- 🏷️ **Product Categories (CRUD)**: 0% complete
+- 🖼️ **Customizable Hero Banner**: 0% complete
 
 ---
 
@@ -348,9 +503,13 @@ Muchas gracias!
 2. ✅ **COMPLETED**: Task 1 (Enables proper localization)
 3. ✅ **COMPLETED**: Task 4 (High business value)
 4. ✅ **COMPLETED**: Task 7 (Admin UI Integration)
-5. **NEXT**: Task 3 (Nice to have improvement)
+5. ✅ **COMPLETED**: Task 9 (Connect Frontend Components to Backend API)
+6. ✅ **COMPLETED**: Task 10 (High priority image handling)
+7. **NEXT**: Task 11 (High priority product categories)
+8. **NEXT**: Task 12 (Medium priority hero banner)
+9. **NEXT**: Task 3 (Nice to have improvement)
 
 ---
 
 *Last Updated: 2025-09-30*
-*Estimated Remaining Time: 1.5-2 days*
+*Estimated Remaining Time: 2-3 days*

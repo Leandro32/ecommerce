@@ -5,8 +5,6 @@ import React from 'react';
 import { Button, Card, CardBody, Tabs, Tab, Input, Avatar } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
-import { getOrders } from '../../../src/utils/localOrderManager';
-import { Order } from '../../../src/types/order';
 
 const AccountPage: React.FC = () => {
   const [isEditing, setIsEditing] = React.useState(false);
@@ -30,25 +28,6 @@ const AccountPage: React.FC = () => {
     setIsEditing(false);
     // In a real app, you would save the data to the backend here
   };
-  
-  const [orders, setOrders] = React.useState<Order[]>([]);
-
-  React.useEffect(() => {
-    setOrders(getOrders().reverse());
-  }, []);
-
-  const generateWhatsAppMessage = (order: Order) => {
-    if (!order) return '';
-
-    const itemsText = order.items.map(item =>
-      `• ${item.product.name} x${item.quantity} - ${(item.product.price * item.quantity).toFixed(2)}`
-    ).join('\n');
-
-    const message = `Hola, buen dia!\nQuiero comprar estos productos:\n\n${itemsText}\n\n💰 *Total: ${order.total.toFixed(2)}*\n\nMuchas gracias!`;
-    return encodeURIComponent(message);
-  };
-
-  const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '1234567890';
   
   const wishlistItems = [
     {
@@ -226,56 +205,6 @@ const AccountPage: React.FC = () => {
                   </>
                 )}
               </div>
-            </CardBody>
-          </Card>
-        </Tab>
-        
-        <Tab key="orders" title="Order History">
-          <Card>
-            <CardBody>
-              <h3 className="text-lg font-semibold mb-6">Your Orders</h3>
-              
-              {orders.length > 0 ? (
-                <div className="space-y-4">
-                  {orders.map((order) => (
-                    <Card key={order.id} className="border border-divider">
-                      <CardBody>
-                        <div className="flex flex-col sm:flex-row justify-between">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h4 className="font-medium">Order #{order.id.slice(0, 8)}</h4>
-                            </div>
-                            <p className="text-sm text-default-500">
-                              Placed on {new Date(order.timestamp).toLocaleDateString()}
-                            </p>
-                            <p className="text-sm">
-                              {order.items.length} {order.items.length === 1 ? 'item' : 'items'} • ${order.total.toFixed(2)}
-                            </p>
-                          </div>
-                          <div className="mt-3 sm:mt-0">
-                            <Button
-                              as="a"
-                              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${generateWhatsAppMessage(order)}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              size="sm"
-                              color="success"
-                              startContent={<Icon icon="logos:whatsapp-icon" />}
-                            >
-                              Resend on WhatsApp
-                            </Button>
-                          </div>
-                        </div>
-                      </CardBody>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Icon icon="lucide:package" className="text-4xl text-default-300 mx-auto mb-4" />
-                                    <p className="text-default-500">You haven&apos;t placed any orders yet.</p>
-                </div>
-              )}
             </CardBody>
           </Card>
         </Tab>

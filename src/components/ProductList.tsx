@@ -1,7 +1,5 @@
-import React from 'react';
-import { useProducts } from '../hooks/useProducts';
-import type { Product } from '../services/googleSheetsService';
-import ProductImage from './ProductImage';
+import React from "react";
+import ProductImage from "./ProductImage";
 
 interface ProductCardProps {
   product: Product;
@@ -57,12 +55,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             )}
           </div>
 
-          <div className={`px-2 py-1 rounded text-xs font-medium ${
-            product.inStock
-              ? 'bg-green-100 text-green-800'
-              : 'bg-red-100 text-red-800'
-          }`}>
-            {product.inStock ? 'In Stock' : 'Out of Stock'}
+          <div
+            className={`px-2 py-1 rounded text-xs font-medium ${
+              product.inStock
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+            }`}
+          >
+            {product.inStock ? "In Stock" : "Out of Stock"}
           </div>
         </div>
 
@@ -87,12 +87,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <button
           className={`w-full py-2 px-4 rounded font-medium transition-colors duration-200 ${
             product.inStock
-              ? 'bg-blue-600 text-white hover:bg-blue-700'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              ? "bg-blue-600 text-white hover:bg-blue-700"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
           }`}
           disabled={!product.inStock}
         >
-          {product.inStock ? 'Add to Cart' : 'Out of Stock'}
+          {product.inStock ? "Add to Cart" : "Out of Stock"}
         </button>
 
         {product.sku && (
@@ -161,7 +161,7 @@ const ProductList: React.FC = () => {
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Our Products</h1>
           <p className="text-gray-600 mt-2">
-            Showing {products.length} product{products.length !== 1 ? 's' : ''}
+            Showing {products.length} product{products.length !== 1 ? "s" : ""}
           </p>
         </div>
 
@@ -170,8 +170,18 @@ const ProductList: React.FC = () => {
           className="bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition-colors flex items-center space-x-2"
           title="Refresh products"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            ></path>
           </svg>
           <span>Refresh</span>
         </button>

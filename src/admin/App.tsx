@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { AdminLayout } from "./components/layout/admin-layout";
 import { LoginPage } from "./pages/login-page";
 import { DashboardPage } from "./pages/dashboard-page";
-import { ProductsPage } from "./pages/products-page";
+import { ProductListPage } from "./pages/products-page";
 import { ProductFormPage } from "./pages/product-form-page";
 import { OrdersPage } from "./pages/orders-page";
 import { OrderDetailPage } from "./pages/order-detail-page";
@@ -22,7 +22,7 @@ export default function App() {
       }>
         <Route index element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
-        <Route path="products" element={<ProductsPage />} />
+        <Route path="products" element={<ProductListPage />} />
         <Route path="products/new" element={<ProductFormPage />} />
         <Route path="products/:id/edit" element={<ProductFormPage />} />
         <Route path="orders" element={<OrdersPage />} />

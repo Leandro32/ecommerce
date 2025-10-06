@@ -1,7 +1,6 @@
 import React, { createContext, useReducer, useEffect, ReactNode, useContext } from 'react';
 import { Product } from '../types/product';
 import { useUI } from './UIContext';
-import { CartItem } from '../types/cart';
 
 // Define CartItem and CartState interfaces
 interface CartItem {
@@ -17,8 +16,6 @@ interface CartItem {
 interface CartState {
   items: CartItem[];
   total: number;
-  originalTotal: number;
-  savings: number;
 }
 
 // Define CartContextType
@@ -33,8 +30,6 @@ interface CartContextType extends CartState {
 const initialCartState: CartState = {
   items: [],
   total: 0,
-  originalTotal: 0,
-  savings: 0,
 };
 
 // Action types for the reducer
@@ -46,19 +41,14 @@ type CartAction =
   | { type: 'SET_CART'; payload: CartState };
 
 // Helper function to calculate totals
-const calculateTotals = (items: CartItem[]): { total: number; originalTotal: number; savings: number } => {
+const calculateTotals = (items: CartItem[]): { total: number } => {
   let total = 0;
-  let originalTotal = 0;
 
   items.forEach(item => {
-    const price = item.product.salePrice || item.product.price;
-    const originalPrice = item.product.originalPrice || item.product.price;
-    total += price * item.quantity;
-    originalTotal += originalPrice * item.quantity;
+    total += item.product.price * item.quantity;
   });
 
-  const savings = originalTotal - total;
-  return { total, originalTotal, savings };
+  return { total };
 };
 
 // Reducer function
@@ -75,26 +65,26 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       if (existingItemIndex > -1) {
         const updatedItems = [...state.items];
         updatedItems[existingItemIndex].quantity += quantity;
-        const { total, originalTotal, savings } = calculateTotals(updatedItems);
-        return { ...state, items: updatedItems, total, originalTotal, savings };
+        const { total } = calculateTotals(updatedItems);
+        return { ...state, items: updatedItems, total };
       } else {
         const updatedItems = [...state.items, { id: product.id, product, quantity, variant }];
-        const { total, originalTotal, savings } = calculateTotals(updatedItems);
-        return { ...state, items: updatedItems, total, originalTotal, savings };
+        const { total } = calculateTotals(updatedItems);
+        return { ...state, items: updatedItems, total };
       }
     }
     case 'REMOVE_ITEM': {
       const updatedItems = state.items.filter(item => item.id !== action.payload);
-      const { total, originalTotal, savings } = calculateTotals(updatedItems);
-      return { ...state, items: updatedItems, total, originalTotal, savings };
+      const { total } = calculateTotals(updatedItems);
+      return { ...state, items: updatedItems, total };
     }
     case 'UPDATE_QUANTITY': {
       const { itemId, newQuantity } = action.payload;
       const updatedItems = state.items.map(item =>
         item.id === itemId ? { ...item, quantity: newQuantity } : item
       );
-      const { total, originalTotal, savings } = calculateTotals(updatedItems);
-      return { ...state, items: updatedItems, total, originalTotal, savings };
+      const { total } = calculateTotals(updatedItems);
+      return { ...state, items: updatedItems, total };
     }
     case 'CLEAR_CART':
       return initialCartState;
@@ -108,40 +98,9 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 // Create the context
 export const CartContext = createContext<CartContextType | undefined>(undefined);
 
-// Define the storage key
-const CART_STORAGE_KEY = 'ecommerce_cart';
-
 // CartProvider component
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Function to get initial state from localStorage
-  const getInitialState = (): CartState => {
-    if (typeof window !== 'undefined') { // Guard localStorage access
-      try {
-        const savedCart = localStorage.getItem(CART_STORAGE_KEY);
-        if (savedCart) {
-          const parsedCart = JSON.parse(savedCart);
-          if (parsedCart.items && Array.isArray(parsedCart.items)) {
-            // Recalculate totals to ensure consistency
-            const { total, originalTotal, savings } = calculateTotals(parsedCart.items);
-            return { ...parsedCart, total, originalTotal, savings };
-          }
-        }
-      } catch (error) {
-        console.error("Failed to load initial cart state:", error);
-        localStorage.removeItem(CART_STORAGE_KEY); // Guarded
-      }
-    }
-    return initialCartState;
-  };
-
-  const [state, dispatch] = useReducer(cartReducer, initialCartState, getInitialState);
-
-  // Effect to save cart state to localStorage whenever it changes
-  useEffect(() => {
-    if (typeof window !== 'undefined') { // Guard localStorage access
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(state));
-    }
-  }, [state]);
+  const [state, dispatch] = useReducer(cartReducer, initialCartState);
 
   // Action creators
   const addToCart = (product: Product, quantity?: number, variant?: { color?: string; size?: string }) => {
@@ -202,7 +161,7 @@ export const useCart = () => {
   ) => {
     try {
       // Assuming product.stock is available and correct
-      if (product.stock && product.stock < quantity) {
+      if (product.stock < quantity) {
         showError("Not enough stock available");
         return;
       }
@@ -265,17 +224,6 @@ export const useCart = () => {
     );
   }, [items]);
 
-  const cartOriginalTotal = React.useMemo(() => {
-    return items.reduce((total, item) => {
-      const originalPrice = item.product.originalPrice || item.product.price;
-      return total + originalPrice * item.quantity;
-    }, 0);
-  }, [items]);
-
-  const cartSavings = React.useMemo(() => {
-    return cartOriginalTotal - cartTotal;
-  }, [cartOriginalTotal, cartTotal]);
-
   const totalItems = React.useMemo(() => {
     return items.reduce((sum, item) => sum + item.quantity, 0); // Corrected calculation
   }, [items]);
@@ -303,8 +251,6 @@ export const useCart = () => {
     removeFromCart,
     clearCart,
     cartTotal,
-    cartOriginalTotal,
-    cartSavings,
 
     // New enhanced API (from original use-cart.ts)
     state: context, // Pass the whole context value as state

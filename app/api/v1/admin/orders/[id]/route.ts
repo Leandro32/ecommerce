@@ -1,93 +1,52 @@
-
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { OrderStatus } from '@/src/types/order';
 import { z } from 'zod';
-import { OrderStatus } from '@prisma/client';
 
-const orderUpdateSchema = z.object({
-  status: z.nativeEnum(OrderStatus),
+const updateOrderSchema = z.object({
+  status: z.nativeEnum(OrderStatus).optional(),
+  // Add other fields that can be updated if necessary
 });
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
-    try {
-        const order = await prisma.order.findUnique({
-            where: { id: params.id },
-            include: {
-                items: {
-                    include: {
-                        product: true,
-                    },
-                },
-            },
-        });
+export async function GET(request: Request, { params }: { params: { id: string } }) {
+  const { id } = params;
 
-        if (!order) {
-            return new NextResponse(JSON.stringify({ error: 'Not Found' }), {
-                status: 404,
-                headers: { 'Content-Type': 'application/json' },
-            });
-        }
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id },
+      include: { items: { include: { product: true } } },
+    });
 
-        return NextResponse.json({ data: order });
-    } catch (error) {
-        console.error('Error fetching order:', error);
-        return new NextResponse(
-            JSON.stringify({ error: 'Internal Server Error' }),
-            {
-                status: 500,
-                headers: { 'Content-Type': 'application/json' },
-            }
-        );
+    if (!order) {
+      return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }
+
+    return NextResponse.json(order);
+  } catch (error) {
+    console.error(`Error fetching order with ID ${id}:`, error);
+    return NextResponse.json({ error: 'Failed to fetch order' }, { status: 500 });
+  }
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
-  try {
-    const body = await req.json();
-    const validation = orderUpdateSchema.safeParse(body);
+export async function PUT(request: Request, { params }: { params: { id: string } }) {
+  const { id } = params;
 
-    if (!validation.success) {
-      return new NextResponse(
-        JSON.stringify({ error: 'Bad Request', details: validation.error.errors }),
-        {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
-    }
+  try {
+    const body = await request.json();
+    const validatedData = updateOrderSchema.parse(body);
 
     const updatedOrder = await prisma.order.update({
-      where: { id: params.id },
-      data: {
-        status: validation.data.status,
-      },
-      include: {
-        items: {
-          include: {
-            product: true,
-          },
-        },
-      },
+      where: { id },
+      data: validatedData,
+      include: { items: { include: { product: true } } },
     });
 
-    return new NextResponse(JSON.stringify({ data: updatedOrder }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  } catch (error) {
-    console.error('Error updating order:', error);
-    if ((error as any).code === 'P2025') { // Prisma error code for record not found
-        return new NextResponse(JSON.stringify({ error: 'Not Found' }), {
-            status: 404,
-            headers: { 'Content-Type': 'application/json' },
-        });
+    return NextResponse.json(updatedOrder);
+  } catch (error: any) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: 'Validation Error', details: error.errors }, { status: 400 });
     }
-    return new NextResponse(
-      JSON.stringify({ error: 'Internal Server Error' }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+    console.error(`Error updating order with ID ${id}:`, error);
+    return NextResponse.json({ error: error.message || 'Failed to update order' }, { status: 500 });
   }
 }

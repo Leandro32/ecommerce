@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { z } from 'zod';
@@ -11,9 +10,19 @@ const productSchema = z.object({
   imageUrl: z.string().url('Image URL must be a valid URL'),
 });
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
-    const products = await prisma.product.findMany();
+    const { searchParams } = new URL(request.url);
+    const search = searchParams.get('search');
+
+    const products = await prisma.product.findMany({
+      where: search ? {
+        OR: [
+          { name: { contains: search, mode: 'insensitive' } },
+          { description: { contains: search, mode: 'insensitive' } },
+        ],
+      } : undefined,
+    });
     return NextResponse.json({ data: products });
   } catch (error) {
     console.error('Error fetching products:', error);

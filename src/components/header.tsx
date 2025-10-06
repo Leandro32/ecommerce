@@ -11,27 +11,17 @@ import {
   Button,
   Badge,
   Input,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useTranslation } from "react-i18next";
 import { useCart } from "../context/CartContext";
 import LanguageSwitcher from "./LanguageSwitcher";
 
-interface Category {
-  id: string;
-  name: string;
-  slug: string;
-}
-
 interface HeaderProps {
-  categories: Category[];
+  // categories: Category[]; // Categories are no longer passed as a prop
 }
 
-const Header: React.FC<HeaderProps> = ({ categories }) => {
+const Header: React.FC<HeaderProps> = ({}) => {
   const { t } = useTranslation(["navigation", "common"]);
   const pathname = usePathname();
   const router = useRouter();
@@ -53,10 +43,6 @@ const Header: React.FC<HeaderProps> = ({ categories }) => {
     return pathname === path;
   };
 
-  const handleCategoryNavigation = (categorySlug: string) => {
-    router.push(`/products/${categorySlug}`);
-  };
-
   return (
     <Navbar
       className="fixed top-0 w-full z-50 border-b border-divider bg-background/80 backdrop-blur-md"
@@ -65,40 +51,14 @@ const Header: React.FC<HeaderProps> = ({ categories }) => {
     >
       <NavbarBrand as={Link} href="/" className="gap-2">
         <Icon icon="lucide:shopping-bag" className="text-primary text-xl" />
-        <p className="font-semibold text-inherit">NOVA</p>
+        <p className="font-semibold text-inherit">AURA</p>
       </NavbarBrand>
 
       <NavbarContent className="hidden md:flex gap-4" justify="center">
         <NavbarItem isActive={isActive("/")} as={Link} href="/">
           {t("navigation:main.home")}
         </NavbarItem>
-        <Dropdown>
-          <NavbarItem>
-            <DropdownTrigger>
-              <Button
-                disableRipple
-                variant="light"
-                className="p-0 text-sm font-normal"
-                endContent={
-                  <Icon icon="lucide:chevron-down" className="text-sm" />
-                }
-              >
-                {t("navigation:main.categories")}
-              </Button>
-            </DropdownTrigger>
-          </NavbarItem>
-          <DropdownMenu aria-label="Categories">
-            {categories.map((category) => (
-              <DropdownItem
-                key={category.id}
-                textValue={category.name}
-                onPress={() => handleCategoryNavigation(category.slug)}
-              >
-                {category.name}
-              </DropdownItem>
-            ))}
-          </DropdownMenu>
-        </Dropdown>
+        {/* Categories dropdown removed as categories are no longer part of the product model */}
         <NavbarItem isActive={isActive("/products")} as={Link} href="/products">
           {t("navigation:main.products")}
         </NavbarItem>

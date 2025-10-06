@@ -1,35 +1,21 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { z } from 'zod';
-import { OrderStatus } from '@/src/types/order';
 
 const orderItemSchema = z.object({
   productId: z.string(),
   quantity: z.number().int().min(1),
 });
 
-const createOrderSchema = z.object({
+const orderSchema = z.object({
   customerName: z.string().min(1, 'Customer name is required'),
   items: z.array(orderItemSchema).min(1, 'Order must contain at least one item'),
 });
 
-export async function GET() {
-  try {
-    const orders = await prisma.order.findMany({
-      include: { items: true },
-      orderBy: { createdAt: 'desc' },
-    });
-    return NextResponse.json(orders);
-  } catch (error) {
-    console.error('Error fetching orders:', error);
-    return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 });
-  }
-}
-
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const validatedData = createOrderSchema.parse(body);
+    const validatedData = orderSchema.parse(body);
 
     const { customerName, items } = validatedData;
 
@@ -54,7 +40,6 @@ export async function POST(request: Request) {
       const newOrder = await tx.order.create({
         data: {
           customerName,
-          status: OrderStatus.SOLICITUD_NUEVO, // Default status for new orders
           items: {
             create: items.map(item => ({
               productId: item.productId,

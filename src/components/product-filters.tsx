@@ -79,33 +79,37 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
         selectionMode="multiple"
         defaultExpandedKeys={["categories", "price"]}
       >
-        <AccordionItem key="categories" title={t('filters.categories')}>
-          <CheckboxGroup
-            value={filters.categories}
-            onValueChange={handleCategoryChange}
-            className="gap-2"
-          >
-            {availableCategories.map((category) => (
-              <Checkbox key={category} value={category}>
-                {category}
-              </Checkbox>
-            ))}
-          </CheckboxGroup>
-        </AccordionItem>
+        {availableCategories.length > 0 && (
+          <AccordionItem key="categories" title={t('filters.categories')}>
+            <CheckboxGroup
+              value={filters.categories}
+              onValueChange={handleCategoryChange}
+              className="gap-2"
+            >
+              {availableCategories.map((category) => (
+                <Checkbox key={category} value={category}>
+                  {category}
+                </Checkbox>
+              ))}
+            </CheckboxGroup>
+          </AccordionItem>
+        )}
 
-        <AccordionItem key="brands" title={t('filters.brands')}>
-          <CheckboxGroup
-            value={filters.brands}
-            onValueChange={handleBrandChange}
-            className="gap-2"
-          >
-            {availableBrands.map((brand) => (
-              <Checkbox key={brand} value={brand}>
-                {brand}
-              </Checkbox>
-            ))}
-          </CheckboxGroup>
-        </AccordionItem>
+        {availableBrands.length > 0 && (
+          <AccordionItem key="brands" title={t('filters.brands')}>
+            <CheckboxGroup
+              value={filters.brands}
+              onValueChange={handleBrandChange}
+              className="gap-2"
+            >
+              {availableBrands.map((brand) => (
+                <Checkbox key={brand} value={brand}>
+                  {brand}
+                </Checkbox>
+              ))}
+            </CheckboxGroup>
+          </AccordionItem>
+        )}
 
         <AccordionItem key="price" title={t('filters.priceRange')}>
           <Slider

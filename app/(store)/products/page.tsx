@@ -1,13 +1,19 @@
 import ProductListPageClient from '../../../src/components/product-list-page-client';
-import { 
-  transformGoogleSheetsProducts,
-  getAvailableCategories,
-  getAvailableBrands,
+import {
   getPriceRange,
   getDisplayPrice,
   sortProducts,
 } from '../../../src/utils/productUtils';
-import { MOCK_PRODUCTS } from '../../../src/data/mockProducts'; // Import mock data
+import { Product } from '../../../src/types/product';
+
+async function getProducts(): Promise<Product[]> {
+  const res = await fetch('http://localhost:3000/api/v1/products', { cache: 'no-store' });
+  if (!res.ok) {
+    throw new Error('Failed to fetch products');
+  }
+  const json = await res.json();
+  return json;
+}
 
 // The new Next.js page is an async Server Component
 export default async function ProductsPage({
@@ -15,54 +21,29 @@ export default async function ProductsPage({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
-  // 1. Fetch and transform all products once
-  const allProductsData = MOCK_PRODUCTS; // Replaced getProducts() with MOCK_PRODUCTS
-  const allProducts = transformGoogleSheetsProducts(allProductsData);
+  const { price_min, price_max, sort, page, search } = searchParams;
+
+  // 1. Fetch all products once
+  const allProducts = await getProducts();
 
   // 2. Calculate filter options from the complete dataset
-  const availableCategories = getAvailableCategories(allProducts);
-  const availableBrands = getAvailableBrands(allProducts);
   const priceRange = getPriceRange(allProducts);
 
   // 3. Apply filters based on searchParams
   let filteredProducts = [...allProducts];
 
-  const categories = typeof searchParams.category === 'string' ? [searchParams.category] : searchParams.category;
-  const brands = typeof searchParams.brand === 'string' ? [searchParams.brand] : searchParams.brand;
-  const ratings = typeof searchParams.rating === 'string' ? [searchParams.rating] : searchParams.rating;
-  const priceMin = Number(searchParams.price_min || priceRange.min);
-  const priceMax = Number(searchParams.price_max || priceRange.max);
-  const sort = typeof searchParams.sort === 'string' ? searchParams.sort : 'newest';
-  const page = Number(searchParams.page || '1');
-  const search = typeof searchParams.search === 'string' ? searchParams.search : undefined;
+  const priceMin = Number(price_min || priceRange.min);
+  const priceMax = Number(price_max || priceRange.max);
+  const currentSort = typeof sort === 'string' ? sort : 'newest';
+  const currentPage = Number(page || '1');
+  const currentSearch = typeof search === 'string' ? search : undefined;
   const productsPerPage = 12;
 
   if (search) {
     const searchTerm = search.toLowerCase();
     filteredProducts = filteredProducts.filter(product =>
       product.name.toLowerCase().includes(searchTerm) ||
-      product.description.toLowerCase().includes(searchTerm) ||
-      product.categories.some(cat => cat.toLowerCase().includes(searchTerm)) ||
-      product.tags.some(tag => tag.toLowerCase().includes(searchTerm))
-    );
-  }
-
-  if (categories && categories.length > 0) {
-    filteredProducts = filteredProducts.filter(p => 
-      p.categories.some(cat => categories.includes(cat))
-    );
-  }
-
-  if (brands && brands.length > 0) {
-    filteredProducts = filteredProducts.filter(p => 
-      p.brand && brands.includes(p.brand)
-    );
-  }
-  
-  if (ratings && ratings.length > 0) {
-    const numRatings = ratings.map(r => Number(r));
-    filteredProducts = filteredProducts.filter(p => 
-      p.rating && numRatings.includes(Math.floor(p.rating))
+      product.description.toLowerCase().includes(searchTerm)
     );
   }
 
@@ -86,8 +67,8 @@ export default async function ProductsPage({
       products={paginatedProducts}
       totalProducts={totalProducts}
       totalPages={totalPages}
-      availableCategories={availableCategories}
-      availableBrands={availableBrands}
+      availableCategories={[]} // Categories are no longer part of the product model
+      availableBrands={[]} // Brands are no longer part of the product model
       priceRange={priceRange}
     />
   );
