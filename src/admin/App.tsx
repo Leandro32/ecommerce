@@ -8,6 +8,7 @@ import { ProductFormPage } from "./pages/product-form-page";
 import { OrdersPage } from "./pages/orders-page";
 import { OrderDetailPage } from "./pages/order-detail-page";
 import { OrderFormPage } from "./pages/order-form-page";
+import { HeroPage } from "./pages/hero-page";
 import { ProtectedRoute } from "./components/auth/protected-route";
 
 export default function App() {
@@ -22,6 +23,7 @@ export default function App() {
       }>
         <Route index element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
+        <Route path="hero" element={<HeroPage />} />
         <Route path="products" element={<ProductListPage />} />
         <Route path="products/new" element={<ProductFormPage />} />
         <Route path="products/:id/edit" element={<ProductFormPage />} />

@@ -6,16 +6,14 @@ import { useTranslation } from "react-i18next";
 import HeroBanner from "./hero-banner";
 // import CategorySlider from "./category-slider"; // Removed
 // import FeaturedProducts from "./featured-products"; // Removed
-// import type { Product } from "../types/product"; // Removed as not directly used here anymore
+import type { HeroData } from "../types/hero";
 
 interface HomePageClientProps {
-  // featuredProducts: Product[]; // Removed
-  // newArrivals: Product[]; // Removed
-  // bestSellers: Product[]; // Removed
-  // categories: Category[]; // Removed
+  heroData: HeroData;
+
 }
 
-const HomePageClient: React.FC<HomePageClientProps> = ({}) => {
+const HomePageClient: React.FC<HomePageClientProps> = ({ heroData }) => {
   const { t } = useTranslation("products");
 
   return (
@@ -24,7 +22,7 @@ const HomePageClient: React.FC<HomePageClientProps> = ({}) => {
       animate={{ opacity: 1 }}
       className="py-2"
     >
-      <HeroBanner />
+      <HeroBanner heroData={heroData} />
 
       {/* CategorySlider and FeaturedProducts removed temporarily due to simplified Product model */}
       {/* <CategorySlider categories={categories} /> */}

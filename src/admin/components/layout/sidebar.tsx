@@ -20,6 +20,7 @@ export const Sidebar: React.FC = () => {
 
   const navItems = [
     { path: "/admin/dashboard", label: "Dashboard", icon: "lucide:layout-dashboard" },
+    { path: "/admin/hero", label: "Hero", icon: "lucide:layout-template" },
     { path: "/admin/products", label: "Products", icon: "lucide:package" },
     { path: "/admin/orders", label: "Orders", icon: "lucide:shopping-cart" },
   ];

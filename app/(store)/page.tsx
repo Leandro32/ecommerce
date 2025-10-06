@@ -6,7 +6,9 @@ export default async function HomePage() {
   // has been removed due to simplified Product model.
   // The HomePageClient will render a basic layout for now.
 
+  const heroData = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/hero`, { cache: 'no-store' }).then(res => res.json());
+
   return (
-    <HomePageClient />
+    <HomePageClient heroData={heroData} />
   );
 }

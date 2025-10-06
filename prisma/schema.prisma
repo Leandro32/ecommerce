@@ -58,3 +58,33 @@ enum OrderStatus {
   FACTURADO_PAGADO
   CERRADO
 }
+
+model Hero {
+  id           String       @id @default(cuid())
+  title        String
+  paragraph    String
+  heroImageUrl String
+  buttonLayout ButtonLayout @default(none)
+  buttons      Button[]
+}
+
+model Button {
+  id         String        @id @default(cuid())
+  buttonText String
+  buttonLink String
+  isExternal Boolean
+  variant    ButtonVariant
+  hero       Hero          @relation(fields: [heroId], references: [id])
+  heroId     String
+}
+
+enum ButtonLayout {
+  none
+  oneButton
+  twoButtons
+}
+
+enum ButtonVariant {
+  primary
+  secondary
+}

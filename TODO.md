@@ -392,6 +392,58 @@ Muchas gracias!
 
 ---
 
+## 🦸 **TASK 13: CREATE ADMINISTRATOR VIEW FOR HERO**
+
+2This task involves creating a new page in the `/admin` section to manage the content of the hero section on the homepage. This includes the ability to edit the hero image, title, paragraph, and buttons.
+
+#### **Part 1: Backend Setup (Strapi)**
+
+The first step is to create a new "Collection Type" in Strapi to hold the hero section's content.
+
+1.  **Log in to your Strapi Admin Panel.**
+2.  Navigate to **Content-Type Builder**.
+3.  Click on **Create new collection type**.
+4.  Set the `Display name` to `Hero` and click **Continue**.
+5.  Add the following fields to your `Hero` collection type:
+    *   **`title`**: `Text` field (Short text).
+    *   **`paragraph`**: `Text` field (Long text).
+    *   **`heroImage`**: `Media` field (Single media).
+    *   **`buttonLayout`**: `Enumeration` field with the following values: `none`, `oneButton`, `twoButtons`.
+    *   **`buttons`**: A `Component` field. You'll need to create a new component named `Button` with the following fields:
+        *   `buttonText`: `Text` field (Short text).
+        *   `buttonLink`: `Text` field (Short text).
+        *   `isExternal`: `Boolean` field.
+        *   `variant`: `Enumeration` field with values like `primary`, `secondary`.
+
+#### **Part 2: Frontend Implementation (Next.js)**
+
+Now, let's create the administrator view in the Next.js application.
+
+1.  **Create the API Service:**
+    *   Create a new file at `ecommerce/lib/api.ts`. This file will contain the functions to interact with the Strapi API.
+    *   You'll need to use an HTTP client like `axios` or the built-in `fetch` API to make requests to your Strapi backend.
+    *   Implement the following functions in `ecommerce/lib/api.ts`:
+        *   `getHero()`: Fetches the hero content from Strapi.
+        *   `updateHero(data)`: Updates the hero content in Strapi.
+
+2.  **Create the Admin Page:**
+    *   Create a new file at `ecommerce/app/admin/hero/page.tsx`.
+    *   This page will contain a form with the following fields:
+        *   An input for the `title`.
+        *   A textarea for the `paragraph`.
+        *   A file upload component for the `heroImage`.
+        *   A dropdown to select the `buttonLayout`.
+        *   A section to manage the buttons. This section will show/hide input fields for the buttons based on the selected `buttonLayout`.
+    *   Use React's `useState` hook to manage the form's state.
+    *   Fetch the initial hero content using the `getHero` function from your API service and populate the form.
+    *   When the form is submitted, call the `updateHero` function from your API service to save the changes.
+
+3.  **Update the Homepage:**
+    *   Open the homepage file at `ecommerce/app/page.tsx`.
+    *   Use the `getHero` function from your API service to fetch the hero content.
+    *   Render the hero section dynamically based on the fetched data. This includes displaying the title, paragraph, image, and the correct number of buttons with the correct text and links.
+
+
 ## 📸 **TASK 10: IMPLEMENT SERVER-SIDE IMAGE UPLOAD AND SERVING**
 **Priority: HIGH** | **Status: ✅ COMPLETED**
 
