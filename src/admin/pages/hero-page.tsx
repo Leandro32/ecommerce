@@ -1,26 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Button, Card, CardBody, Input, Select, SelectItem, Textarea } from '@heroui/react';
 import { addToast } from '@heroui/react';
-
-interface ButtonData {
-  id?: string;
-  buttonText: string;
-  buttonLink: string;
-  isExternal: boolean;
-  variant: 'primary' | 'secondary';
-}
-
-interface HeroFormData {
-  title: string;
-  paragraph: string;
-  heroImageUrl: string;
-  buttonLayout: 'none' | 'oneButton' | 'twoButtons';
-  buttons: ButtonData[];
-}
+import { HeroData, Button as HeroButton } from '../../types/hero';
 
 export const HeroPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
-  const [formData, setFormData] = useState<HeroFormData>({
+  const [formData, setFormData] = useState<Partial<HeroData>>({
     title: '',
     paragraph: '',
     heroImageUrl: '',
@@ -45,11 +30,11 @@ export const HeroPage: React.FC = () => {
     fetchHeroData();
   }, []);
 
-  const handleFormChange = (field: keyof HeroFormData, value: any) => {
+  const handleFormChange = (field: keyof Partial<HeroData>, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleButtonChange = (index: number, field: keyof ButtonData, value: any) => {
+  const handleButtonChange = (index: number, field: keyof HeroButton, value: any) => {
     const newButtons = [...formData.buttons];
     newButtons[index] = { ...newButtons[index], [field]: value };
     setFormData(prev => ({ ...prev, buttons: newButtons }));
@@ -58,8 +43,11 @@ export const HeroPage: React.FC = () => {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await fetch('/api/v1/admin/hero', {
-        method: 'PUT',
+      const method = formData.id ? 'PUT' : 'POST';
+      const url = formData.id ? `/api/v1/admin/hero/${formData.id}` : '/api/v1/admin/hero';
+
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -90,7 +78,8 @@ export const HeroPage: React.FC = () => {
           buttonLink: '',
           isExternal: false,
           variant: 'primary',
-        });
+          heroId: formData.id || '', // Assign heroId if formData.id exists
+        } as HeroButton);
       }
       setFormData(prev => ({ ...prev, buttons: newButtons }));
     } else if (formData.buttons.length > desiredButtonCount) {

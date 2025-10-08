@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Button, Input, Textarea, Card, CardBody, CardHeader, Divider, Spinner, Image } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useRouter, useParams } from 'next/navigation';
 import useSWR from 'swr';
 import { fetcher } from '../lib/fetcher';
 import { addToast } from '@heroui/react';
@@ -15,8 +15,9 @@ interface ProductForm {
 }
 
 export const ProductFormPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  const params = useParams();
+  const id = Array.isArray(params.slug) ? (params.slug[1] !== 'new' ? params.slug[1] : undefined) : undefined;
+  const router = useRouter();
   const isEditMode = !!id;
 
   const [formData, setFormData] = useState<ProductForm>({
@@ -123,7 +124,7 @@ export const ProductFormPage: React.FC = () => {
         description: `Product ${isEditMode ? 'updated' : 'created'} successfully.`, 
         color: 'success',
       });
-      navigate('/admin/products');
+      router.push('/admin/products');
     } catch (err: any) {
       addToast({
         title: 'Error',

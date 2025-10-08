@@ -1,7 +1,8 @@
 import React from "react";
 import { Button, Input, Card, CardBody, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Pagination, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Badge, Spinner } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import useSWR from 'swr';
 import { fetcher } from '../lib/fetcher';
 
@@ -50,7 +51,8 @@ const ORDER_STATUSES = [
 ];
 
 export const OrdersPage: React.FC = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const { data: orders, error, isLoading } = useSWR<Order[]>('/api/v1/admin/orders', fetcher);
 
   const page = Number(searchParams.get("page") || "1");
@@ -60,25 +62,25 @@ export const OrdersPage: React.FC = () => {
   const rowsPerPage = 10;
   
   const handleSearch = (value: string) => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams.toString());
     if (value) {
       params.set("q", value);
     } else {
       params.delete("q");
     }
     params.set("page", "1");
-    setSearchParams(params);
+    router.push(`/admin/orders?${params.toString()}`);
   };
   
   const handleStatusFilter = (status: string) => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams.toString());
     if (status) {
       params.set("status", status);
     } else {
       params.delete("status");
     }
     params.set("page", "1");
-    setSearchParams(params);
+    router.push(`/admin/orders?${params.toString()}`);
   };
   
   const filteredOrders = React.useMemo(() => {
@@ -110,7 +112,7 @@ export const OrdersPage: React.FC = () => {
           color="primary"
           startContent={<Icon icon="lucide:plus" />}
           as={Link}
-          to="/admin/orders/new"
+          href="/admin/orders/new"
         >
           New Order
         </Button>
@@ -167,7 +169,7 @@ export const OrdersPage: React.FC = () => {
                     color="primary"
                     page={page}
                     total={totalPages}
-                    onChange={(p) => setSearchParams(new URLSearchParams({ ...Object.fromEntries(searchParams), page: p.toString() }))}
+                    onChange={(p) => router.push(`/admin/orders?${new URLSearchParams({ ...Object.fromEntries(searchParams.entries()), page: p.toString() })}`)}
                   />
                 </div>
               )
@@ -190,7 +192,7 @@ export const OrdersPage: React.FC = () => {
               {(item) => (
                 <TableRow key={item.id}>
                   <TableCell>
-                    <Link to={`/admin/orders/${item.id}`} className="text-primary hover:underline">
+                    <Link href={`/admin/orders/${item.id}`} className="text-primary hover:underline">
                       #{item.id.slice(-6)}
                     </Link>
                   </TableCell>
@@ -207,7 +209,7 @@ export const OrdersPage: React.FC = () => {
                         size="sm" 
                         variant="light"
                         as={Link}
-                        to={`/admin/orders/${item.id}`}
+                        href={`/admin/orders/${item.id}`}
                       >
                         <Icon icon="lucide:eye" className="text-default-500" />
                       </Button>

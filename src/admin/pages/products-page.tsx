@@ -6,7 +6,7 @@ import {
   ModalBody, ModalFooter, useDisclosure, Spinner, Card, CardBody
 } from "@heroui/react";
 import { Icon } from '@iconify/react';
-import { Link } from 'react-router-dom';
+import Link from 'next/link';
 import useSWR, { useSWRConfig } from 'swr';
 import { fetcher } from '../lib/fetcher';
 import { addToast } from '@heroui/react';
@@ -77,7 +77,7 @@ export const ProductListPage: React.FC = () => {
           color="primary"
           startContent={<Icon icon="lucide:plus" />}
           as={Link}
-          to="/admin/products/new"
+          href="/admin/products/new"
         >
           New Product
         </Button>
@@ -118,7 +118,7 @@ export const ProductListPage: React.FC = () => {
                   <TableCell>{new Date(product.createdAt).toLocaleDateString()}</TableCell>
                   <TableCell>
                     <div className="relative flex items-center gap-2">
-                      <Button as={Link} to={`/admin/products/${product.id}/edit`} size="sm" variant="flat" color="primary" isIconOnly>
+                      <Button as={Link} href={`/admin/products/${product.id}/edit`} size="sm" variant="flat" color="primary" isIconOnly>
                         <Icon icon="lucide:edit" />
                       </Button>
                       <Button size="sm" variant="flat" color="danger" isIconOnly onPress={() => openDeleteModal(product)}>

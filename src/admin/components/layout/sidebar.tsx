@@ -1,21 +1,22 @@
 import React from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { Button, Divider } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useAuth } from "../../context/auth-context";
 
 export const Sidebar: React.FC = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
+  const pathname = usePathname();
+  const router = useRouter();
   const { logout, user } = useAuth();
 
   const handleLogout = () => {
     logout();
-    navigate("/admin/login");
+    router.push("/admin/login");
   };
 
   const isActive = (path: string) => {
-    return location.pathname.startsWith(path);
+    return pathname.startsWith(path);
   };
 
   const navItems = [
@@ -36,8 +37,9 @@ export const Sidebar: React.FC = () => {
       
       <div className="flex flex-col p-2 flex-grow">
         {navItems.map((item) => (
-          <Link key={item.path} to={item.path}>
             <Button
+              key={item.path}
+              onPress={() => router.push(item.path)}
               variant={isActive(item.path) ? "solid" : "flat"}
               color={isActive(item.path) ? "primary" : "default"}
               className="justify-start mb-1 w-full"
@@ -45,7 +47,6 @@ export const Sidebar: React.FC = () => {
             >
               {item.label}
             </Button>
-          </Link>
         ))}
       </div>
       

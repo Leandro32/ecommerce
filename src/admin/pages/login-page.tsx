@@ -1,34 +1,30 @@
 import React from "react";
 import { Card, CardBody, CardHeader, Input, Button } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { useAuth } from "../context/auth-context";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export const LoginPage: React.FC = () => {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const { login, isAuthenticated } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  
-  const from = location.state?.from?.pathname || "/admin/dashboard";
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const from = searchParams.get('redirect') || "/admin/dashboard";
 
   React.useEffect(() => {
     if (isAuthenticated) {
-      navigate(from, { replace: true });
+      router.replace(from);
     }
-  }, [isAuthenticated, navigate, from]);
+  }, [isAuthenticated, router, from]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     
     try {
-      const success = await login(email, password);
-      if (success) {
-        navigate(from, { replace: true });
-      }
+      await login({ email, password });
     } finally {
       setIsSubmitting(false);
     }

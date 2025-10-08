@@ -1,227 +1,109 @@
+"use client";
+
 import React, {
   createContext,
   useContext,
-  useReducer,
-  useEffect,
   ReactNode,
 } from "react";
-import {
-  AuthState,
-  AuthAction,
-  LoginCredentials,
-  RegisterData,
-  User,
-} from "../types/auth";
-import { authReducer, initialAuthState } from "../store/authReducer";
+import { signIn, useSession, signOut } from "next-auth/react";
+import { Session } from "next-auth";
+import { LoginCredentials, RegisterData, User } from "../types/auth";
 
 interface AuthContextType {
-  state: AuthState;
-  dispatch: React.Dispatch<AuthAction>;
+  session: Session | null;
+  status: 'loading' | 'authenticated' | 'unauthenticated';
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (data: RegisterData) => Promise<void>;
   logout: () => void;
-  updateUser: (userData: Partial<User>) => void;
-  clearError: () => void;
+  updateUser: (userData: Partial<User>) => void; // This will need to interact with NextAuth's update
+  clearError: () => void; // This might become redundant or need re-implementation
   isAuthenticated: boolean;
   user: User | null;
-  token: string | null;
+  token: string | null; // This might not be directly available from NextAuth.js session
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-const AUTH_TOKEN_KEY = "ecommerce-auth-token";
-const AUTH_USER_KEY = "ecommerce-auth-user";
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [state, dispatch] = useReducer(authReducer, initialAuthState);
+  const { data: session, status, update } = useSession();
 
-  // Check for existing authentication on mount
-  useEffect(() => {
-    const token = localStorage.getItem(AUTH_TOKEN_KEY);
-    const userString = localStorage.getItem(AUTH_USER_KEY);
-
-    if (token && userString) {
-      try {
-        const user = JSON.parse(userString);
-        dispatch({
-          type: "AUTH_SUCCESS",
-          payload: { user, token },
-        });
-      } catch (error) {
-        console.error("Failed to parse stored user data:", error);
-        localStorage.removeItem(AUTH_TOKEN_KEY);
-        localStorage.removeItem(AUTH_USER_KEY);
-      }
-    }
-  }, []);
-
-  // Save auth data to localStorage when state changes
-  useEffect(() => {
-    if (state.isAuthenticated && state.user && state.token) {
-      localStorage.setItem(AUTH_TOKEN_KEY, state.token);
-      localStorage.setItem(AUTH_USER_KEY, JSON.stringify(state.user));
-    } else {
-      localStorage.removeItem(AUTH_TOKEN_KEY);
-      localStorage.removeItem(AUTH_USER_KEY);
-    }
-  }, [state.isAuthenticated, state.user, state.token]);
+  const isAuthenticated = status === 'authenticated';
+  const user = session?.user || null;
+  const token = (session as any)?.accessToken || null; // Accessing accessToken if available
 
   const login = async (credentials: LoginCredentials) => {
-    dispatch({ type: "AUTH_START" });
-
     try {
-      // Make API call to login endpoint
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(credentials),
+      const result = await signIn("credentials", {
+        redirect: false,
+        email: credentials.email,
+        password: credentials.password,
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Login failed");
+      if (result?.error) {
+        throw new Error(result.error);
       }
+      // After successful sign-in, the session will automatically update
+      // No need for local dispatch for AUTH_SUCCESS here
 
-      const { user, token } = await response.json();
-
-      dispatch({
-        type: "AUTH_SUCCESS",
-        payload: { user, token },
-      });
-    } catch (error) {
-      // For demo purposes, simulate authentication
-      console.error(error);
-      const mockUsers = {
-        "demo@example.com": {
-          id: "1",
-          email: "demo@example.com",
-          firstName: "Demo",
-          lastName: "User",
-          avatar: "",
-          phone: "+1234567890",
-          addresses: [],
-          preferences: {
-            theme: "system" as const,
-            language: "en",
-            currency: "USD",
-            notifications: {
-              email: true,
-              sms: false,
-              push: true,
-            },
-          },
-          createdAt: "2024-01-01T00:00:00Z",
-          updatedAt: "2024-01-01T00:00:00Z",
-        },
-      };
-
-      if (
-        credentials.email === "demo@example.com" &&
-        credentials.password === "password"
-      ) {
-        const user = mockUsers["demo@example.com"];
-        const token = "mock-jwt-token-" + Date.now();
-
-        dispatch({
-          type: "AUTH_SUCCESS",
-          payload: { user, token },
-        });
-      } else {
-        dispatch({
-          type: "AUTH_FAILURE",
-          payload: error instanceof Error ? error.message : "Login failed",
-        });
-      }
+    } catch (error: any) {
+      console.error("Login error:", error);
+      // Here you might want to set a local error state if needed for UI feedback
+      throw error; // Re-throw to be caught by the calling component
     }
   };
 
   const register = async (data: RegisterData) => {
-    dispatch({ type: "AUTH_START" });
-
+    // This register function is currently a mock and does not use NextAuth.js
+    // If you want to integrate registration with NextAuth.js, you would need
+    // a custom API route for registration and then potentially sign in the user.
+    console.warn("Register function is a mock and does not use NextAuth.js");
     try {
-      // Make API call to register endpoint
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Registration failed");
-      }
-
-      const { user, token } = await response.json();
-
-      dispatch({
-        type: "AUTH_SUCCESS",
-        payload: { user, token },
-      });
-    } catch {
-      // For demo purposes, simulate successful registration
-      const newUser: User = {
-        id: Date.now().toString(),
-        email: data.email,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        phone: data.phone,
-        addresses: [],
-        preferences: {
-          theme: "system",
-          language: "en",
-          currency: "USD",
-          notifications: {
-            email: true,
-            sms: false,
-            push: true,
-          },
-        },
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      const token = "mock-jwt-token-" + Date.now();
-
-      dispatch({
-        type: "AUTH_SUCCESS",
-        payload: { user: newUser, token },
-      });
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      // After successful registration, you might want to automatically log in the user
+      await login({ email: data.email, password: data.password });
+    } catch (error) {
+      console.error("Registration error:", error);
+      throw error;
     }
   };
 
-  const logout = () => {
-    dispatch({ type: "LOGOUT" });
-    localStorage.removeItem(AUTH_TOKEN_KEY);
-    localStorage.removeItem(AUTH_USER_KEY);
+  const logout = async () => {
+    await signOut({ redirect: false });
+    // After successful sign-out, the session will automatically update
   };
 
-  const updateUser = (userData: Partial<User>) => {
-    dispatch({ type: "UPDATE_USER", payload: userData });
+  const updateUser = async (userData: Partial<User>) => {
+    // This function would typically update the user in your backend
+    // and then update the NextAuth.js session if the user data is part of it.
+    // Example: await update({ user: { ...session.user, ...userData } });
+    console.warn("updateUser function is a placeholder and needs implementation");
+    if (update) {
+      await update({ user: { ...session?.user, ...userData } });
+    }
   };
 
   const clearError = () => {
-    dispatch({ type: "CLEAR_ERROR" });
+    // With useSession, error handling is typically done locally in components
+    // or through the signIn function's result. This might become redundant.
+    console.warn("clearError function is a placeholder and might be redundant");
   };
 
   const value: AuthContextType = {
-    state,
-    dispatch,
+    session,
+    status,
     login,
     register,
     logout,
     updateUser,
     clearError,
-    isAuthenticated: state.isAuthenticated,
-    user: state.user,
-    token: state.token,
+    isAuthenticated,
+    user,
+    token,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

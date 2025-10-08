@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams, Link } from "react-router-dom";
+import Link from "next/link";
 import { Card, CardBody, Button, Divider, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { mockOrders } from "../data/mock-data";
@@ -47,8 +47,7 @@ interface Order {
   notes: Note[];
 }
 
-export const OrderDetailPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+export const OrderDetailPage: React.FC<{ id: string }> = ({ id }) => {
   const [isLoading, setIsLoading] = React.useState(true);
   const [order, setOrder] = React.useState<Order | null>(null);
   
@@ -81,7 +80,7 @@ export const OrderDetailPage: React.FC = () => {
           <Icon icon="lucide:alert-circle" className="text-danger text-4xl mb-4" />
           <h2 className="text-xl font-semibold mb-2">Order Not Found</h2>
           <p className="text-gray-500 mb-6">The order you&apos;re looking for doesn&apos;t exist or has been removed.</p>
-          <Button as={Link} to="/admin/orders" color="primary">
+          <Button as={Link} href="/admin/orders" color="primary">
             Back to Orders
           </Button>
         </CardBody>
@@ -105,7 +104,7 @@ export const OrderDetailPage: React.FC = () => {
           <Button 
             variant="flat" 
             as={Link} 
-            to="/admin/orders"
+            href="/admin/orders"
             startContent={<Icon icon="lucide:arrow-left" />}
           >
             Back to Orders

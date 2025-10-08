@@ -1,39 +1,43 @@
-'use client';
-
 import { useState, useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button, Card, CardContent, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/ui';
 import { toast } from 'sonner';
+import Image from 'next/image'; // Import Image component
+import { SingleImageUploader } from '../../../src/admin/components/forms/single-image-uploader'; // Import SingleImageUploader
 
 const heroSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   paragraph: z.string().min(1, 'Paragraph is required'),
-  heroImageUrl: z.string().url('Invalid URL'),
+  heroImageUrl: z.string().min(1, 'Hero Image URL is required'), // Changed validation
   buttonLayout: z.enum(['none', 'oneButton', 'twoButtons']),
-  buttons: z
-    .array(
-      z.object({
-        buttonText: z.string().min(1, 'Button text is required'),
-        buttonLink: z.string().min(1, 'Button link is required'),
-        isExternal: z.boolean(),
-        variant: z.enum(['primary', 'secondary']),
-      })
-    )
-    .optional(),
+  buttons:
+    z
+      .array(
+        z.object({
+          buttonText: z.string().min(1, 'Button text is required'),
+          buttonLink: z.string().min(1, 'Button link is required'),
+          isExternal: z.boolean(),
+          variant: z.enum(['primary', 'secondary']),
+        })
+      )
+      .optional(),
 });
 
-type HeroFormData = z.infer<typeof heroSchema>;
+type HeroFormData = z.infer<typeof typeof heroSchema>;
 
 export default function HeroAdminPage() {
   const [isLoading, setIsLoading] = useState(true);
+  const [isUploadingImage, setIsUploadingImage] = useState(false); // Keep this state
+  const {
   const {
     register,
     handleSubmit,
     control,
     watch,
     reset,
+    setValue, // Added setValue
     formState: { errors },
   } = useForm<HeroFormData>({
     resolver: zodResolver(heroSchema),
@@ -134,8 +138,12 @@ export default function HeroAdminPage() {
             {errors.paragraph && <p className="text-red-500 text-sm mt-1">{errors.paragraph.message}</p>}
           </div>
           <div>
-            <Label htmlFor="heroImageUrl">Hero Image URL</Label>
-            <Input id="heroImageUrl" {...register('heroImageUrl')} />
+            <Label htmlFor="heroImageUrl">Hero Image</Label>
+            <SingleImageUploader
+              value={watch('heroImageUrl')}
+              onChange={(url) => setValue('heroImageUrl', url, { shouldValidate: true })}
+              disabled={isUploadingImage}
+            />
             {errors.heroImageUrl && <p className="text-red-500 text-sm mt-1">{errors.heroImageUrl.message}</p>}
           </div>
           <div>
@@ -184,7 +192,7 @@ export default function HeroAdminPage() {
             </div>
           ))}
 
-          <Button type="submit">Save Changes</Button>
+          <Button type="submit" disabled={isUploadingImage}>Save Changes</Button>
         </form>
       </CardContent>
     </Card>

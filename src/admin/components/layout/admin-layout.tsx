@@ -1,13 +1,12 @@
 import React from "react";
-import { Outlet } from "react-router-dom";
 import { Sidebar } from "./sidebar";
 
-export const AdminLayout: React.FC = () => {
+export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar />
       <main className="flex-1 overflow-auto p-6">
-        <Outlet />
+        {children}
       </main>
     </div>
   );

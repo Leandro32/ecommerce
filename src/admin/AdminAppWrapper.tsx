@@ -1,11 +1,17 @@
-// This component is guaranteed to only run on the client
-import { HashRouter } from 'react-router-dom';
-import AdminApp from './App';
+"use client";
 
-export default function AdminAppWrapper() {
+import { HeroUIProvider, ToastProvider } from "@heroui/react";
+import { AdminLayout } from "./components/layout/admin-layout";
+
+export default function AdminAppWrapper({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <HashRouter>
-      <AdminApp />
-    </HashRouter>
+    <HeroUIProvider>
+      <ToastProvider />
+      <AdminLayout>{children}</AdminLayout>
+    </HeroUIProvider>
   );
 }

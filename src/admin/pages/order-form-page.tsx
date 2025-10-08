@@ -1,5 +1,6 @@
 import React from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Card, CardBody, Input, Button, Divider } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { useForm, Controller } from "react-hook-form";
@@ -41,7 +42,7 @@ interface OrderFormData {
 }
 
 export const OrderFormPage: React.FC = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [isSaving, setIsSaving] = React.useState(false);
   const [sameAsShipping, setSameAsShipping] = React.useState(true);
   
@@ -116,7 +117,7 @@ export const OrderFormPage: React.FC = () => {
         severity: "success"
       });
       
-      navigate("/admin/orders");
+      router.push("/admin/orders");
     } catch (error) {
       console.error("Error creating order:", error);
       addToast({
@@ -140,7 +141,7 @@ export const OrderFormPage: React.FC = () => {
           <Button 
             variant="flat" 
             as={Link} 
-            to="/admin/orders"
+            href="/admin/orders"
             startContent={<Icon icon="lucide:arrow-left" />}
           >
             Cancel

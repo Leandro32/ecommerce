@@ -1,7 +1,7 @@
 import React from "react";
 import { Card, CardBody, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Button, Badge } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import useSWR from 'swr';
 import { KpiCard } from "../components/dashboard/kpi-card";
 import { RevenueChart } from "../components/dashboard/revenue-chart";
@@ -89,7 +89,7 @@ export const DashboardPage: React.FC = () => {
             color="primary"
             startContent={<Icon icon="lucide:plus" />}
             as={Link}
-            to="/admin/orders/new"
+            href="/admin/orders/new"
           >
             New Order
           </Button>
@@ -98,7 +98,7 @@ export const DashboardPage: React.FC = () => {
             variant="flat"
             startContent={<Icon icon="lucide:plus" />}
             as={Link}
-            to="/admin/products/new"
+            href="/admin/products/new"
           >
             New Product
           </Button>
@@ -136,7 +136,7 @@ export const DashboardPage: React.FC = () => {
                 color="primary" 
                 size="sm"
                 as={Link}
-                to="/admin/orders"
+                href="/admin/orders"
                 endContent={<Icon icon="lucide:chevron-right" className="text-xs" />}
               >
                 View All
@@ -164,7 +164,7 @@ export const DashboardPage: React.FC = () => {
                 {recentOrders.map((order) => (
                   <TableRow key={order.id}>
                     <TableCell>
-                      <Link to={`/admin/orders/${order.id}`} className="text-primary hover:underline">
+                      <Link href={`/admin/orders/${order.id}`} className="text-primary hover:underline">
                         #{order.id.slice(-6)}
                       </Link>
                       <div className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</div>
