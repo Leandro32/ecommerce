@@ -1,3 +1,9 @@
+import bundleAnalyzer from '@next/bundle-analyzer';
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
@@ -20,4 +26,4 @@ if (process.env.NEXT_PUBLIC_APP_URL) {
   }
 }
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

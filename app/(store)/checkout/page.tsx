@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Button, Card, CardBody, Divider } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
-import { useCart } from '../../../src/hooks/use-cart';
+import { useCart } from '../../../src/context/CartContext';
 import { addToast } from '@heroui/react';
 
 const CheckoutPage: React.FC = () => {

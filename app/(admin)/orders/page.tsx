@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+
 import { Button, Link as HeroLink, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@heroui/react';
 import Link from 'next/link';
 import StatusBadge from '../../../src/admin/components/StatusBadge';
@@ -44,7 +44,7 @@ export default async function OrdersPage() {
                 <StatusBadge status={order.status} />
               </TableCell>
               <TableCell>{order.items.length}</TableCell>
-              <TableCell>{format(new Date(order.createdAt), 'PPP p')}</TableCell>
+              <TableCell>{new Intl.DateTimeFormat('en-US', { dateStyle: 'long', timeStyle: 'short' }).format(new Date(order.createdAt))}</TableCell>
               <TableCell>
                 <HeroLink as={Link} href={`/admin/orders/${order.id}`} size="sm">
                   View Details

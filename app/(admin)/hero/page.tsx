@@ -25,12 +25,11 @@ const heroSchema = z.object({
       .optional(),
 });
 
-type HeroFormData = z.infer<typeof typeof heroSchema>;
+type HeroFormData = z.infer<typeof heroSchema>;
 
 export default function HeroAdminPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isUploadingImage, setIsUploadingImage] = useState(false); // Keep this state
-  const {
   const {
     register,
     handleSubmit,
@@ -123,7 +122,7 @@ export default function HeroAdminPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Manage Hero Section</CardTitle>
+        <CardTitle>Manage Hero Section22</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

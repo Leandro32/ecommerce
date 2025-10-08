@@ -1,15 +1,29 @@
-
-import React from 'react';
-import { 
-  Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, 
-  Button, Input, Pagination, Modal, ModalContent, ModalHeader, 
-  ModalBody, ModalFooter, useDisclosure, Spinner, Card, CardBody
+import React from "react";
+import {
+  Table,
+  TableHeader,
+  TableColumn,
+  TableBody,
+  TableRow,
+  TableCell,
+  Button,
+  Input,
+  Pagination,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+  Spinner,
+  Card,
+  CardBody,
 } from "@heroui/react";
-import { Icon } from '@iconify/react';
-import Link from 'next/link';
-import useSWR, { useSWRConfig } from 'swr';
-import { fetcher } from '../lib/fetcher';
-import { addToast } from '@heroui/react';
+import { Icon } from "@iconify/react";
+import Link from "next/link";
+import useSWR, { useSWRConfig } from "swr";
+import { fetcher } from "../lib/fetcher";
+import { addToast } from "@heroui/react";
 
 interface Product {
   id: string;
@@ -20,18 +34,24 @@ interface Product {
 }
 
 export const ProductListPage: React.FC = () => {
-  const { data: products, error, isLoading } = useSWR<Product[]>('/api/v1/admin/products', fetcher);
+  const {
+    data: products,
+    error,
+    isLoading,
+  } = useSWR<Product[]>("/api/v1/admin/products", fetcher);
   const { mutate } = useSWRConfig();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(
+    null,
+  );
   const [filterValue, setFilterValue] = React.useState("");
   const [page, setPage] = React.useState(1);
   const rowsPerPage = 10;
 
   const filteredProducts = React.useMemo(() => {
     if (!products) return [];
-    return products.filter(product => 
-      product.name.toLowerCase().includes(filterValue.toLowerCase())
+    return products.filter((product) =>
+      product.name.toLowerCase().includes(filterValue.toLowerCase()),
     );
   }, [products, filterValue]);
 
@@ -48,16 +68,20 @@ export const ProductListPage: React.FC = () => {
 
     try {
       const res = await fetch(`/api/v1/admin/products/${selectedProduct.id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.details || 'Failed to delete product');
+        throw new Error(errorData.details || "Failed to delete product");
       }
 
-      addToast({ title: "Success", description: "Product deleted successfully", color: "success" });
-      mutate('/api/v1/admin/products'); // Revalidate the data
+      addToast({
+        title: "Success",
+        description: "Product deleted successfully",
+        color: "success",
+      });
+      mutate("/api/v1/admin/products"); // Revalidate the data
       onClose();
     } catch (error: any) {
       addToast({ title: "Error", description: error.message, color: "danger" });
@@ -72,8 +96,8 @@ export const ProductListPage: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Products</h1>
-        <Button 
+        <h1 className="text-2xl font-semibold">Products!</h1>
+        <Button
           color="primary"
           startContent={<Icon icon="lucide:plus" />}
           as={Link}
@@ -105,7 +129,7 @@ export const ProductListPage: React.FC = () => {
               <TableColumn>CREATED AT</TableColumn>
               <TableColumn>ACTIONS</TableColumn>
             </TableHeader>
-            <TableBody 
+            <TableBody
               isLoading={isLoading}
               loadingContent={<Spinner label="Loading..." />}
               emptyContent={!isLoading && "No products found."}
@@ -115,13 +139,28 @@ export const ProductListPage: React.FC = () => {
                   <TableCell>{product.name}</TableCell>
                   <TableCell>${product.price.toFixed(2)}</TableCell>
                   <TableCell>{product.stock}</TableCell>
-                  <TableCell>{new Date(product.createdAt).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    {new Date(product.createdAt).toLocaleDateString()}
+                  </TableCell>
                   <TableCell>
                     <div className="relative flex items-center gap-2">
-                      <Button as={Link} href={`/admin/products/${product.id}/edit`} size="sm" variant="flat" color="primary" isIconOnly>
+                      <Button
+                        as={Link}
+                        href={`/admin/products/${product.id}/edit`}
+                        size="sm"
+                        variant="flat"
+                        color="primary"
+                        isIconOnly
+                      >
                         <Icon icon="lucide:edit" />
                       </Button>
-                      <Button size="sm" variant="flat" color="danger" isIconOnly onPress={() => openDeleteModal(product)}>
+                      <Button
+                        size="sm"
+                        variant="flat"
+                        color="danger"
+                        isIconOnly
+                        onPress={() => openDeleteModal(product)}
+                      >
                         <Icon icon="lucide:trash-2" />
                       </Button>
                     </div>
@@ -147,10 +186,17 @@ export const ProductListPage: React.FC = () => {
 
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalContent>
-          <ModalHeader className="flex flex-col gap-1">Confirm Deletion</ModalHeader>
+          <ModalHeader className="flex flex-col gap-1">
+            Confirm Deletion
+          </ModalHeader>
           <ModalBody>
-            <p>Are you sure you want to delete the product "{selectedProduct?.name}"?</p>
-            <p className="text-sm text-gray-500">This action cannot be undone.</p>
+            <p>
+              Are you sure you want to delete the product "
+              {selectedProduct?.name}"?
+            </p>
+            <p className="text-sm text-gray-500">
+              This action cannot be undone.
+            </p>
           </ModalBody>
           <ModalFooter>
             <Button variant="flat" color="default" onPress={onClose}>

@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+
 import { Card, CardBody, CardHeader, Divider, Image, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@heroui/react';
 import StatusBadge from '../../../../src/admin/components/StatusBadge';
 import StatusUpdater from '../../../../src/admin/components/StatusUpdater';
@@ -40,11 +40,11 @@ export default async function OrderDetailPage({ params }: { params: { id: string
                 </div>
                 <div>
                   <p className="text-sm text-default-500">Created At</p>
-                  <p className="font-medium">{format(new Date(order.createdAt), 'PPP p')}</p>
+                  <p className="font-medium">{new Intl.DateTimeFormat('en-US', { dateStyle: 'long', timeStyle: 'short' }).format(new Date(order.createdAt))}</p>
                 </div>
                 <div>
                   <p className="text-sm text-default-500">Last Updated</p>
-                  <p className="font-medium">{format(new Date(order.updatedAt), 'PPP p')}</p>
+                  <p className="font-medium">{new Intl.DateTimeFormat('en-US', { dateStyle: 'long', timeStyle: 'short' }).format(new Date(order.updatedAt))}</p>
                 </div>
               </div>
             </CardBody>

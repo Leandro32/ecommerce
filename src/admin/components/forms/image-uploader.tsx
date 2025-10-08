@@ -19,13 +19,9 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange }
     const files = e.target.files;
     if (!files || files.length === 0) return;
     
-    // In a real app, you would upload these files to your server/cloud storage
-    // For this demo, we'll create fake image URLs
-    const newImages = Array.from(files).map(() => {
-      // Generate a unique ID for the image
-      const uniqueId = Math.random().toString(36).substring(2, 15);
-      return `https://img.heroui.chat/image/product?w=400&h=400&u=${uniqueId}`;
-    });
+    // In a real app, you would upload these files to your server/cloud storage.
+    // For now, we'll use object URLs for local preview.
+    const newImages = Array.from(files).map(file => URL.createObjectURL(file));
     
     onChange([...images, ...newImages]);
     
