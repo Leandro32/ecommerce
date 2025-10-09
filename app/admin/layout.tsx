@@ -9,13 +9,15 @@ export const metadata: Metadata = {
   description: 'Ecommerce Admin Panel',
 };
 
+import { AdminLayout } from '../../src/admin/components/layout/admin-layout';
+
 export default function AdminRootLayout({ children }: { children: React.ReactNode; }) {
   return (
     <html lang="en">
       <body>
         <I18nProvider>
           <AdminProviders>
-            {children}
+            <AdminLayout>{children}</AdminLayout>
           </AdminProviders>
         </I18nProvider>
       </body>

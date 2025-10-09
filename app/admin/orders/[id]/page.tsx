@@ -1,9 +1,9 @@
 
 import { Card, CardBody, CardHeader, Divider, Image, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@heroui/react';
-import StatusBadge from '../../../../src/admin/components/StatusBadge';
-import StatusUpdater from '../../../../src/admin/components/StatusUpdater';
-import InternalNotes from '../../../../src/admin/components/InternalNotes';
-import { Order } from '../../../../src/types/order';
+import StatusBadge from '../../../../../src/admin/components/StatusBadge';
+import StatusUpdater from '../../../../../src/admin/components/StatusUpdater';
+import InternalNotes from '../../../../../src/admin/components/InternalNotes';
+import { Order } from '../../../../../src/types/order';
 
 async function getOrder(id: string): Promise<Order> {
   const res = await fetch(`http://localhost:3000/api/v1/admin/orders/${id}`, { cache: 'no-store' });

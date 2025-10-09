@@ -16,7 +16,7 @@ interface ProductForm {
 
 export const ProductFormPage: React.FC = () => {
   const params = useParams();
-  const id = Array.isArray(params.slug) ? (params.slug[1] !== 'new' ? params.slug[1] : undefined) : undefined;
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const router = useRouter();
   const isEditMode = !!id;
 

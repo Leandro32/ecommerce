@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
-import { toast } from "sonner";
+import { addToast } from "@heroui/react";
 
 interface SingleImageUploaderProps {
   value?: string;
@@ -38,10 +38,10 @@ export const SingleImageUploader: React.FC<SingleImageUploaderProps> = ({
 
       const data = await response.json();
       onChange(data.imageUrl); // Pass the uploaded image URL to the parent
-      toast.success('Image uploaded successfully!');
+      addToast({ title: "Success", description: "Image uploaded successfully!", color: "success" });
     } catch (error) {
       console.error('Image upload error:', error);
-      toast.error('Failed to upload image.');
+      addToast({ title: "Error", description: "Failed to upload image.", color: "danger" });
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) {

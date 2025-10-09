@@ -1,11 +1,13 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Button, Card, CardContent, CardHeader, CardTitle, Input, Label, Select, SelectContent, SelectItem, SelectTrigger, SelectValue, Textarea } from '@/components/ui';
-import { toast } from 'sonner';
+import { Button, Card, CardBody, CardHeader, Input, Select, SelectItem, Textarea } from '@heroui/react';
+import { addToast } from '@heroui/react';
 import Image from 'next/image'; // Import Image component
-import { SingleImageUploader } from '../../../src/admin/components/forms/single-image-uploader'; // Import SingleImageUploader
+import { SingleImageUploader } from '../../../src/admin/components/forms/single-image-uploader';
 
 const heroSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -65,7 +67,7 @@ export default function HeroAdminPage() {
           reset(data);
         }
       } catch (error) {
-        toast.error('Failed to fetch hero data');
+        addToast({ title: 'Error', description: 'Failed to fetch hero data', color: 'danger' });
       } finally {
         setIsLoading(false);
       }
@@ -89,9 +91,9 @@ export default function HeroAdminPage() {
 
       const updatedData = await response.json();
       reset(updatedData);
-      toast.success('Hero section updated successfully!');
+      addToast({ title: 'Success', description: 'Hero section updated successfully!', color: 'success' });
     } catch (error) {
-      toast.error('An error occurred while updating the hero section.');
+      addToast({ title: 'Error', description: 'An error occurred while updating the hero section.', color: 'danger' });
     }
   };
 
@@ -122,22 +124,20 @@ export default function HeroAdminPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Manage Hero Section22</CardTitle>
+        <h2 className="text-xl font-semibold">Manage Hero Section</h2>
       </CardHeader>
-      <CardContent>
+      <CardBody>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div>
-            <Label htmlFor="title">Title</Label>
-            <Input id="title" {...register('title')} />
+            <Input id="title" label="Title" {...register('title')} />
             {errors.title && <p className="text-red-500 text-sm mt-1">{errors.title.message}</p>}
           </div>
           <div>
-            <Label htmlFor="paragraph">Paragraph</Label>
-            <Textarea id="paragraph" {...register('paragraph')} />
+            <Textarea id="paragraph" label="Paragraph" {...register('paragraph')} />
             {errors.paragraph && <p className="text-red-500 text-sm mt-1">{errors.paragraph.message}</p>}
           </div>
           <div>
-            <Label htmlFor="heroImageUrl">Hero Image</Label>
+            <label htmlFor="heroImageUrl" className="block text-sm font-medium text-gray-700 mb-1">Hero Image</label>
             <SingleImageUploader
               value={watch('heroImageUrl')}
               onChange={(url) => setValue('heroImageUrl', url, { shouldValidate: true })}
@@ -146,16 +146,23 @@ export default function HeroAdminPage() {
             {errors.heroImageUrl && <p className="text-red-500 text-sm mt-1">{errors.heroImageUrl.message}</p>}
           </div>
           <div>
-            <Label htmlFor="buttonLayout">Button Layout</Label>
-            <Select onValueChange={(value) => reset({ ...watch(), buttonLayout: value as any })} value={buttonLayout}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select button layout" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">None</SelectItem>
-                <SelectItem value="oneButton">One Button</SelectItem>
-                <SelectItem value="twoButtons">Two Buttons</SelectItem>
-              </SelectContent>
+            <Select
+              label="Button Layout"
+              selectedKeys={[buttonLayout]}
+              onSelectionChange={(keys) => {
+                const value = Array.from(keys)[0];
+                reset({ ...watch(), buttonLayout: value as any });
+              }}
+            >
+              <SelectItem key="none" value="none">
+                None
+              </SelectItem>
+              <SelectItem key="oneButton" value="oneButton">
+                One Button
+              </SelectItem>
+              <SelectItem key="twoButtons" value="twoButtons">
+                Two Buttons
+              </SelectItem>
             </Select>
           </div>
 
@@ -163,29 +170,32 @@ export default function HeroAdminPage() {
             <div key={field.id} className="p-4 border rounded-md space-y-4">
               <h3 className="font-semibold">Button {index + 1}</h3>
               <div>
-                <Label htmlFor={`buttons.${index}.buttonText`}>Button Text</Label>
-                <Input id={`buttons.${index}.buttonText`} {...register(`buttons.${index}.buttonText`)} />
+                <Input id={`buttons.${index}.buttonText`} label="Button Text" {...register(`buttons.${index}.buttonText`)} />
                 {errors.buttons?.[index]?.buttonText && <p className="text-red-500 text-sm mt-1">{errors.buttons[index].buttonText.message}</p>}
               </div>
               <div>
-                <Label htmlFor={`buttons.${index}.buttonLink`}>Button Link</Label>
-                <Input id={`buttons.${index}.buttonLink`} {...register(`buttons.${index}.buttonLink`)} />
+                <Input id={`buttons.${index}.buttonLink`} label="Button Link" {...register(`buttons.${index}.buttonLink`)} />
                 {errors.buttons?.[index]?.buttonLink && <p className="text-red-500 text-sm mt-1">{errors.buttons[index].buttonLink.message}</p>}
               </div>
               <div className="flex items-center space-x-2">
                 <input type="checkbox" id={`buttons.${index}.isExternal`} {...register(`buttons.${index}.isExternal`)} className="h-4 w-4" />
-                <Label htmlFor={`buttons.${index}.isExternal`}>External Link</Label>
+                <label htmlFor={`buttons.${index}.isExternal`}>External Link</label>
               </div>
               <div>
-                <Label htmlFor={`buttons.${index}.variant`}>Variant</Label>
-                <Select onValueChange={(value) => reset({ ...watch(), buttons: watch('buttons').map((b, i) => i === index ? { ...b, variant: value as any } : b) })} value={watch(`buttons.${index}.variant`)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select variant" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="primary">Primary</SelectItem>
-                    <SelectItem value="secondary">Secondary</SelectItem>
-                  </SelectContent>
+                <Select
+                  label="Variant"
+                  selectedKeys={[watch(`buttons.${index}.variant`)]}
+                  onSelectionChange={(keys) => {
+                    const value = Array.from(keys)[0];
+                    reset({ ...watch(), buttons: watch('buttons').map((b, i) => i === index ? { ...b, variant: value as any } : b) });
+                  }}
+                >
+                  <SelectItem key="primary" value="primary">
+                    Primary
+                  </SelectItem>
+                  <SelectItem key="secondary" value="secondary">
+                    Secondary
+                  </SelectItem>
                 </Select>
               </div>
             </div>
@@ -193,7 +203,7 @@ export default function HeroAdminPage() {
 
           <Button type="submit" disabled={isUploadingImage}>Save Changes</Button>
         </form>
-      </CardContent>
+      </CardBody>
     </Card>
   );
 }

@@ -1,5 +1,5 @@
 // Authentication hooks
-export { useAuth } from "../context/AuthContext";
+export { useAuth } from "../admin/context/auth-context";
 export { useAuthOperations } from "./useAuthOperations";
 
 // Cart hooks
@@ -19,7 +19,7 @@ export { useProducts } from "./use-products";
 export { useSearch } from "./use-search";
 
 // Combined hooks for common patterns
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../admin/context/auth-context";
 import { useCart } from "../context/CartContext";
 import { useUI } from "../context/UIContext";
 

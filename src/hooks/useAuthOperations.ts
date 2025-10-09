@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../admin/context/auth-context';
 import { useUI } from '../context/UIContext';
 import { LoginCredentials, RegisterData, User } from '../types/auth';
 

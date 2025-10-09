@@ -1,21 +1,15 @@
+'use client';
 
 import { Button, Link as HeroLink, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@heroui/react';
 import Link from 'next/link';
 import StatusBadge from '../../../src/admin/components/StatusBadge';
 import { Order } from '../../../src/types/order';
 
-async function getOrders(): Promise<Order[]> {
-  const res = await fetch('http://localhost:3000/api/v1/admin/orders', { cache: 'no-store' });
-  if (!res.ok) {
-    throw new Error('Failed to fetch orders');
-  }
-  const json = await res.json();
-  return json;
+interface OrdersClientPageProps {
+  orders: Order[];
 }
 
-export default async function OrdersPage() {
-  const orders = await getOrders();
-
+export default function OrdersClientPage({ orders }: OrdersClientPageProps) {
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6">Order Management</h1>
@@ -35,8 +29,8 @@ export default async function OrdersPage() {
           <TableColumn>Created At</TableColumn>
           <TableColumn>Actions</TableColumn>
         </TableHeader>
-        <TableBody>
-          {orders.map((order) => (
+        <TableBody items={orders}>
+          {(order) => (
             <TableRow key={order.id}>
               <TableCell>{order.id}</TableCell>
               <TableCell>{order.customerName}</TableCell>
@@ -51,7 +45,7 @@ export default async function OrdersPage() {
                 </HeroLink>
               </TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     </div>
