@@ -16,22 +16,18 @@ export default async function StoreLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body>
-        <I18nProvider>
-          <StoreProviders>
-            <div className="flex flex-col min-h-screen">
-              <Header />
-              <main className="flex-grow pt-14">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                  {children}
-                </div>
-              </main>
-              <Footer />
+    <I18nProvider>
+      <StoreProviders>
+        <div className="flex flex-col min-h-screen">
+          <Header />
+          <main className="flex-grow pt-14">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              {children}
             </div>
-          </StoreProviders>
-        </I18nProvider>
-      </body>
-    </html>
+          </main>
+          <Footer />
+        </div>
+      </StoreProviders>
+    </I18nProvider>
   );
 }

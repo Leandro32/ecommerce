@@ -512,8 +512,87 @@ Now, let's create the administrator view in the Next.js application.
 
 ---
 
-## 🔧 **TECHNICAL CONSIDERATIONS**
+--- 
 
+## 📦 TASK 14: REFACTOR IMAGE URLS FOR PRODUCTION (MINIO)
+**Priority: HIGH** | **Status: ✅ COMPLETED**
+*To prepare for production, we must stop using hardcoded image URLs. This task will refactor the application to use a centralized, environment-based configuration for image URLs, making it easy to switch between local mock images and a production MinIO bucket.* 
+
+### 1. Centralize Image Host Configuration
+*Goal: Control the image source with an environment variable, not with hardcoded values.*
+
+- [x] **Update `next.config.mjs`**: 
+    - Add logic to read a new environment variable called `NEXT_PUBLIC_IMAGE_CDN_URL`.
+    - If this variable is set, dynamically parse its `hostname`, `port`, and `protocol` and add them to the `images.remotePatterns` array. **Hint:** You can copy the existing logic used for `NEXT_PUBLIC_APP_URL` as a template for this.
+
+- [x] **Create Local Environment File**:
+    - Create a `.env.local` file in the project root (if it doesn't exist).
+    - Add the following line. This tells the app that the image host is the local development server. The `NEXT_PUBLIC_` prefix is **required** to make the variable available in the browser.
+      ```
+      NEXT_PUBLIC_IMAGE_CDN_URL=http://localhost:3000
+      ```
+
+### 2. Fix Data and Application Code
+*Goal: Remove environment-specific URLs from our data and code, making them portable.*
+
+- [ ] **Download External Images**:
+    - Before updating the seed, you must manually download the images from the external `http2.mlstatic.com` URLs.
+    - Place these downloaded images inside the `public/uploads/products/` directory.
+
+- [ ] **Update Prisma Seed Data (`prisma/seed.cjs`)**:
+    - Find all products with an `imageUrl` that points to an external site.
+    - Change these full URLs to be **relative paths** that point to the files you just downloaded. For example:
+      - **From**: `https://http2.mlstatic.com/D_NQ_NP_795844-MLA83441100293_032025-O.webp`
+      - **To**: `/uploads/products/D_NQ_NP_795844-MLA83441100293_032025-O.webp`
+    - This ensures our database only stores a reference to the image, not where it is hosted.
+
+- [x] **Create an Image URL Utility (`src/utils/imageUrl.ts`)**:
+    - Create a new function `getImageUrl(relativePath: string): string`.
+    - This function will read the `NEXT_PUBLIC_IMAGE_CDN_URL` from `process.env`.
+    - **Important:** To safely combine the URLs and avoid double slashes, use the `URL` constructor. If `relativePath` is already a full URL (starts with `http`), return it directly. Otherwise, construct the new URL.
+      ```javascript
+      // Example implementation hint
+      export function getImageUrl(relativePath: string): string {
+        if (relativePath.startsWith('http')) {
+          return relativePath; // Already a full URL
+        }
+        const cdnUrl = process.env.NEXT_PUBLIC_IMAGE_CDN_URL || '';
+        return new URL(relativePath, cdnUrl).href;
+      }
+      ```
+
+- [x] **Update Image Rendering (`ProductImage.tsx`)**:
+    - In `src/components/ProductImage.tsx` (and any other component that renders a product image), import the new `getImageUrl` utility.
+    - Before passing the `src` prop to the `next/image` component, pass it through the utility: `src={getImageUrl(product.imageUrl)}`.
+
+### How It Works in Production
+
+When you build your Docker image, you will set the `NEXT_PUBLIC_IMAGE_CDN_URL` environment variable to the address of your MinIO bucket (e.g., `http://minio:9000`). The Next.js app will automatically whitelist that address and the `getImageUrl` utility will construct the correct image links, pointing to MinIO instead of the local server. No code changes will be needed.
+--- 
+
+## 🧹 TASK 15: IMPLEMENT MULTI-IMAGE SUPPORT FOR PRODUCTS
+**Priority: HIGH** | **Status: 🟡 IN PROGRESS**
+*Currently, a product has only one image. This task will upgrade the data model and UI to support multiple images per product, including the ability to upload and delete them from the admin panel.* 
+
+### 1. Define a Single Source of Truth
+- [x] **Decision**: The `Product` model will be updated to support an array of image URLs.
+- [x] **Update `src/types/product.ts`**: Modify the `Product` type to change `imageUrl: string` to `imageUrls: string[]`.
+
+### 2. Refactor Data Sources
+- [x] **Update `prisma/schema.prisma`**: Change the `imageUrl` field on the `Product` model to `imageUrls String[]` to store a list of strings.
+- [ ] **Update Seed/Mock Data**: Go through `prisma/seed.cjs` and `src/data/mockProducts.ts` and update all product entries to use the new `imageUrls` array structure.
+
+### 3. Refactor Application Code
+- [x] **Update Backend API**: Modify the Product CRUD endpoints (`POST` and `PUT`) to accept and save the `imageUrls` array.
+- [x] **Enhance Admin UI (`product-form-page.tsx`)**: 
+    - [x] Replace the `SingleImageUploader` with a new `MultiImageUploader` component.
+    - [x] This new component will allow uploading multiple files.
+    - [x] Each image preview in the component will have a "Delete" button that removes the image from the product's list of images.
+- [ ] **Update Storefront Components**: Ensure components like `ProductImage.tsx` and `product-detail-page-client.tsx` correctly handle the `imageUrls` array to display the primary image and any thumbnails.
+
+--- 
+
+## 🔧 **TECHNICAL CONSIDERATIONS**
 ### Testing Strategy
 - [ ] Unit tests for translation hooks
 - [x] Integration tests for product filtering - **COMPLETED**: Optimized filtering logic

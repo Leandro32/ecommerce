@@ -1,20 +1,22 @@
 
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import prisma from '@lib/prisma';
 import { z } from 'zod';
+
+export const dynamic = 'force-dynamic';
 
 const productUpdateSchema = z.object({
   name: z.string().min(1, 'Name is required').optional(),
   description: z.string().min(1, 'Description is required').optional(),
   price: z.number().positive('Price must be a positive number').optional(),
   stock: z.number().int().min(0, 'Stock must be a non-negative integer').optional(),
-  imageUrl: z.string().url('Image URL must be a valid URL').optional(),
+  imageUrls: z.array(z.string().url()).optional(),
 });
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params: { id } }: { params: { id: string } }) {
     try {
         const product = await prisma.product.findUnique({
-            where: { id: params.id },
+            where: { id },
         });
 
         if (!product) {
@@ -37,7 +39,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     }
 }
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params: { id } }: { params: { id: string } }) {
   try {
     const body = await req.json();
     const validation = productUpdateSchema.safeParse(body);
@@ -53,7 +55,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     }
 
     const updatedProduct = await prisma.product.update({
-      where: { id: params.id },
+      where: { id },
       data: validation.data,
     });
 
@@ -79,10 +81,10 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params: { id } }: { params: { id: string } }) {
     try {
         await prisma.product.delete({
-            where: { id: params.id },
+            where: { id },
         });
 
         return new NextResponse(null, { status: 204 });

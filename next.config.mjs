@@ -26,4 +26,19 @@ if (process.env.NEXT_PUBLIC_APP_URL) {
   }
 }
 
+// Dynamically add remotePatterns based on NEXT_PUBLIC_IMAGE_CDN_URL for MinIO or other CDNs
+if (process.env.NEXT_PUBLIC_IMAGE_CDN_URL) {
+  try {
+    const cdnUrl = new URL(process.env.NEXT_PUBLIC_IMAGE_CDN_URL);
+    nextConfig.images.remotePatterns.push({
+      protocol: cdnUrl.protocol.replace(':', ''),
+      hostname: cdnUrl.hostname,
+      port: cdnUrl.port || '',
+      pathname: '/**', // Allow any path from this CDN
+    });
+  } catch (error) {
+    console.error("Invalid NEXT_PUBLIC_IMAGE_CDN_URL in next.config.mjs:", error);
+  }
+}
+
 export default withBundleAnalyzer(nextConfig);

@@ -14,8 +14,9 @@ interface ProductListPageClientProps {
   products: Product[];
   totalProducts: number;
   totalPages: number;
-  availableCategories: string[];
+  productsPerPage: number;
   availableBrands: string[];
+  availableBottleSizes: string[];
   priceRange: { min: number; max: number };
 }
 
@@ -23,8 +24,9 @@ const ProductListPageClient: React.FC<ProductListPageClientProps> = ({
   products,
   totalProducts,
   totalPages,
-  availableCategories,
+  productsPerPage,
   availableBrands,
+  availableBottleSizes,
   priceRange,
 }) => {
   const { t } = useTranslation(['products', 'common']);
@@ -34,9 +36,13 @@ const ProductListPageClient: React.FC<ProductListPageClientProps> = ({
 
   const currentPage = Number(searchParams.get('page') || '1');
 
+  const start = totalProducts > 0 ? (currentPage - 1) * productsPerPage + 1 : 0;
+  const end = (currentPage - 1) * productsPerPage + products.length;
+
   const filters = {
-    categories: searchParams.getAll('category'),
+    sex: searchParams.getAll('sex'),
     brands: searchParams.getAll('brand'),
+    bottleSize: searchParams.getAll('bottleSize'),
     price: {
       min: Number(searchParams.get('price_min') || priceRange.min),
       max: Number(searchParams.get('price_max') || priceRange.max),
@@ -95,7 +101,7 @@ const ProductListPageClient: React.FC<ProductListPageClientProps> = ({
         <div>
           <h1 className="text-2xl font-semibold">{t('titles.allProducts')}</h1>
           <p className="text-sm text-default-500 mt-1">
-            {t('info.showingResults', { count: products.length, total: totalProducts })}
+            {t('info.showingResults', { start, end, total: totalProducts })}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -114,7 +120,7 @@ const ProductListPageClient: React.FC<ProductListPageClientProps> = ({
       </div>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
         <div className="hidden md:block">
-          <ProductFilters onFilterChange={handleFilterChange} filters={filters} onClearFilters={handleClearFilters} availableCategories={availableCategories} availableBrands={availableBrands} priceRange={priceRange} />
+          <ProductFilters onFilterChange={handleFilterChange} filters={filters} onClearFilters={handleClearFilters} availableBrands={availableBrands} availableBottleSizes={availableBottleSizes} priceRange={priceRange} />
         </div>
         <div className="md:col-span-3">
           <ProductGrid products={products} emptyMessage={t('messages.filterNoResults')} />
@@ -133,7 +139,7 @@ const ProductListPageClient: React.FC<ProductListPageClientProps> = ({
               <Icon icon="lucide:x" />
             </Button>
           </div>
-          <ProductFilters onFilterChange={handleFilterChange} filters={filters} onClearFilters={handleClearFilters} isMobile availableCategories={availableCategories} availableBrands={availableBrands} priceRange={priceRange} />
+          <ProductFilters onFilterChange={handleFilterChange} filters={filters} onClearFilters={handleClearFilters} isMobile availableBrands={availableBrands} availableBottleSizes={availableBottleSizes} priceRange={priceRange} />
         </div>
       </Drawer>
     </motion.div>

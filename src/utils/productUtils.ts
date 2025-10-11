@@ -1,5 +1,21 @@
 import type { Product } from '../types/product';
 
+export const transformApiProduct = (apiProduct: any): Product => {
+  return {
+    id: apiProduct.id,
+    name: apiProduct.name,
+    description: apiProduct.description,
+    price: apiProduct.price,
+    stock: apiProduct.stock,
+    imageUrls: apiProduct.imageUrls || [],
+  };
+};
+
+export const transformApiProducts = (apiProducts: any[]): Product[] => {
+  return apiProducts.map(transformApiProduct);
+};
+
+
 /**
  * Get display price (sale price if available, otherwise regular price)
  */

@@ -11,7 +11,7 @@ interface ProductForm {
   description: string;
   price: number;
   stock: number;
-  imageUrl: string;
+  imageUrls: string[];
 }
 
 export const ProductFormPage: React.FC = () => {
@@ -25,7 +25,7 @@ export const ProductFormPage: React.FC = () => {
     description: '',
     price: 0,
     stock: 0,
-    imageUrl: '',
+    imageUrls: [],
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -43,7 +43,7 @@ export const ProductFormPage: React.FC = () => {
         description: product.description,
         price: product.price,
         stock: product.stock,
-        imageUrl: product.imageUrl,
+        imageUrls: product.imageUrls || [],
       });
     }
   }, [isEditMode, product]);
@@ -57,34 +57,33 @@ export const ProductFormPage: React.FC = () => {
   };
 
   const handleImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) {
-      return;
-    }
+    if (!e.target.files) return;
 
-    const file = e.target.files[0];
-    const data = new FormData();
-    data.append('image', file);
-
+    const files = Array.from(e.target.files);
     setIsUploadingImage(true);
-    try {
+
+    const uploadPromises = files.map(async (file) => {
+      const data = new FormData();
+      data.append('image', file);
       const res = await fetch('/api/v1/admin/upload-image', {
         method: 'POST',
         body: data,
       });
-
       if (!res.ok) {
         const errorData = await res.json();
         throw new Error(errorData.error || 'Failed to upload image');
       }
-
       const { imageUrl: relativeImageUrl } = await res.json();
-      // Construct full URL for validation using environment variable
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
-      const fullImageUrl = `${baseUrl}${relativeImageUrl}`;
-      setFormData(prev => ({ ...prev, imageUrl: fullImageUrl }));
+      const fullImageUrl = new URL(relativeImageUrl, window.location.origin).href;
+      return fullImageUrl;
+    });
+
+    try {
+      const newImageUrls = await Promise.all(uploadPromises);
+      setFormData(prev => ({ ...prev, imageUrls: [...prev.imageUrls, ...newImageUrls] }));
       addToast({
         title: 'Success',
-        description: 'Image uploaded successfully.',
+        description: `${newImageUrls.length} image(s) uploaded successfully.`,
         color: 'success',
       });
     } catch (err: any) {
@@ -97,6 +96,18 @@ export const ProductFormPage: React.FC = () => {
       setIsUploadingImage(false);
     }
   }, []);
+
+  const handleImageDelete = (urlToDelete: string) => {
+    setFormData(prev => ({
+      ...prev,
+      imageUrls: prev.imageUrls.filter(url => url !== urlToDelete),
+    }));
+    addToast({
+        title: 'Image Removed',
+        description: 'The image has been removed from the list.',
+        color: 'default',
+      });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -201,7 +212,7 @@ export const ProductFormPage: React.FC = () => {
               required
             />
             <div>
-              <label className="block text-sm font-medium text-default-700 mb-1">Product Image</label>
+              <label className="block text-sm font-medium text-default-700 mb-1">Product Images</label>
               <input
                 type="file"
                 accept="image/*"
@@ -213,13 +224,27 @@ export const ProductFormPage: React.FC = () => {
                   file:bg-primary-50 file:text-primary-700
                   hover:file:bg-primary-100"
                 disabled={isUploadingImage}
+                multiple
               />
-              {isUploadingImage && <Spinner size="sm" className="mt-2" />} 
-              {formData.imageUrl && !isUploadingImage && (
-                <div className="mt-4">
-                  <Image src={formData.imageUrl} alt="Product Preview" width={100} height={100} className="rounded-lg object-cover" />
-                </div>
-              )}
+              {isUploadingImage && <Spinner size="sm" className="mt-2" label="Uploading..." />} 
+              <div className="mt-4 flex flex-wrap gap-4">
+                {formData.imageUrls.map((url) => (
+                  <div key={url} className="relative group">
+                    <Image src={url} alt="Product Preview" width={100} height={100} className="rounded-lg object-cover" />
+                    <Button
+                      isIconOnly
+                      size="sm"
+                      color="danger"
+                      variant="solid"
+                      className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onPress={() => handleImageDelete(url)}
+                      aria-label="Delete image"
+                    >
+                      <Icon icon="lucide:trash-2" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
           </CardBody>
         </Card>

@@ -22,7 +22,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     addToCart(product);
   };
 
-  const displayImage = product.imageUrl;
+  const displayImage = product.imageUrls[0];
   const displayPrice = product.price;
   const stockStatus = getStockStatus(product);
   const isInStock = product.stock > 0;
@@ -31,7 +31,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     <motion.div whileHover={{ y: -5 }} transition={{ duration: 0.2 }}>
       <Card className="overflow-visible h-full w-full" disableRipple>
         <CardBody className="p-0 overflow-visible">
-          <Link href={`/product/${product.id}`} className="block">
+          <Link href={`/product/${product.slug}`} className="block">
             <div className="relative w-full aspect-[3/4] bg-default-100 rounded-t-lg overflow-hidden">
               <ProductImage
                 src={displayImage}
@@ -48,9 +48,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </div>
 
             <div className="p-3">
-              <h3 className="font-medium text-sm line-clamp-1">
-                {product.name}
-              </h3>
+              <div className="flex justify-between items-start mb-1">
+                <h3 className="font-medium text-sm line-clamp-2 leading-tight">
+                  {product.name}
+                </h3>
+                <span className="text-xs text-default-500 flex-shrink-0 ml-2">
+                  {product.bottleSize}ml
+                </span>
+              </div>
+              <p className="text-xs text-default-600 mb-2 font-semibold">{product.brand}</p>
 
               <div className="flex items-center justify-between mb-2">
                 <span
@@ -67,9 +73,20 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="font-semibold">
-                  {formatPrice(displayPrice)}
-                </span>
+                {product.isDiscounted && product.discountPrice ? (
+                  <>
+                    <span className="font-semibold text-primary-500">
+                      {formatPrice(product.discountPrice)}
+                    </span>
+                    <span className="text-sm text-default-400 line-through">
+                      {formatPrice(product.price)}
+                    </span>
+                  </>
+                ) : (
+                  <span className="font-semibold">
+                    {formatPrice(product.price)}
+                  </span>
+                )}
               </div>
             </div>
           </Link>

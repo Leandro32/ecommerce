@@ -5,15 +5,17 @@ import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import HeroBanner from "./hero-banner";
 // import CategorySlider from "./category-slider"; // Removed
-// import FeaturedProducts from "./featured-products"; // Removed
-import type { HeroData } from "../types/hero";
+import FeaturedProducts from "./featured-products"; // Removed
+import type { HeroData } from "@/types/hero";
+import { Product } from "@/types/product";
 
 interface HomePageClientProps {
   heroData: HeroData;
+  products: Product[];
 
 }
 
-const HomePageClient: React.FC<HomePageClientProps> = ({ heroData }) => {
+const HomePageClient: React.FC<HomePageClientProps> = ({ heroData, products }) => {
   const { t } = useTranslation("products");
 
   return (
@@ -24,26 +26,12 @@ const HomePageClient: React.FC<HomePageClientProps> = ({ heroData }) => {
     >
       <HeroBanner heroData={heroData} />
 
-      {/* CategorySlider and FeaturedProducts removed temporarily due to simplified Product model */}
-      {/* <CategorySlider categories={categories} /> */}
-      {/* <FeaturedProducts
+      <FeaturedProducts
         title={t("sections.featuredProducts")}
         subtitle={t("sections.featuredSubtitle")}
-        products={featuredProducts}
-        viewAllHref="/products/featured"
-      /> */}
-      {/* <FeaturedProducts
-        title={t("sections.newArrivals")}
-        subtitle={t("sections.newArrivalsSubtitle")}
-        products={newArrivals}
-        viewAllHref="/products/new-arrivals"
-      /> */}
-      {/* <FeaturedProducts
-        title={t("sections.bestSellers")}
-        subtitle={t("sections.bestSellersSubtitle")}
-        products={bestSellers}
-        viewAllHref="/products/best-sellers"
-      /> */}
+        products={products}
+        viewAllHref="/products"
+      />
     </motion.div>
   );
 };

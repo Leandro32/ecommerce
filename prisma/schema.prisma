@@ -19,15 +19,29 @@ model Admin {
 }
 
 model Product {
-  id          String      @id @default(cuid())
-  name        String
-  description String
-  price       Float
-  stock       Int
-  imageUrl    String
-  orderItems  OrderItem[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id              String      @id @default(cuid())
+  name            String
+  slug            String      @unique
+  brand           String
+  sex             Sex
+  description     String
+  price           Float
+  discountPrice   Float?
+  isDiscounted    Boolean     @default(false)
+  stock           Int
+  bottleSize      Int // in ml
+  bottleType      String
+  packaging       String
+  averageRating   Float?
+  shippingWeight  Float? // in kg
+  seoTitle        String?
+  seoDescription  String?
+  imageUrls       String[]
+  fragranceNotes  FragranceNotes?
+  reviews         Review[]
+  orderItems      OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 }
 
 model Order {
@@ -87,4 +101,29 @@ enum ButtonLayout {
 enum ButtonVariant {
   primary
   secondary
+}
+
+enum Sex {
+  WOMAN
+  MAN
+  UNISEX
+}
+
+model FragranceNotes {
+  id          String  @id @default(cuid())
+  topNotes    String
+  middleNotes String
+  baseNotes   String
+  product     Product @relation(fields: [productId], references: [id])
+  productId   String  @unique
+}
+
+model Review {
+  id            String   @id @default(cuid())
+  rating        Int
+  reviewText    String
+  customerName  String
+  product       Product  @relation(fields: [productId], references: [id])
+  productId     String
+  createdAt     DateTime @default(now())
 }

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import prisma from '@lib/prisma';
 import { z } from 'zod';
 
 const productSchema = z.object({
@@ -7,7 +7,7 @@ const productSchema = z.object({
   description: z.string().min(1, 'Description is required'),
   price: z.number().positive('Price must be a positive number'),
   stock: z.number().int().min(0, 'Stock must be a non-negative integer'),
-  imageUrl: z.string().url('Image URL must be a valid URL'),
+  imageUrls: z.array(z.string().url('Image URL must be a valid URL')).min(1, 'At least one image is required'),
 });
 
 export async function GET(request: Request) {
@@ -51,7 +51,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { name, description, price, stock, imageUrl } = validation.data;
+    const { name, description, price, stock, imageUrls } = validation.data;
 
     const newProduct = await prisma.product.create({
       data: {
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
         description,
         price,
         stock,
-        imageUrl,
+        imageUrls,
       },
     });
 

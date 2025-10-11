@@ -2,6 +2,8 @@ import React from "react";
 import PlaceholderImage from "./PlaceholderImage";
 import Image from "next/image";
 
+import { getImageUrl } from '@/utils/imageUrl';
+
 interface ProductImageProps {
   src: string | string[];
   alt: string;
@@ -29,12 +31,10 @@ const ProductImage: React.FC<ProductImageProps> = ({
   const imgRef = React.useRef<HTMLImageElement>(null);
   const timeoutRef = React.useRef<ReturnType<typeof setTimeout>>();
 
-  // Get the primary image source
+  // Get the primary image source and format it
   const primarySrc = React.useMemo(() => {
-    if (Array.isArray(src)) {
-      return src.length > 0 ? src[0] : "";
-    }
-    return src || "";
+    const source = Array.isArray(src) ? (src.length > 0 ? src[0] : "") : src || "";
+    return getImageUrl(source);
   }, [src]);
 
   // Initialize current source

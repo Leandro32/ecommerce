@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import prisma from '@lib/prisma';
 import { z } from 'zod';
-import { OrderStatus } from '@/src/types/order';
+import { OrderStatus } from '@/types/order';
 
 const orderItemSchema = z.object({
   productId: z.string(),

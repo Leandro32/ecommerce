@@ -14,19 +14,20 @@ import { Icon } from "@iconify/react";
 import { useTranslation } from 'react-i18next';
 
 interface FilterState {
-  categories: string[];
+  sex: string[];
+  bottleSize: string[];
   brands: string[];
   price: { min: number; max: number };
   ratings: number[];
 }
 
 interface ProductFiltersProps {
-  onFilterChange: (filters: FilterState) => void;
+  onFilterChange: (filters: Partial<FilterState>) => void;
   filters: FilterState;
   onClearFilters: () => void;
   isMobile?: boolean;
-  availableCategories: string[];
   availableBrands: string[];
+  availableBottleSizes: string[];
   priceRange: { min: number; max: number };
 }
 
@@ -35,18 +36,22 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
   filters,
   onClearFilters,
   isMobile = false,
-  availableCategories,
   availableBrands,
+  availableBottleSizes,
   priceRange,
 }) => {
   const { t } = useTranslation('products');
 
-  const handleCategoryChange = (selectedCategories: string[]) => {
-    onFilterChange({ ...filters, categories: selectedCategories });
+  const handleBrandChange = (selectedBrands: string[]) => {
+    onFilterChange({ brands: selectedBrands });
   };
 
-  const handleBrandChange = (selectedBrands: string[]) => {
-    onFilterChange({ ...filters, brands: selectedBrands });
+  const handleSexChange = (selectedSexes: string[]) => {
+    onFilterChange({ sex: selectedSexes });
+  };
+
+  const handleBottleSizeChange = (selectedSizes: string[]) => {
+    onFilterChange({ bottleSize: selectedSizes });
   };
 
   const handlePriceChange = (values: number[]) => {
@@ -77,23 +82,21 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
 
       <Accordion
         selectionMode="multiple"
-        defaultExpandedKeys={["categories", "price"]}
+        defaultExpandedKeys={["sex", "brands", "price"]}
       >
-        {availableCategories.length > 0 && (
-          <AccordionItem key="categories" title={t('filters.categories')}>
-            <CheckboxGroup
-              value={filters.categories}
-              onValueChange={handleCategoryChange}
-              className="gap-2"
-            >
-              {availableCategories.map((category) => (
-                <Checkbox key={category} value={category}>
-                  {category}
-                </Checkbox>
-              ))}
-            </CheckboxGroup>
-          </AccordionItem>
-        )}
+        <AccordionItem key="sex" title={t('filters.sex')}>
+          <CheckboxGroup
+            value={filters.sex}
+            onValueChange={handleSexChange}
+            className="gap-2"
+          >
+            {["WOMAN", "MAN", "UNISEX"].map((s) => (
+              <Checkbox key={s} value={s}>
+                {t(`sex.${s.toLowerCase()}`)}
+              </Checkbox>
+            ))}
+          </CheckboxGroup>
+        </AccordionItem>
 
         {availableBrands.length > 0 && (
           <AccordionItem key="brands" title={t('filters.brands')}>
@@ -105,6 +108,22 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({
               {availableBrands.map((brand) => (
                 <Checkbox key={brand} value={brand}>
                   {brand}
+                </Checkbox>
+              ))}
+            </CheckboxGroup>
+          </AccordionItem>
+        )}
+
+        {availableBottleSizes.length > 0 && (
+          <AccordionItem key="bottleSize" title={t('filters.bottleSize')}>
+            <CheckboxGroup
+              value={filters.bottleSize}
+              onValueChange={handleBottleSizeChange}
+              className="gap-2"
+            >
+              {availableBottleSizes.map((size) => (
+                <Checkbox key={size} value={size}>
+                  {`${size} ml`}
                 </Checkbox>
               ))}
             </CheckboxGroup>
