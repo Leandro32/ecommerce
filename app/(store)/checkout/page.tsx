@@ -8,6 +8,7 @@ import { Button, Card, CardBody, Divider } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
 import { useCart } from '../../../src/context/CartContext';
+import { getImageUrl } from '../../../src/utils/imageUrl';
 import { addToast } from '@heroui/react';
 
 const CheckoutPage: React.FC = () => {
@@ -116,7 +117,7 @@ const CheckoutPage: React.FC = () => {
                   <div key={item.id} className="flex items-center gap-3 py-3 border-b border-divider">
                     <div className="relative w-16 h-16 rounded-md overflow-hidden flex-shrink-0">
                       <Image 
-                        src={item.product.image || ''} 
+                        src={getImageUrl(item.product.image)} 
                         alt={item.product.name}
                         width={64}
                         height={64}

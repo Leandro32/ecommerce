@@ -66,7 +66,13 @@
     "weight": "Peso",
     "materials": "Materiales",
     "colors": "Colores",
-    "sizes": "Tallas"
+    "sizes": "Tallas",
+    "fragranceNotes": "Notas de Fragancia",
+    "topNotes": "Notas de Salida",
+    "middleNotes": "Notas de Corazón",
+    "baseNotes": "Notas de Fondo",
+    "sex": "Sexo",
+    "packaging": "Empaque"
   },
   "actions": {
     "addToCart": "Añadir al Carrito",
@@ -148,5 +154,10 @@
     "newArrivalsSubtitle": "Echa un vistazo a nuestros productos más recientes",
     "bestSellers": "Más Vendidos",
     "bestSellersSubtitle": "Nuestros productos más populares"
+  },
+  "sex": {
+    "woman": "Mujer",
+    "man": "Hombre",
+    "unisex": "Unisex"
   }
-} 
+}

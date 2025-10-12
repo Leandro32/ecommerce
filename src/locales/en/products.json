@@ -65,7 +65,13 @@
     "weight": "Weight",
     "materials": "Materials",
     "care": "Care Instructions",
-    "rating": "Rating"
+    "rating": "Rating",
+    "fragranceNotes": "Fragrance Notes",
+    "topNotes": "Top Notes",
+    "middleNotes": "Middle Notes",
+    "baseNotes": "Base Notes",
+    "sex": "Sex",
+    "packaging": "Packaging"
   },
   "actions": {
     "addToCart": "Add to Cart",
@@ -151,5 +157,10 @@
     "newArrivalsSubtitle": "Check out our latest products",
     "bestSellers": "Best Sellers",
     "bestSellersSubtitle": "Our most popular products"
+  },
+  "sex": {
+    "woman": "Woman",
+    "man": "Man",
+    "unisex": "Unisex"
   }
 }

@@ -16,6 +16,8 @@ interface CartItem {
 interface CartState {
   items: CartItem[];
   total: number;
+  originalTotal: number;
+  savings: number;
 }
 
 // Define CartContextType
@@ -30,6 +32,8 @@ interface CartContextType extends CartState {
 const initialCartState: CartState = {
   items: [],
   total: 0,
+  originalTotal: 0,
+  savings: 0,
 };
 
 // Action types for the reducer
@@ -41,14 +45,19 @@ type CartAction =
   | { type: 'SET_CART'; payload: CartState };
 
 // Helper function to calculate totals
-const calculateTotals = (items: CartItem[]): { total: number } => {
+const calculateCartSummary = (items: CartItem[]): { total: number; originalTotal: number; savings: number } => {
   let total = 0;
+  let originalTotal = 0;
 
   items.forEach(item => {
-    total += item.product.price * item.quantity;
+    const price = item.product.isDiscounted && item.product.discountPrice ? item.product.discountPrice : item.product.price;
+    total += price * item.quantity;
+    originalTotal += item.product.price * item.quantity;
   });
 
-  return { total };
+  const savings = originalTotal - total;
+
+  return { total, originalTotal, savings };
 };
 
 // Reducer function
@@ -62,34 +71,36 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
                 item.variant?.size === variant?.size
       );
 
+      let updatedItems;
       if (existingItemIndex > -1) {
-        const updatedItems = [...state.items];
+        updatedItems = [...state.items];
         updatedItems[existingItemIndex].quantity += quantity;
-        const { total } = calculateTotals(updatedItems);
-        return { ...state, items: updatedItems, total };
       } else {
-        const updatedItems = [...state.items, { id: product.id, product, quantity, variant }];
-        const { total } = calculateTotals(updatedItems);
-        return { ...state, items: updatedItems, total };
+        updatedItems = [...state.items, { id: crypto.randomUUID(), product, quantity, variant }];
       }
+      const { total, originalTotal, savings } = calculateCartSummary(updatedItems);
+      return { ...state, items: updatedItems, total, originalTotal, savings };
     }
     case 'REMOVE_ITEM': {
       const updatedItems = state.items.filter(item => item.id !== action.payload);
-      const { total } = calculateTotals(updatedItems);
-      return { ...state, items: updatedItems, total };
+      const { total, originalTotal, savings } = calculateCartSummary(updatedItems);
+      return { ...state, items: updatedItems, total, originalTotal, savings };
     }
     case 'UPDATE_QUANTITY': {
       const { itemId, newQuantity } = action.payload;
       const updatedItems = state.items.map(item =>
         item.id === itemId ? { ...item, quantity: newQuantity } : item
       );
-      const { total } = calculateTotals(updatedItems);
-      return { ...state, items: updatedItems, total };
+      const { total, originalTotal, savings } = calculateCartSummary(updatedItems);
+      return { ...state, items: updatedItems, total, originalTotal, savings };
     }
     case 'CLEAR_CART':
       return initialCartState;
     case 'SET_CART':
-      return action.payload;
+      return {
+        ...initialCartState,
+        ...action.payload,
+      };
     default:
       return state;
   }
@@ -101,6 +112,29 @@ export const CartContext = createContext<CartContextType | undefined>(undefined)
 // CartProvider component
 export const CartProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(cartReducer, initialCartState);
+
+  useEffect(() => {
+    try {
+      const savedCart = localStorage.getItem('cart');
+      if (savedCart) {
+        const parsedCart = JSON.parse(savedCart);
+        if (parsedCart.items) {
+          const { total, originalTotal, savings } = calculateCartSummary(parsedCart.items);
+          dispatch({ type: 'SET_CART', payload: { items: parsedCart.items, total, originalTotal, savings } });
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load cart from local storage", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('cart', JSON.stringify(state));
+    } catch (error) {
+      console.error("Failed to save cart to local storage", error);
+    }
+  }, [state]);
 
   // Action creators
   const addToCart = (product: Product, quantity?: number, variant?: { color?: string; size?: string }) => {
@@ -147,6 +181,8 @@ export const useCart = () => {
   const {
     items,
     total,
+    originalTotal,
+    savings,
     addToCart: addToCartContext,
     removeFromCart: removeFromCartContext,
     updateQuantity: updateQuantityContext,
@@ -166,14 +202,7 @@ export const useCart = () => {
         return;
       }
 
-      const cartItem: CartItem = {
-        id: `${product.id}-${variant?.color || ""}-${variant?.size || ""}-${Date.now()}`,
-        product,
-        quantity,
-        variant,
-      };
-
-      addToCartContext(cartItem);
+      addToCartContext(product, quantity, variant);
       showSuccess(`${product.name} added to cart`);
     } catch {
       showError("Failed to add item to cart");
@@ -216,13 +245,9 @@ export const useCart = () => {
   // Computed values for backward compatibility
   const cartItems = React.useMemo(() => items, [items]);
 
-  const cartTotal = React.useMemo(() => {
-    // For legacy compatibility, return subtotal without tax/shipping
-    return items.reduce(
-      (total, item) => total + item.product.price * item.quantity,
-      0,
-    );
-  }, [items]);
+  const cartTotal = React.useMemo(() => total, [total]);
+  const cartOriginalTotal = React.useMemo(() => originalTotal, [originalTotal]);
+  const cartSavings = React.useMemo(() => savings, [savings]);
 
   const totalItems = React.useMemo(() => {
     return items.reduce((sum, item) => sum + item.quantity, 0); // Corrected calculation
@@ -251,6 +276,8 @@ export const useCart = () => {
     removeFromCart,
     clearCart,
     cartTotal,
+    cartOriginalTotal,
+    cartSavings,
 
     // New enhanced API (from original use-cart.ts)
     state: context, // Pass the whole context value as state

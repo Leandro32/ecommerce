@@ -5,29 +5,45 @@ import React from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Button, Chip, Divider, Accordion, AccordionItem, Badge } from '@heroui/react';
+import { Button, Chip, Divider, Accordion, AccordionItem, Badge, Spinner } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import ProductGrid from './product-grid';
 import { useCart } from '../context/CartContext';
 import type { Product } from '../types/product';
 import { formatPrice, getStockStatus } from '../utils/productUtils';
+import { useProduct } from '../hooks/useProduct';
 
 interface ProductDetailPageClientProps {
-  product: Product;
+  slug: string;
   relatedProducts: Product[];
 }
 
-const ProductDetailPageClient: React.FC<ProductDetailPageClientProps> = ({ product, relatedProducts }) => {
+const ProductDetailPageClient: React.FC<ProductDetailPageClientProps> = ({ slug, relatedProducts }) => {
   const { t } = useTranslation(['products', 'navigation']);
   const { addToCart } = useCart();
+  const { product, loading, error } = useProduct(slug);
   
   const [selectedImage, setSelectedImage] = React.useState(0);
   const [quantity, setQuantity] = React.useState(1);
 
   React.useEffect(() => {
-    setSelectedImage(0);
-    setQuantity(1);
-  }, [product.id]);
+    if (product) {
+      setSelectedImage(0);
+      setQuantity(1);
+    }
+  }, [product]);
+
+  if (loading) {
+    return <div className="flex justify-center items-center h-96"><Spinner size="lg" /></div>;
+  }
+
+  if (error) {
+    return <div className="text-center py-10">Error loading product.</div>;
+  }
+
+  if (!product) {
+    return <div className="text-center py-10">Product not found.</div>;
+  }
 
   const handleAddToCart = () => {
     addToCart(product, quantity);

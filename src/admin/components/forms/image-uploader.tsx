@@ -8,7 +8,7 @@ interface ImageUploaderProps {
   onChange: (images: string[]) => void;
 }
 
-export const ImageUploader: React.FC<ImageUploaderProps> = ({ images, onChange }) => {
+export const ImageUploader: React.FC<ImageUploaderProps> = ({ images = [], onChange }) => {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
   
   const handleAddImage = () => {

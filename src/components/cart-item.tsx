@@ -3,7 +3,8 @@ import React from "react";
 import Link from "next/link";
 import { Button, Input } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { CartItem as CartItemType } from "../types/cart";
+import { useCart } from '@/context/CartContext';
+import { CartItem as CartItemType } from "@/types/cart";
 
 interface CartItemProps {
   item: CartItemType;
@@ -26,9 +27,9 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-4 border-b border-divider">
       <div className="relative w-24 h-24 rounded-md overflow-hidden flex-shrink-0">
-        <Link href={`/product/${item.product.id}`}>
+        <Link href={`/product/${item.product.slug}`}>
           <Image
-            src={item.product.image}
+            src={item.product.imageUrls?.[0] ? item.product.imageUrls[0] : '/placeholder-product.svg'}
             alt={item.product.name}
             width={96}
             height={96}
@@ -40,7 +41,7 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
       <div className="flex-grow">
         <div className="flex flex-col sm:flex-row sm:justify-between">
           <div>
-            <Link href={`/product/${item.product.id}`}>
+            <Link href={`/product/${item.product.slug}`}>
               <h3 className="font-medium text-sm sm:text-base hover:text-primary transition-colors">
                 {item.product.name}
               </h3>
@@ -82,18 +83,27 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
               />
             </div>
 
-            <div className="flex items-center gap-1">
-              <span className="font-semibold">
-                ${(item.product.price * item.quantity).toFixed(2)}
-              </span>
+                                        <div className="flex items-center gap-1">
 
-              {item.product.originalPrice && (
-                <span className="text-default-400 text-tiny line-through">
-                  ${(item.product.originalPrice * item.quantity).toFixed(2)}
-                </span>
-              )}
-            </div>
-          </div>
+                                          <span className="font-semibold">
+
+                                            ${((item.product.isDiscounted && item.product.discountPrice ? item.product.discountPrice : item.product.price) * item.quantity).toFixed(2)}
+
+                                          </span>
+
+                          
+
+                                          {item.product.isDiscounted && (
+
+                                            <span className="text-default-400 text-tiny line-through">
+
+                                              ${(item.product.price * item.quantity).toFixed(2)}
+
+                                            </span>
+
+                                          )}
+
+                                        </div>          </div>
         </div>
 
         <div className="flex justify-end mt-2">

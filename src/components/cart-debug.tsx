@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Card, CardBody, CardHeader, Divider } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import { useCart } from '../hooks/use-cart';
+import { useCart } from '@/context/CartContext';
 import { Product } from '../types/product';
 
 // Test product for debugging

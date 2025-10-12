@@ -1,107 +1,78 @@
-
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@lib/prisma';
 import { z } from 'zod';
 
-export const dynamic = 'force-dynamic';
-
-const productUpdateSchema = z.object({
-  name: z.string().min(1, 'Name is required').optional(),
-  description: z.string().min(1, 'Description is required').optional(),
-  price: z.number().positive('Price must be a positive number').optional(),
-  stock: z.number().int().min(0, 'Stock must be a non-negative integer').optional(),
-  imageUrls: z.array(z.string().url()).optional(),
+const productSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  slug: z.string().min(1, 'Slug is required'),
+  brand: z.string().min(1, 'Brand is required'),
+  sex: z.enum(['WOMAN', 'MAN', 'UNISEX']),
+  description: z.string().min(1, 'Description is required'),
+  price: z.number().min(0, 'Price must be a positive number'),
+  discountPrice: z.number().min(0, 'Discount price must be a positive number').optional(),
+  isDiscounted: z.boolean(),
+  stock: z.number().min(0, 'Stock must be a positive number'),
+  bottleSize: z.number().min(0, 'Bottle size must be a positive number'),
+  bottleType: z.string().min(1, 'Bottle type is required'),
+  packaging: z.string().min(1, 'Packaging is required'),
+  averageRating: z.number().min(0).max(5).optional(),
+  shippingWeight: z.number().min(0, 'Shipping weight must be a positive number').optional(),
+  seoTitle: z.string().optional(),
+  seoDescription: z.string().optional(),
+  imageUrls: z.array(z.string().url('Invalid URL')),
+  fragranceNotes: z.object({
+    topNotes: z.string(),
+    middleNotes: z.string(),
+    baseNotes: z.string(),
+  }).optional(),
 });
 
-export async function GET(req: Request, { params: { id } }: { params: { id: string } }) {
-    try {
-        const product = await prisma.product.findUnique({
-            where: { id },
-        });
-
-        if (!product) {
-            return new NextResponse(JSON.stringify({ error: 'Not Found' }), {
-                status: 404,
-                headers: { 'Content-Type': 'application/json' },
-            });
-        }
-
-        return NextResponse.json({ data: product });
-    } catch (error) {
-        console.error('Error fetching product:', error);
-        return new NextResponse(
-            JSON.stringify({ error: 'Internal Server Error' }),
-            {
-                status: 500,
-                headers: { 'Content-Type': 'application/json' },
-            }
-        );
-    }
-}
-
-export async function PUT(req: Request, { params: { id } }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const body = await req.json();
-    const validation = productUpdateSchema.safeParse(body);
-
-    if (!validation.success) {
-      return new NextResponse(
-        JSON.stringify({ error: 'Bad Request', details: validation.error.errors }),
-        {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
+    const product = await prisma.product.findUnique({
+      where: { id: params.id },
+      include: {
+        fragranceNotes: true,
+      },
+    });
+    if (!product) {
+      return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
-
-    const updatedProduct = await prisma.product.update({
-      where: { id },
-      data: validation.data,
-    });
-
-    return new NextResponse(JSON.stringify({ data: updatedProduct }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return NextResponse.json(product);
   } catch (error) {
-    console.error('Error updating product:', error);
-    if ((error as any).code === 'P2025') { // Prisma error code for record not found
-        return new NextResponse(JSON.stringify({ error: 'Not Found' }), {
-            status: 404,
-            headers: { 'Content-Type': 'application/json' },
-        });
-    }
-    return new NextResponse(
-      JSON.stringify({ error: 'Internal Server Error' }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+    return NextResponse.json({ error: 'Failed to fetch product data' }, { status: 500 });
   }
 }
 
-export async function DELETE(req: Request, { params: { id } }: { params: { id: string } }) {
-    try {
-        await prisma.product.delete({
-            where: { id },
-        });
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const body = await req.json();
+    const validation = productSchema.safeParse(body);
 
-        return new NextResponse(null, { status: 204 });
-    } catch (error) {
-        console.error('Error deleting product:', error);
-        if ((error as any).code === 'P2025') { // Prisma error code for record not found
-            return new NextResponse(JSON.stringify({ error: 'Not Found' }), {
-                status: 404,
-                headers: { 'Content-Type': 'application/json' },
-            });
-        }
-        return new NextResponse(
-            JSON.stringify({ error: 'Internal Server Error' }),
-            {
-                status: 500,
-                headers: { 'Content-Type': 'application/json' },
-            }
-        );
+    if (!validation.success) {
+      return NextResponse.json({ error: validation.error.errors }, { status: 400 });
     }
+
+    const { fragranceNotes, ...productData } = validation.data;
+
+    const product = await prisma.product.update({
+      where: { id: params.id },
+      data: {
+        ...productData,
+        fragranceNotes: {
+          upsert: {
+            create: fragranceNotes,
+            update: fragranceNotes,
+          },
+        },
+      },
+      include: {
+        fragranceNotes: true,
+      },
+    });
+
+    return NextResponse.json(product);
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to update product data' }, { status: 500 });
+  }
 }

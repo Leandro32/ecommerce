@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Badge } from "@heroui/react";
 import { Icon } from "@iconify/react";
-import { useCart } from "../hooks/use-cart";
+import { useCart } from "@/context/CartContext";
 import { motion } from "framer-motion";
 
 const MobileNavigation: React.FC = () => {

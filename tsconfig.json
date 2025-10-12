@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "lib": [
-      "DOM",
-      "DOM.Iterable",
-      "ESNext"
-    ],
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -24,12 +20,8 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "src/*"
-      ],
-      "@lib/*": [
-        "lib/*"
-      ]
+      "@/*": ["src/*"],
+      "@lib/*": ["lib/*"]
     }
   },
   "include": [
@@ -39,10 +31,7 @@
     ".next/types/**/*.ts",
     "src/admin/hooks/useDebounce.ts"
   ],
-  "exclude": [
-    "node_modules",
-    "heroui-project"
-  ],
+  "exclude": ["node_modules", "heroui-project"],
   "references": [
     {
       "path": "./tsconfig.node.json"
