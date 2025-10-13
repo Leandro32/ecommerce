@@ -1,5 +1,5 @@
 
-import { Order } from '../../../../src/types/order';
+import { Order } from '@/types/order';
 import OrdersClientPage from './OrdersClientPage';
 
 async function getOrders(): Promise<Order[]> {

@@ -19,6 +19,8 @@
     "@heroui/use-theme": "2.1.6",
     "@hookform/resolvers": "^5.2.2",
     "@iconify/react": "latest",
+    "@tanstack/react-query": "^5.90.2",
+    "@tanstack/react-query-devtools": "^5.90.2",
     "@tiptap/react": "^3.6.6",
     "@tiptap/starter-kit": "^3.6.6",
     "bcrypt": "^6.0.0",

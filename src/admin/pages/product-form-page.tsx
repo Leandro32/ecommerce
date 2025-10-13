@@ -2,8 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Button, Input, Textarea, Card, CardBody, CardHeader, Divider, Spinner, Image } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { useRouter, useParams } from 'next/navigation';
-import useSWR from 'swr';
-import { fetcher } from '../lib/fetcher';
+import { useProduct } from '../../hooks/queries/useProduct';
+import { useCreateProduct, useUpdateProduct } from '../../hooks/queries/useProductMutations';
 import { addToast } from '@heroui/react';
 
 interface ProductForm {
@@ -20,21 +20,18 @@ export const ProductFormPage: React.FC = () => {
   const router = useRouter();
   const isEditMode = !!id;
 
-  const [formData, setFormData] = useState<ProductForm>({
+  const [formData, setFormData] = useState<Partial<ProductForm>>({
     name: '',
     description: '',
     price: 0,
     stock: 0,
     imageUrls: [],
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
-  // Fetch product data if in edit mode
-  const { data: product, error, isLoading } = useSWR<ProductForm>(
-    isEditMode ? `/api/v1/admin/products/${id}` : null,
-    fetcher
-  );
+  const { data: product, isLoading: isLoadingProduct } = useProduct(id as string);
+  const { mutate: createProduct, isPending: isCreating } = useCreateProduct();
+  const { mutate: updateProduct, isPending: isUpdating } = useUpdateProduct();
 
   useEffect(() => {
     if (isEditMode && product) {
@@ -80,7 +77,7 @@ export const ProductFormPage: React.FC = () => {
 
     try {
       const newImageUrls = await Promise.all(uploadPromises);
-      setFormData(prev => ({ ...prev, imageUrls: [...prev.imageUrls, ...newImageUrls] }));
+      setFormData(prev => ({ ...prev, imageUrls: [...(prev.imageUrls || []), ...newImageUrls] }));
       addToast({
         title: 'Success',
         description: `${newImageUrls.length} image(s) uploaded successfully.`,
@@ -100,7 +97,7 @@ export const ProductFormPage: React.FC = () => {
   const handleImageDelete = (urlToDelete: string) => {
     setFormData(prev => ({
       ...prev,
-      imageUrls: prev.imageUrls.filter(url => url !== urlToDelete),
+      imageUrls: prev.imageUrls?.filter(url => url !== urlToDelete),
     }));
     addToast({
         title: 'Image Removed',
@@ -109,56 +106,21 @@ export const ProductFormPage: React.FC = () => {
       });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    const productData = { ...formData, id };
 
-    try {
-      const method = isEditMode ? 'PUT' : 'POST';
-      const url = isEditMode ? `/api/v1/admin/products/${id}` : '/api/v1/admin/products';
-
-      const res = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.details || 'Failed to save product');
-      }
-
-      addToast({
-        title: 'Success',
-        description: `Product ${isEditMode ? 'updated' : 'created'} successfully.`, 
-        color: 'success',
-      });
-      router.push('/admin/products');
-    } catch (err: any) {
-      addToast({
-        title: 'Error',
-        description: err.message || 'An error occurred while saving the product.',
-        color: 'danger',
-      });
-    } finally {
-      setIsSubmitting(false);
+    if (isEditMode) {
+      updateProduct(productData as any, { onSuccess: () => router.push('/admin/products') });
+    } else {
+      createProduct(productData as any, { onSuccess: () => router.push('/admin/products') });
     }
   };
 
-  if (isEditMode && isLoading) {
+  if (isEditMode && isLoadingProduct) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Spinner label="Loading product..." />
-      </div>
-    );
-  }
-
-  if (isEditMode && error) {
-    return (
-      <div className="flex justify-center items-center h-screen text-danger">
-        Error loading product: {error.message}
       </div>
     );
   }
@@ -228,7 +190,7 @@ export const ProductFormPage: React.FC = () => {
               />
               {isUploadingImage && <Spinner size="sm" className="mt-2" label="Uploading..." />} 
               <div className="mt-4 flex flex-wrap gap-4">
-                {formData.imageUrls.map((url) => (
+                {formData.imageUrls?.map((url) => (
                   <div key={url} className="relative group">
                     <Image src={url} alt="Product Preview" width={100} height={100} className="rounded-lg object-cover" />
                     <Button
@@ -250,7 +212,7 @@ export const ProductFormPage: React.FC = () => {
         </Card>
 
         <div className="flex justify-end">
-          <Button type="submit" color="primary" size="lg" isLoading={isSubmitting || isUploadingImage}>
+          <Button type="submit" color="primary" size="lg" isLoading={isCreating || isUpdating || isUploadingImage}>
             {isEditMode ? 'Save Changes' : 'Create Product'}
           </Button>
         </div>

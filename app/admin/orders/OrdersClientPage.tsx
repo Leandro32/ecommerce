@@ -2,8 +2,8 @@
 
 import { Button, Link as HeroLink, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@heroui/react';
 import Link from 'next/link';
-import StatusBadge from '../../../src/admin/components/StatusBadge';
-import { Order } from '../../../src/types/order';
+import StatusBadge from '@/admin/components/StatusBadge';
+import { Order } from '@/types/order';
 
 interface OrdersClientPageProps {
   orders: Order[];

@@ -2,10 +2,9 @@ import React from "react";
 import { Card, CardBody, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Button, Badge } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
-import useSWR from 'swr';
 import { KpiCard } from "../components/dashboard/kpi-card";
 import { RevenueChart } from "../components/dashboard/revenue-chart";
-import { fetcher } from "../lib/fetcher";
+import { useAdminOrders } from "../../hooks/queries/useAdminOrders";
 
 // Data types based on Prisma schema
 interface Product {
@@ -29,14 +28,14 @@ interface Order {
 }
 
 export const DashboardPage: React.FC = () => {
-  const { data: orders, error, isLoading } = useSWR<Order[]>('/api/v1/admin/orders', fetcher);
+  const { data: orders, error, isLoading } = useAdminOrders();
 
   const kpiData = React.useMemo(() => {
     if (!orders) return [];
 
     const completedOrders = orders.filter(o => o.status === 'DELIVERED' || o.status === 'RECIBIDO_CONFORME' || o.status === 'FACTURADO_PAGADO');
     const totalRevenue = completedOrders.reduce((acc, order) => {
-      const orderTotal = order.items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+      const orderTotal = order.items.reduce((sum, item) => sum + (item.product?.price || 0) * item.quantity, 0);
       return acc + orderTotal;
     }, 0);
 
@@ -172,7 +171,7 @@ export const DashboardPage: React.FC = () => {
                     <TableCell>
                       <StatusBadge status={order.status} />
                     </TableCell>
-                    <TableCell>${order.items.reduce((sum, item) => sum + item.product.price * item.quantity, 0).toFixed(2)}</TableCell>
+                    <TableCell>${order.items.reduce((sum, item) => sum + (item.product?.price || 0) * item.quantity, 0).toFixed(2)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

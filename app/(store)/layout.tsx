@@ -3,7 +3,7 @@ import "../globals.css";
 import I18nProvider from "../../src/components/I18nProvider";
 import Header from "../../src/components/header";
 import Footer from "../../src/components/footer";
-import StoreProviders from "../../src/components/StoreProviders";
+import { AppProvider } from "../../src/context/AppProvider";
 
 export const metadata: Metadata = {
   title: "Aura Perfumes",
@@ -17,7 +17,7 @@ export default async function StoreLayout({
 }) {
   return (
     <I18nProvider>
-      <StoreProviders>
+      <AppProvider>
         <div className="flex flex-col min-h-screen">
           <Header />
           <main className="flex-grow pt-14">
@@ -27,7 +27,7 @@ export default async function StoreLayout({
           </main>
           <Footer />
         </div>
-      </StoreProviders>
+      </AppProvider>
     </I18nProvider>
   );
 }

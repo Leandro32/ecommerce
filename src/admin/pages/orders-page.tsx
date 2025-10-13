@@ -3,8 +3,7 @@ import { Button, Input, Card, CardBody, Table, TableHeader, TableColumn, TableBo
 import { Icon } from "@iconify/react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import useSWR from 'swr';
-import { fetcher } from '../lib/fetcher';
+import { useAdminOrders } from "../../hooks/queries/useAdminOrders";
 
 // Copied from dashboard-page.tsx - should be in a shared component
 interface StatusBadgeProps {
@@ -53,7 +52,7 @@ const ORDER_STATUSES = [
 export const OrdersPage: React.FC = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { data: orders, error, isLoading } = useSWR<Order[]>('/api/v1/admin/orders', fetcher);
+  const { data: orders, error, isLoading } = useAdminOrders();
 
   const page = Number(searchParams.get("page") || "1");
   const searchQuery = searchParams.get("q") || "";

@@ -21,9 +21,8 @@ import {
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
-import useSWR, { useSWRConfig } from "swr";
-import { fetcher } from "../lib/fetcher";
-import { addToast } from "@heroui/react";
+import { useProducts } from "../../hooks/queries/useProducts";
+import { useDeleteProduct } from "../../hooks/queries/useProductMutations";
 
 interface Product {
   id: string;
@@ -34,12 +33,8 @@ interface Product {
 }
 
 export const ProductListPage: React.FC = () => {
-  const {
-    data: products,
-    error,
-    isLoading,
-  } = useSWR<Product[]>("/api/v1/admin/products", fetcher);
-  const { mutate } = useSWRConfig();
+  const { data: products, isLoading } = useProducts();
+  const { mutate: deleteProduct } = useDeleteProduct();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(
     null,
@@ -63,29 +58,10 @@ export const ProductListPage: React.FC = () => {
     return filteredProducts.slice(start, end);
   }, [page, filteredProducts]);
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!selectedProduct) return;
-
-    try {
-      const res = await fetch(`/api/v1/admin/products/${selectedProduct.id}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.details || "Failed to delete product");
-      }
-
-      addToast({
-        title: "Success",
-        description: "Product deleted successfully",
-        color: "success",
-      });
-      mutate("/api/v1/admin/products"); // Revalidate the data
-      onClose();
-    } catch (error: any) {
-      addToast({ title: "Error", description: error.message, color: "danger" });
-    }
+    deleteProduct(selectedProduct.id);
+    onClose();
   };
 
   const openDeleteModal = (product: Product) => {
@@ -96,7 +72,7 @@ export const ProductListPage: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Products!</h1>
+        <h1 className="text-2xl font-semibold">Products</h1>
         <Button
           color="primary"
           startContent={<Icon icon="lucide:plus" />}

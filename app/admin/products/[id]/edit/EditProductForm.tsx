@@ -6,7 +6,8 @@ import TiptapEditor from './TiptapEditor';
 import { ImageUploader } from '@/admin/components/forms/image-uploader';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import useSWR from 'swr';
+import { useProduct } from '@/hooks/queries/useProduct';
+import { useUpdateProduct } from '@/hooks/queries/useProductMutations';
 import { useRouter } from 'next/navigation';
 import { Input, Button, Select, SelectItem, Checkbox } from '@heroui/react';
 
@@ -37,11 +38,10 @@ const productSchema = z.object({
 
 type ProductFormValues = z.infer<typeof productSchema>;
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
-
 export default function EditProductForm({ productId }: { productId: string }) {
   const router = useRouter();
-  const { data: product, error } = useSWR(`/api/v1/admin/products/${productId}`, fetcher);
+  const { data: product, isLoading, isError } = useProduct(productId);
+  const { mutate: updateProduct, isPending: isUpdating } = useUpdateProduct();
 
   const {
     handleSubmit,
@@ -56,29 +56,18 @@ export default function EditProductForm({ productId }: { productId: string }) {
 
   useEffect(() => {
     if (product) {
-      reset(product);
+      reset(product as any);
     }
   }, [product, reset]);
 
-  const onSubmit = async (data: ProductFormValues) => {
-    try {
-      const response = await fetch(`/api/v1/admin/products/${productId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      if (response.ok) {
-        router.push('/admin/products');
-      } else {
-        console.error('Failed to update product');
-      }
-    } catch (error) {
-      console.error('Failed to update product', error);
-    }
+  const onSubmit = (data: ProductFormValues) => {
+    updateProduct(data as any, {
+      onSuccess: () => router.push('/admin/products'),
+    });
   };
 
-  if (error) return <div>Failed to load product</div>;
-  if (!product) return <div>Loading...</div>;
+  if (isError) return <div>Failed to load product</div>;
+  if (isLoading || !product) return <div>Loading...</div>;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">

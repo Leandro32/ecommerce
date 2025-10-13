@@ -1,9 +1,9 @@
 
-import { Card, CardBody, CardHeader, Divider, Image, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@heroui/react';
-import StatusBadge from '../../../../../src/admin/components/StatusBadge';
-import StatusUpdater from '../../../../../src/admin/components/StatusUpdater';
-import InternalNotes from '../../../../../src/admin/components/InternalNotes';
-import { Order } from '../../../../../src/types/order';
+import { Card, CardBody, CardHeader, Divider, Image } from '@heroui/react';
+import StatusBadge from '@/admin/components/StatusBadge';
+import { Order } from '@/types/order';
+import OrderItemsTable from './OrderItemsTable';
+import OrderSidebar from './OrderSidebar';
 
 async function getOrder(id: string): Promise<Order> {
   const res = await fetch(`http://localhost:3000/api/v1/admin/orders/${id}`, { cache: 'no-store' });
@@ -56,59 +56,13 @@ export default async function OrderDetailPage({ params }: { params: { id: string
             </CardHeader>
             <Divider />
             <CardBody>
-              <Table aria-label="Order items table">
-                <TableHeader>
-                  <TableColumn>Product</TableColumn>
-                  <TableColumn>Quantity</TableColumn>
-                  <TableColumn>Price</TableColumn>
-                  <TableColumn>Total</TableColumn>
-                </TableHeader>
-                <TableBody>
-                  {order.items.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <Image
-                            src={item.product?.imageUrl || '/placeholder-product.svg'}
-                            alt={item.product?.name || 'Product Image'}
-                            width={40}
-                            height={40}
-                            className="rounded-md object-cover"
-                          />
-                          <span>{item.product?.name || 'N/A'}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>{item.quantity}</TableCell>
-                      <TableCell>${item.product?.price.toFixed(2) || '0.00'}</TableCell>
-                      <TableCell>${((item.product?.price || 0) * item.quantity).toFixed(2)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <OrderItemsTable items={order.items} />
             </CardBody>
           </Card>
         </div>
 
         <div>
-          <Card className="mb-6">
-            <CardHeader>
-              <h2 className="text-xl font-semibold">Update Status</h2>
-            </CardHeader>
-            <Divider />
-            <CardBody>
-              <StatusUpdater orderId={order.id} currentStatus={order.status} onStatusUpdate={() => { /* Revalidate data */ }} />
-            </CardBody>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <h2 className="text-xl font-semibold">Internal Notes</h2>
-            </CardHeader>
-            <Divider />
-            <CardBody>
-              <InternalNotes orderId={order.id} />
-            </CardBody>
-          </Card>
+          <OrderSidebar order={order} />
         </div>
       </div>
     </div>

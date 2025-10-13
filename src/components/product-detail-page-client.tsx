@@ -5,13 +5,14 @@ import React from 'react';
 import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
-import { Button, Chip, Divider, Accordion, AccordionItem, Badge, Spinner } from '@heroui/react';
+import { Button, Chip, Divider, Accordion, AccordionItem, Badge } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import ProductGrid from './product-grid';
 import { useCart } from '../context/CartContext';
 import type { Product } from '../types/product';
 import { formatPrice, getStockStatus } from '../utils/productUtils';
-import { useProduct } from '../hooks/useProduct';
+import { useProduct } from '../hooks/queries/useProduct';
+import ProductDetailSkeleton from './skeletons/ProductDetailSkeleton';
 
 interface ProductDetailPageClientProps {
   slug: string;
@@ -20,37 +21,30 @@ interface ProductDetailPageClientProps {
 
 const ProductDetailPageClient: React.FC<ProductDetailPageClientProps> = ({ slug, relatedProducts }) => {
   const { t } = useTranslation(['products', 'navigation']);
-  const { addToCart } = useCart();
-  const { product, loading, error } = useProduct(slug);
+  const { cartItems, addToCart, updateCartItemQuantity, removeFromCart } = useCart();
+  const { data: product, isLoading, isError } = useProduct(slug);
+  const cartItem = product ? cartItems.find(item => item.product.id === product.id) : undefined;
+  
   
   const [selectedImage, setSelectedImage] = React.useState(0);
-  const [quantity, setQuantity] = React.useState(1);
 
   React.useEffect(() => {
     if (product) {
       setSelectedImage(0);
-      setQuantity(1);
     }
   }, [product]);
 
-  if (loading) {
-    return <div className="flex justify-center items-center h-96"><Spinner size="lg" /></div>;
+  if (isLoading) {
+    return <ProductDetailSkeleton />;
   }
 
-  if (error) {
+  if (isError || !product) {
     return <div className="text-center py-10">Error loading product.</div>;
   }
 
-  if (!product) {
-    return <div className="text-center py-10">Product not found.</div>;
-  }
-
   const handleAddToCart = () => {
-    addToCart(product, quantity);
+    addToCart(product, 1);
   };
-  
-  const incrementQuantity = () => setQuantity(prev => Math.min(prev + 1, product.stock));
-  const decrementQuantity = () => setQuantity(prev => Math.max(1, prev - 1));
   
   const stockStatus = getStockStatus(product);
   const isInStock = product.stock > 0;
@@ -77,7 +71,7 @@ const ProductDetailPageClient: React.FC<ProductDetailPageClientProps> = ({ slug,
           <div className="relative rounded-lg overflow-hidden shadow-lg mb-4 bg-default-100">
             <Image 
               src={product.imageUrls?.[selectedImage] || '/placeholder-product.svg'} 
-              alt={product.name}
+              alt={product.name || 'Product image'}
               width={600}
               height={600}
               className="w-full aspect-square object-cover transition-opacity duration-300"
@@ -99,7 +93,7 @@ const ProductDetailPageClient: React.FC<ProductDetailPageClientProps> = ({ slug,
                 >
                   <Image 
                     src={image} 
-                    alt={`${product.name} view ${index + 1}`}
+                    alt={`${product.name || 'Product'} view ${index + 1}`}
                     width={100}
                     height={100}
                     className="w-full aspect-square object-cover"
@@ -134,25 +128,37 @@ const ProductDetailPageClient: React.FC<ProductDetailPageClientProps> = ({ slug,
           
           {/* Quantity & Add to Cart */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
-            <div className="flex items-center gap-2">
-              <Button isIconOnly variant="flat" onPress={decrementQuantity} isDisabled={quantity <= 1}>
-                <Icon icon="lucide:minus" />
+            {cartItem ? (
+              <div className="flex items-center gap-2">
+                <Button 
+                  isIconOnly 
+                  variant="flat" 
+                  onPress={() => cartItem.quantity > 1 ? updateCartItemQuantity(cartItem.id, cartItem.quantity - 1) : removeFromCart(cartItem.id)}
+                >
+                  <Icon icon={cartItem.quantity > 1 ? 'lucide:minus' : 'lucide:trash'} />
+                </Button>
+                <span className="text-xl font-semibold w-12 text-center">{cartItem.quantity}</span>
+                <Button 
+                  isIconOnly 
+                  variant="flat" 
+                  onPress={() => updateCartItemQuantity(cartItem.id, cartItem.quantity + 1)} 
+                  isDisabled={!isInStock || cartItem.quantity >= product.stock}
+                >
+                  <Icon icon="lucide:plus" />
+                </Button>
+              </div>
+            ) : (
+              <Button
+                color="primary"
+                size="lg"
+                onPress={handleAddToCart}
+                startContent={<Icon icon="lucide:shopping-cart" />}
+                isDisabled={!isInStock}
+                className="w-full sm:w-auto flex-grow"
+              >
+                {t('products:actions.addToCart')}
               </Button>
-              <span className="text-xl font-semibold w-12 text-center">{quantity}</span>
-              <Button isIconOnly variant="flat" onPress={incrementQuantity} isDisabled={!isInStock || quantity >= product.stock}>
-                <Icon icon="lucide:plus" />
-              </Button>
-            </div>
-            <Button
-              color="primary"
-              size="lg"
-              onPress={handleAddToCart}
-              startContent={<Icon icon="lucide:shopping-cart" />}
-              isDisabled={!isInStock}
-              className="w-full sm:w-auto flex-grow"
-            >
-              {t('products:actions.addToCart')}
-            </Button>
+            )}
           </div>
           
           <Divider className="my-6" />
@@ -221,7 +227,7 @@ const ProductDetailPageClient: React.FC<ProductDetailPageClientProps> = ({ slug,
                   </div>
                   <div className="flex justify-between py-1 border-b border-default-100">
                     <span className="font-medium text-default-600">{t('products:details.sex')}</span>
-                    <span className="text-default-800">{t(`sex.${product.sex.toLowerCase()}`)}</span>
+                    <span className="text-default-800">{product.sex ? t(`sex.${product.sex.toLowerCase()}`) : 'N/A'}</span>
                   </div>
                   <div className="flex justify-between py-1 border-b border-default-100">
                     <span className="font-medium text-default-600">{t('products:details.packaging')}</span>

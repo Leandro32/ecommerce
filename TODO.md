@@ -500,7 +500,7 @@ Now, let's create the administrator view in the Next.js application.
     - [x] Refactor the product list and detail pages to fetch data from the new `/api/v1/products` endpoints instead of using mock data.
     - [x] Implement proper loading and error states.
 - [x] **Checkout Process:**
-    - [x] **Replace WhatsApp Flow:** The checkout page will be modified to submit orders directly to the `POST /api/v1/orders` endpoint. The `localStorage` and WhatsApp logic will be removed.
+    - [ ] **Replace WhatsApp Flow:** The checkout page will be modified to submit orders directly to the `POST /api/v1/orders` endpoint. The `localStorage` and WhatsApp logic will be removed. (Note: This was reverted, WhatsApp flow is restored).
     - [x] Provide clear success or error feedback to the user based on the API response (e.g., "Order placed successfully!" or "Some items are out of stock.").
 
 ### 3. Connect Admin Panel Frontend to API
@@ -569,6 +569,147 @@ Now, let's create the administrator view in the Next.js application.
 
 When you build your Docker image, you will set the `NEXT_PUBLIC_IMAGE_CDN_URL` environment variable to the address of your MinIO bucket (e.g., `http://minio:9000`). The Next.js app will automatically whitelist that address and the `getImageUrl` utility will construct the correct image links, pointing to MinIO instead of the local server. No code changes will be needed.
 --- 
+
+## 🚀 TASK 16: REFACTOR DATA FETCHING WITH TANSTACK QUERY
+**Priority: CRITICAL** | **Status: ✅ COMPLETED**
+
+*This task outlines the process of migrating the entire application's data fetching logic to use TanStack Query (formerly React Query). This is a critical architectural improvement to standardize how we fetch, cache, and manage server state, leading to significant performance gains, a better user experience, and simpler, more maintainable code.*
+
+### **Guiding Principles (Based on Product Owner Feedback)**
+1.  **Offline First for Browsing**: Users should be able to view products they've already loaded even if their connection drops. The app will rely on cached data. Online connectivity is only required for actions like placing an order.
+2.  **Real-Time Admin Orders**: The main orders list in the admin panel must update automatically as new orders come in. We will achieve this via background polling.
+3.  **Non-Disruptive, Specific Error Feedback**: All server or network errors should trigger a non-intrusive toast notification. The system must provide specific messages for different errors (e.g., session expiry vs. server down).
+4.  **Skeleton Loaders Everywhere**: All initial data loads must be represented by skeleton loaders that mimic the shape of the final content. No more "Loading..." text.
+5.  **Optimistic UI for Admin Actions**: Admin panel mutations (create, update, delete) should feel instantaneous by using optimistic UI updates.
+
+---
+
+### **Phase 1: Foundation & Setup**
+*Goal: Install TanStack Query and configure it at the application's root with production-grade settings.*
+
+1.  [x] **Install Dependencies**: `npm install @tanstack/react-query @tanstack/react-query-devtools`.
+
+2.  [x] **Configure the `QueryClient`**:
+    - [x] In `app/providers.tsx`, create the `QueryClient` instance.
+    - [x] **Set `staleTime` to 15 minutes**: Data will be considered fresh for 15 minutes, preventing refetches during this window for a faster navigation experience.
+    - [x] **Set `cacheTime`**: Configure how long inactive query data is kept in memory (defaults to 5 minutes, can be increased for better offline experience).
+
+    ```tsx
+    // Example for app/providers.tsx
+    const [queryClient] = React.useState(() => new QueryClient({
+      defaultOptions: {
+        queries: {
+          staleTime: 1000 * 60 * 15, // 15 minutes
+        },
+      },
+    }));
+    ```
+
+3.  [x] **Implement `QueryClientProvider`**: Wrap the application in `app/providers.tsx` and include the devtools for debugging.
+
+---
+
+### **Phase 2: Skeleton Loaders**
+*Goal: Create a set of reusable skeleton components for a polished loading experience.*
+
+1.  [x] **Create Skeleton Components**: In `src/components/skeletons/`, build components like `ProductCardSkeleton`, `ProductGridSkeleton`, and `ProductDetailSkeleton` using Tailwind CSS's `animate-pulse`.
+
+---
+
+### **Phase 3: Intelligent API Client**
+*Goal: Centralize all `fetch` logic and implement intelligent, context-aware error handling.*
+
+1.  [x] **Create `apiClient.ts`**: In `src/lib/apiClient.ts`, build wrapper functions for `get`, `post`, `put`, `delete`.
+
+2.  [x] **Implement Intelligent Error Handling**:
+    - [x] The client must inspect the HTTP response status code.
+    - [x] **For `401 Unauthorized` errors** (Admin Panel): Trigger a toast notification ("Session expired, please log in again.") and programmatically redirect the user to the `/admin/login` page.
+    - [x] **For `400 Bad Request` errors** (e.g., checkout fails due to no stock): The API should return a specific error message (e.g., `{ "message": "Item X is out of stock" }`). The `apiClient` will display this specific message in the toast.
+    - [x] **For generic errors** (e.g., `500 Internal Server Error`): Display a generic but friendly toast like "An error occurred on the server. Please try again later."
+
+---
+
+### **Phase 4: Reusable Query Hooks**
+*Goal: Abstract TanStack Query logic into custom hooks for each API resource.*
+
+1.  [x] **Create Hooks in `src/hooks/queries/`**: For each data entity, create a dedicated hook (e.g., `useProducts`, `useAdminOrders`).
+
+2.  [x] **Implement Real-Time Polling for Admin Orders**:
+    - [x] In `useAdminOrders.ts`, set the `refetchInterval` to 30 seconds as requested.
+
+    ```typescript
+    // src/hooks/queries/useAdminOrders.ts
+    export const useAdminOrders = () => {
+      return useQuery<Order[], Error>({
+        queryKey: ['admin', 'orders'],
+        queryFn: () => apiClient.get('/admin/orders'),
+        refetchInterval: 30000, // Refetch every 30 seconds
+      });
+    };
+    ```
+
+---
+
+### **Phase 5: Refactor Components**
+*Goal: Replace all manual data fetching with the new query hooks and skeleton loaders.*
+
+1.  [x] **Refactor Pages and Components**: Systematically replace `useEffect`/`useState` fetching logic with a single call to a query hook.
+2.  [x] **Implement Loading States**: Use the `isLoading` boolean from the hook to render the appropriate skeleton component, providing a seamless visual transition.
+
+---
+
+### **Phase 6: Implement Optimistic Mutations**
+*Goal: Make the admin panel feel instantaneous by updating the UI before the API call completes.*
+
+1.  [x] **Create Mutation Hooks**: For each CUD (Create, Update, Delete) operation, create a `useMutation` hook (e.g., `useUpdateProduct`, `useDeleteProduct`).
+
+2.  [x] **Implement Optimistic Update Logic**:
+    - [x] Use the full `useMutation` object: `onMutate`, `onError`, and `onSettled`.
+    - [x] **`onMutate`**: Called before the mutation runs. Here we will:
+        1.  Cancel any outgoing refetches for the data we are about to update.
+        2.  Get a snapshot of the current data from the query cache.
+        3.  Manually update the query cache with the new, optimistic data.
+        4.  Return the snapshot of the previous data.
+    - [x] **`onError`**: If the mutation fails, use the context returned from `onMutate` (the previous data snapshot) to roll back the UI to its original state.
+    - [x] **`onSettled`**: Whether the mutation succeeds or fails, always refetch the data from the server to ensure the client has the true state.
+
+    ```typescript
+    // Example: useDeleteProduct.ts
+    const useDeleteProduct = () => {
+      const queryClient = useQueryClient();
+      return useMutation({ 
+        mutationFn: (productId: string) => apiClient.delete(`/admin/products/${productId}`),
+        onMutate: async (productId) => {
+          await queryClient.cancelQueries({ queryKey: ['products'] });
+          const previousProducts = queryClient.getQueryData<Product[]>(['products']);
+          queryClient.setQueryData<Product[]>(['products'], (old) => old?.filter(p => p.id !== productId));
+          return { previousProducts };
+        },
+        onError: (err, vars, context) => {
+          queryClient.setQueryData(['products'], context?.previousProducts);
+        },
+        onSettled: () => {
+          queryClient.invalidateQueries({ queryKey: ['products'] });
+        },
+      });
+    }
+    ```
+
+---
+
+### **Phase 7: Advanced Optimization (Future Enhancement)**
+*Goal: Prevent unnecessary data fetching if the underlying data on the server has not changed.*
+
+*This is a future-facing optimization that requires backend cooperation. It should be considered after the initial refactor is complete.*
+
+1.  **Backend Requirement**: The backend API must expose a new, lightweight endpoint for each major resource, e.g., `/api/v1/products/last-updated`. This endpoint should return a simple object like `{ "lastUpdatedAt": "2025-10-11T12:00:00.000Z" }`.
+
+2.  **Frontend Implementation Strategy**:
+    - The frontend would first fetch this `last-updated` timestamp.
+    - It would compare this server timestamp with a timestamp stored locally from the last successful data fetch.
+    - The main data-fetching query (e.g., `useProducts`) would use the `enabled` option to run only if the server timestamp is newer than the client's timestamp.
+    - This avoids fetching a large list of products if nothing has changed, saving bandwidth and server resources.
+
 
 ## 🧹 TASK 15: IMPLEMENT MULTI-IMAGE SUPPORT FOR PRODUCTS
 **Priority: HIGH** | **Status: 🟡 IN PROGRESS**

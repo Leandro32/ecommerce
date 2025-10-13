@@ -16,7 +16,8 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const { addToCart } = useCart();
+  const { cartItems, addToCart, updateCartItemQuantity, removeFromCart } = useCart();
+  const cartItem = cartItems.find(item => item.product.id === product.id);
 
   const handleAddToCart = () => {
     addToCart(product);
@@ -91,28 +92,51 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </div>
           </Link>
 
-          {/* Add to Cart Button - Outside of Link */}
-          <div className="absolute bottom-2 right-2">
-            <Button
-              isIconOnly
-              radius="full"
-              variant="flat"
-              color={isInStock ? "primary" : "default"}
-              size="sm"
-              className="shadow-md group transition-all duration-200 hover:scale-110"
-              onPress={handleAddToCart}
-              aria-label="Add to cart"
-              isDisabled={!isInStock}
-            >
-              <Icon
-                icon="lucide:shopping-cart"
-                className="group-hover:opacity-0 transition-opacity duration-200"
-              />
-              <Icon
-                icon="lucide:plus"
-                className="absolute opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-              />
-            </Button>
+          {/* Add to Cart Button or Quantity Controller */}
+          <div className="absolute bottom-2 right-2 flex items-center gap-1">
+            {cartItem ? (
+              <>
+                <Button 
+                  isIconOnly 
+                  size="sm"
+                  variant="flat" 
+                  onPress={() => cartItem.quantity > 1 ? updateCartItemQuantity(cartItem.id, cartItem.quantity - 1) : removeFromCart(cartItem.id)}
+                >
+                  <Icon icon={cartItem.quantity > 1 ? 'lucide:minus' : 'lucide:trash'} className="text-base" />
+                </Button>
+                <span className="font-semibold text-sm w-4 text-center">{cartItem.quantity}</span>
+                <Button 
+                  isIconOnly 
+                  size="sm"
+                  variant="flat" 
+                  onPress={() => updateCartItemQuantity(cartItem.id, cartItem.quantity + 1)} 
+                  isDisabled={!isInStock || cartItem.quantity >= product.stock}
+                >
+                  <Icon icon="lucide:plus" className="text-base" />
+                </Button>
+              </>
+            ) : (
+              <Button
+                isIconOnly
+                radius="full"
+                variant="flat"
+                color={isInStock ? "primary" : "default"}
+                size="sm"
+                className="shadow-md group transition-all duration-200 hover:scale-110"
+                onPress={handleAddToCart}
+                aria-label="Add to cart"
+                isDisabled={!isInStock}
+              >
+                <Icon
+                  icon="lucide:shopping-cart"
+                  className="group-hover:opacity-0 transition-opacity duration-200"
+                />
+                <Icon
+                  icon="lucide:plus"
+                  className="absolute opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                />
+              </Button>
+            )}
           </div>
         </CardBody>
       </Card>
