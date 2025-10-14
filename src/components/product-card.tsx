@@ -11,20 +11,35 @@ import {
   getStockStatus,
 } from "../utils/productUtils";
 
+import { useFavorites } from "../hooks/useFavorites";
+
 interface ProductCardProps {
   product: Product;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { cartItems, addToCart, updateCartItemQuantity, removeFromCart } = useCart();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const cartItem = cartItems.find(item => item.product.id === product.id);
+  const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
 
   const handleAddToCart = () => {
     addToCart(product);
   };
 
-  const displayImage = product.imageUrls[0];
-  const displayPrice = product.price;
+  const handleNextImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex((prevIndex) => (prevIndex + 1) % product.imageUrls.length);
+  };
+
+  const handlePrevImage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCurrentImageIndex((prevIndex) => (prevIndex - 1 + product.imageUrls.length) % product.imageUrls.length);
+  };
+
+  const displayImage = product.imageUrls[currentImageIndex];
   const stockStatus = getStockStatus(product);
   const isInStock = product.stock > 0;
 
@@ -32,20 +47,46 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     <motion.div whileHover={{ y: -5 }} transition={{ duration: 0.2 }}>
       <Card className="overflow-visible h-full w-full" disableRipple>
         <CardBody className="p-0 overflow-visible">
-          <Link href={`/product/${product.slug}`} className="block">
+          <Link href={`/product/${product.slug}`} className="block group">
             <div className="relative w-full aspect-[3/4] bg-default-100 rounded-t-lg overflow-hidden">
               <ProductImage
                 src={displayImage}
                 alt={product.name}
                 className="w-full h-full"
                 fallbackSrc="/placeholder-product.jpg"
-                onError={() => {
-                  console.warn(
-                    `Failed to load image for product: ${product.name}`,
-                  );
-                }}
                 loading="lazy"
               />
+              <Button
+                isIconOnly
+                radius="full"
+                variant="flat"
+                className="absolute top-2 right-2 z-10 bg-white/60 backdrop-blur-md"
+                onPress={() => toggleFavorite(product.id)}
+              >
+                <Icon icon={isFavorite(product.id) ? 'lucide:heart' : 'lucide:heart'} className={`${isFavorite(product.id) ? 'text-danger-500' : 'text-default-500'}`} />
+              </Button>
+              {product.imageUrls.length > 1 && (
+                <>
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    variant="flat"
+                    className="absolute top-1/2 -translate-y-1/2 left-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                    onPress={handlePrevImage}
+                  >
+                    <Icon icon="lucide:chevron-left" />
+                  </Button>
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    variant="flat"
+                    className="absolute top-1/2 -translate-y-1/2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                    onPress={handleNextImage}
+                  >
+                    <Icon icon="lucide:chevron-right" />
+                  </Button>
+                </>
+              )}
             </div>
 
             <div className="p-3">

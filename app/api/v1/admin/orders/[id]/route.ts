@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@lib/prisma';
-import { OrderStatus } from '@/types/order';
+import { OrderStatus } from '@prisma/client';
 import { z } from 'zod';
 
 const updateOrderSchema = z.object({
@@ -35,10 +35,38 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     const body = await request.json();
     const validatedData = updateOrderSchema.parse(body);
 
-    const updatedOrder = await prisma.order.update({
-      where: { id },
-      data: validatedData,
-      include: { items: { include: { product: true } } },
+    const updatedOrder = await prisma.$transaction(async (tx) => {
+      // First, get the current state of the order *within the transaction*
+      const currentOrder = await tx.order.findUnique({
+        where: { id },
+        select: { status: true, items: true },
+      });
+
+      if (!currentOrder) {
+        throw new Error("Order not found");
+      }
+
+      // Update the order status
+      const updatedOrder = await tx.order.update({
+        where: { id },
+        data: validatedData,
+        include: { items: { include: { product: true } } },
+      });
+
+      // If the status is changing to PAID, and it wasn't already PAID, decrement stock.
+      if (
+        validatedData.status === OrderStatus.FACTURADO_PAGADO &&
+        currentOrder.status !== OrderStatus.FACTURADO_PAGADO
+      ) {
+        for (const item of currentOrder.items) {
+          await tx.product.update({
+            where: { id: item.productId },
+            data: { stock: { decrement: item.quantity } },
+          });
+        }
+      }
+
+      return updatedOrder;
     });
 
     return NextResponse.json(updatedOrder);

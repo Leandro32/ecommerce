@@ -1,13 +1,48 @@
-'use client';
-
 import { useQuery } from '@tanstack/react-query';
-import { apiClient } from '@/lib/apiClient';
 import { Product } from '@/types/product';
+import apiClient from '@/lib/apiClient';
 
-export const useProducts = () => {
-  return useQuery<{ data: Product[] }, Error, Product[]>({
-    queryKey: ['products'],
-    queryFn: () => apiClient.get('/api/v1/products'),
-    select: (response) => response.data,
+interface ProductFilters {
+  brands?: string[];
+  sex?: string[];
+  bottleSize?: number[];
+  page?: number;
+  limit?: number;
+  query?: string;
+}
+
+const fetchProducts = async (filters: ProductFilters): Promise<{ products: Product[], totalPages: number }> => {
+  const params = new URLSearchParams();
+
+  if (filters.brands && filters.brands.length > 0) {
+    params.append('brands', filters.brands.join(','));
+  }
+  if (filters.sex && filters.sex.length > 0) {
+    params.append('sex', filters.sex.join(','));
+  }
+  if (filters.bottleSize && filters.bottleSize.length > 0) {
+    params.append('bottleSize', filters.bottleSize.join(','));
+  }
+  if (filters.page) {
+    params.append('page', filters.page.toString());
+  }
+  if (filters.limit) {
+    params.append('limit', filters.limit.toString());
+  }
+  if (filters.query) {
+    params.append('query', filters.query);
+  }
+
+  const queryString = params.toString();
+  const endpoint = queryString ? `/products?${queryString}` : '/products';
+
+  return apiClient.get(endpoint);
+};
+
+export const useProducts = (filters: ProductFilters) => {
+  return useQuery<{ products: Product[], totalPages: number }, Error>({
+    queryKey: ['products', filters], // Include filters in the query key
+    queryFn: () => fetchProducts(filters),
+    keepPreviousData: true, // Keep previous data while new data is fetching
   });
 };

@@ -7,24 +7,21 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { Button, Chip, Divider, Accordion, AccordionItem, Badge } from '@heroui/react';
 import { Icon } from '@iconify/react';
-import ProductGrid from './product-grid';
 import { useCart } from '../context/CartContext';
 import type { Product } from '../types/product';
 import { formatPrice, getStockStatus } from '../utils/productUtils';
-import { useProduct } from '../hooks/queries/useProduct';
-import ProductDetailSkeleton from './skeletons/ProductDetailSkeleton';
+import RelatedProducts from './related-products';
 
 interface ProductDetailPageClientProps {
-  slug: string;
+  product: Product;
   relatedProducts: Product[];
+  allBrands: string[];
 }
 
-const ProductDetailPageClient: React.FC<ProductDetailPageClientProps> = ({ slug, relatedProducts }) => {
+const ProductDetailPageClient: React.FC<ProductDetailPageClientProps> = ({ product, relatedProducts, allBrands }) => {
   const { t } = useTranslation(['products', 'navigation']);
   const { cartItems, addToCart, updateCartItemQuantity, removeFromCart } = useCart();
-  const { data: product, isLoading, isError } = useProduct(slug);
   const cartItem = product ? cartItems.find(item => item.product.id === product.id) : undefined;
-  
   
   const [selectedImage, setSelectedImage] = React.useState(0);
 
@@ -34,20 +31,24 @@ const ProductDetailPageClient: React.FC<ProductDetailPageClientProps> = ({ slug,
     }
   }, [product]);
 
-  if (isLoading) {
-    return <ProductDetailSkeleton />;
-  }
-
-  if (isError || !product) {
-    return <div className="text-center py-10">Error loading product.</div>;
+  if (!product) {
+    return <div className="text-center py-10">Product not found.</div>;
   }
 
   const handleAddToCart = () => {
     addToCart(product, 1);
   };
+
+  const handleBuyNow = () => {
+    const message = `Hola, ¡buen día! Quiero comprar este producto:\n\n• ${product.name} x1 - ${formatPrice(product.discountPrice || product.price)}\n\n¡Muchas gracias!`;
+    const whatsappUrl = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+  };
   
   const stockStatus = getStockStatus(product);
   const isInStock = product.stock > 0;
+
+  const sortedFragranceNotes = product.fragranceNotes?.sort((a, b) => b.percentage - a.percentage);
 
   return (
     <motion.div
@@ -67,7 +68,7 @@ const ProductDetailPageClient: React.FC<ProductDetailPageClientProps> = ({ slug,
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
         {/* Image Gallery */}
-        <div className="px-4 md:px-0">
+        <div className="md:sticky md:top-24 self-start px-4 md:px-0">
           <div className="relative rounded-lg overflow-hidden shadow-lg mb-4 bg-default-100">
             <Image 
               src={product.imageUrls?.[selectedImage] || '/placeholder-product.svg'} 
@@ -87,9 +88,7 @@ const ProductDetailPageClient: React.FC<ProductDetailPageClientProps> = ({ slug,
                 <button
                   key={index}
                   onClick={() => setSelectedImage(index)}
-                  className={`rounded-md overflow-hidden border-2 transition-colors ${
-                    selectedImage === index ? 'border-primary' : 'border-transparent'
-                  }`}
+                  className={`rounded-md overflow-hidden border-2 transition-colors ${selectedImage === index ? 'border-primary' : 'border-transparent'}`}
                 >
                   <Image 
                     src={image} 
@@ -148,16 +147,28 @@ const ProductDetailPageClient: React.FC<ProductDetailPageClientProps> = ({ slug,
                 </Button>
               </div>
             ) : (
-              <Button
-                color="primary"
-                size="lg"
-                onPress={handleAddToCart}
-                startContent={<Icon icon="lucide:shopping-cart" />}
-                isDisabled={!isInStock}
-                className="w-full sm:w-auto flex-grow"
-              >
-                {t('products:actions.addToCart')}
-              </Button>
+              <>
+                <Button
+                  color="primary"
+                  size="lg"
+                  onPress={handleAddToCart}
+                  startContent={<Icon icon="lucide:shopping-cart" />}
+                  isDisabled={!isInStock}
+                  className="w-full sm:w-auto flex-grow"
+                >
+                  {t('products:actions.addToCart')}
+                </Button>
+                <Button
+                  color="secondary"
+                  size="lg"
+                  onPress={handleBuyNow}
+                  startContent={<Icon icon="lucide:send" />}
+                  isDisabled={!isInStock}
+                  className="w-full sm:w-auto flex-grow"
+                >
+                  {t('products:actions.buyNow')}
+                </Button>
+              </>
             )}
           </div>
           
@@ -169,30 +180,23 @@ const ProductDetailPageClient: React.FC<ProductDetailPageClientProps> = ({ slug,
               <div className="prose prose-sm text-default-600 py-2" dangerouslySetInnerHTML={{ __html: product.description }} />
             </AccordionItem>
 
-            {product.fragranceNotes && (
+            {sortedFragranceNotes && sortedFragranceNotes.length > 0 && (
               <AccordionItem key="notes" title={t('products:details.fragranceNotes')}>
-                <div className="py-2 space-y-4">
-                  <div className="flex items-start">
-                    <Icon icon="fluent-emoji-high-contrast:leaf-fluttering-in-wind" className="text-success-500 text-xl mt-1 mr-3" />
-                    <div>
-                      <h4 className="font-semibold">{t('products:details.topNotes')}</h4>
-                      <p className="text-sm text-default-600">{product.fragranceNotes.topNotes}</p>
+                <div className="py-2 space-y-3">
+                  {sortedFragranceNotes.map(({ fragranceNote, percentage }) => (
+                    <div key={fragranceNote.id}>
+                      <div className="flex justify-between mb-1">
+                        <span className="text-sm font-medium text-default-700">{fragranceNote.name}</span>
+                        <span className="text-sm text-default-500">{percentage}%</span>
+                      </div>
+                      <div className="w-full bg-default-200 rounded-full h-2">
+                        <div 
+                          className="h-2 rounded-full"
+                          style={{ width: `${percentage}%`, backgroundColor: fragranceNote.color }}
+                        ></div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-start">
-                    <Icon icon="fluent-emoji-high-contrast:hibiscus" className="text-primary-500 text-xl mt-1 mr-3" />
-                    <div>
-                      <h4 className="font-semibold">{t('products:details.middleNotes')}</h4>
-                      <p className="text-sm text-default-600">{product.fragranceNotes.middleNotes}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start">
-                    <Icon icon="fluent-emoji-high-contrast:wood" className="text-yellow-700 text-xl mt-1 mr-3" />
-                    <div>
-                      <h4 className="font-semibold">{t('products:details.baseNotes')}</h4>
-                      <p className="text-sm text-default-600">{product.fragranceNotes.baseNotes}</p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </AccordionItem>
             )}
@@ -227,7 +231,7 @@ const ProductDetailPageClient: React.FC<ProductDetailPageClientProps> = ({ slug,
                   </div>
                   <div className="flex justify-between py-1 border-b border-default-100">
                     <span className="font-medium text-default-600">{t('products:details.sex')}</span>
-                    <span className="text-default-800">{product.sex ? t(`sex.${product.sex.toLowerCase()}`) : 'N/A'}</span>
+                    <span className="text-default-800">{product.sex.map(s => t(`sex.${s.toLowerCase()}`)).join(', ')}</span>
                   </div>
                   <div className="flex justify-between py-1 border-b border-default-100">
                     <span className="font-medium text-default-600">{t('products:details.packaging')}</span>
@@ -239,13 +243,18 @@ const ProductDetailPageClient: React.FC<ProductDetailPageClientProps> = ({ slug,
         </div>
       </div>
       
-      {/* Related Products */}
-      {relatedProducts && relatedProducts.length > 0 && (
-        <div className="mt-16 md:mt-24">
-          <h2 className="text-2xl font-bold mb-6 text-center">{t('products:titles.youMayLike')}</h2>
-          <ProductGrid products={relatedProducts} />
+      <RelatedProducts products={relatedProducts} />
+
+      <div className="mt-16 md:mt-24">
+        <h3 className="text-lg font-bold mb-4 text-center">{t('titles.browseByBrand')}</h3>
+        <div className="flex flex-wrap justify-center gap-2">
+          {allBrands.map(brand => (
+            <Link key={brand} href={`/products?brands=${encodeURIComponent(brand)}`}>
+              <Chip as="a" variant="flat">{brand}</Chip>
+            </Link>
+          ))}
         </div>
-      )}
+      </div>
     </motion.div>
   );
 };

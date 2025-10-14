@@ -1,9 +1,18 @@
 import { Order } from '@/types/order';
 
+const generateShortId = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let result = '';
+  for (let i = 0; i < 4; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+};
+
 export const saveOrderToLocalStorage = (order: Omit<Order, 'id' | 'createdAt' | 'updatedAt' | 'status'>): Order => {
   const newOrder: Order = {
     ...order,
-    id: crypto.randomUUID(),
+    id: generateShortId(),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     status: 'pending_whatsapp_confirmation',

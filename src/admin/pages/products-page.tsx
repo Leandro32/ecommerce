@@ -23,6 +23,11 @@ import { Icon } from "@iconify/react";
 import Link from "next/link";
 import { useProducts } from "../../hooks/queries/useProducts";
 import { useDeleteProduct } from "../../hooks/queries/useProductMutations";
+import { useDebounce } from "../../hooks/useDebounce";
+
+import { InlineStockEditor } from "../components/InlineStockEditor";
+
+import { useRouter } from "next/navigation";
 
 interface Product {
   id: string;
@@ -33,30 +38,24 @@ interface Product {
 }
 
 export const ProductListPage: React.FC = () => {
-  const { data: products, isLoading } = useProducts();
-  const { mutate: deleteProduct } = useDeleteProduct();
+  const router = useRouter();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(
-    null,
-  );
-  const [filterValue, setFilterValue] = React.useState("");
+  const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(null);
   const [page, setPage] = React.useState(1);
+  const [filterValue, setFilterValue] = React.useState("");
+  const debouncedFilterValue = useDebounce(filterValue, 300);
+
   const rowsPerPage = 10;
 
-  const filteredProducts = React.useMemo(() => {
-    if (!products) return [];
-    return products.filter((product) =>
-      product.name.toLowerCase().includes(filterValue.toLowerCase()),
-    );
-  }, [products, filterValue]);
+  const { data, isLoading } = useProducts({
+    page,
+    limit: rowsPerPage,
+    query: debouncedFilterValue,
+  });
+  const { mutate: deleteProduct } = useDeleteProduct();
 
-  const pages = Math.ceil(filteredProducts.length / rowsPerPage);
-
-  const items = React.useMemo(() => {
-    const start = (page - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
-    return filteredProducts.slice(start, end);
-  }, [page, filteredProducts]);
+  const products = data?.products || [];
+  const totalPages = data?.totalPages || 1;
 
   const handleDelete = () => {
     if (!selectedProduct) return;
@@ -110,11 +109,17 @@ export const ProductListPage: React.FC = () => {
               loadingContent={<Spinner label="Loading..." />}
               emptyContent={!isLoading && "No products found."}
             >
-              {items.map((product) => (
-                <TableRow key={product.id}>
+              {products.map((product) => (
+                <TableRow 
+                  key={product.id} 
+                  className={`cursor-pointer hover:bg-default-100 ${
+                    product.stock === 0 ? 'bg-danger-50' : product.stock < 10 ? 'bg-warning-50' : ''
+                  }`}
+                  onClick={() => router.push(`/admin/products/${product.id}/edit`)}
+                >
                   <TableCell>{product.name}</TableCell>
                   <TableCell>${product.price.toFixed(2)}</TableCell>
-                  <TableCell>{product.stock}</TableCell>
+                  <TableCell><InlineStockEditor productId={product.id} initialStock={product.stock} /></TableCell>
                   <TableCell>
                     {new Date(product.createdAt).toLocaleDateString()}
                   </TableCell>
@@ -153,7 +158,7 @@ export const ProductListPage: React.FC = () => {
               showShadow
               color="primary"
               page={page}
-              total={pages}
+              total={totalPages}
               onChange={setPage}
             />
           </div>

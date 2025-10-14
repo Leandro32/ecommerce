@@ -62,6 +62,9 @@ const Header: React.FC<HeaderProps> = ({}) => {
         <NavbarItem isActive={isActive("/products")} as={Link} href="/products">
           {t("navigation:main.products")}
         </NavbarItem>
+        <NavbarItem isActive={pathname.startsWith('/products') && new URLSearchParams(window.location.search).get('favorites') === 'true'} as={Link} href="/products?favorites=true">
+          {t("navigation:main.favorites")}
+        </NavbarItem>
       </NavbarContent>
 
       <NavbarContent justify="end">

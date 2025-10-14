@@ -69,18 +69,17 @@ const CartItem: React.FC<CartItemProps> = ({ item }) => {
 
           <div className="flex items-center justify-between sm:justify-end gap-4 mt-3 sm:mt-0">
             <div className="flex items-center">
-              <Input
-                type="number"
-                value={item.quantity.toString()}
-                onValueChange={handleQuantityChange}
-                min={1}
-                max={99}
-                className="w-16"
-                size="sm"
-                classNames={{
-                  inputWrapper: "h-8",
-                }}
-              />
+              <select
+                value={item.quantity}
+                onChange={(e) => handleQuantityChange(e.target.value)}
+                className="w-20 h-8 text-sm border-default-200 rounded-md bg-transparent focus:ring-primary focus:border-primary"
+              >
+                {[...Array(Math.min(item.product.stock, 10)).keys()].map(i => (
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1}
+                  </option>
+                ))}
+              </select>
             </div>
 
                                         <div className="flex items-center gap-1">

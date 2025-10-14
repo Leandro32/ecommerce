@@ -10,38 +10,14 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// --- Core Models ---
+
 model Admin {
   id        String   @id @default(cuid())
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-}
-
-model Product {
-  id              String      @id @default(cuid())
-  name            String
-  slug            String      @unique
-  brand           String
-  sex             Sex
-  description     String
-  price           Float
-  discountPrice   Float?
-  isDiscounted    Boolean     @default(false)
-  stock           Int
-  bottleSize      Int // in ml
-  bottleType      String
-  packaging       String
-  averageRating   Float?
-  shippingWeight  Float? // in kg
-  seoTitle        String?
-  seoDescription  String?
-  imageUrls       String[]
-  fragranceNotes  FragranceNotes?
-  reviews         Review[]
-  orderItems      OrderItem[]
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
 }
 
 model Order {
@@ -62,60 +38,32 @@ model OrderItem {
   quantity  Int
 }
 
-enum OrderStatus {
-  SOLICITUD_NUEVO
-  ENVIADO_EN_PROCESO
-  ACEPTADO
-  CANCELADO
-  ENVIADO_CUMPLIDO
-  RECIBIDO_CONFORME
-  FACTURADO_PAGADO
-  CERRADO
-}
+// --- Perfume-Specific Models ---
 
-model Hero {
-  id           String       @id @default(cuid())
-  title        String
-  paragraph    String
-  heroImageUrl String
-  buttonLayout ButtonLayout @default(none)
-  buttons      Button[]
-}
-
-model Button {
-  id         String        @id @default(cuid())
-  buttonText String
-  buttonLink String
-  isExternal Boolean
-  variant    ButtonVariant
-  hero       Hero          @relation(fields: [heroId], references: [id])
-  heroId     String
-}
-
-enum ButtonLayout {
-  none
-  oneButton
-  twoButtons
-}
-
-enum ButtonVariant {
-  primary
-  secondary
-}
-
-enum Sex {
-  WOMAN
-  MAN
-  UNISEX
-}
-
-model FragranceNotes {
-  id          String  @id @default(cuid())
-  topNotes    String
-  middleNotes String
-  baseNotes   String
-  product     Product @relation(fields: [productId], references: [id])
-  productId   String  @unique
+model Product {
+  id              String      @id @default(cuid())
+  name            String
+  slug            String      @unique
+  brand           String
+  sex             Sex[]
+  description     String
+  price           Float
+  discountPrice   Float?
+  isDiscounted    Boolean     @default(false)
+  stock           Int
+  bottleSize      Int // in ml
+  bottleType      String
+  packaging       String
+  averageRating   Float?
+  shippingWeight  Float? // in kg
+  seoTitle        String?
+  seoDescription  String?
+  imageUrls       String[]
+  reviews         Review[]
+  orderItems      OrderItem[]
+  fragranceNotes  ProductFragranceNote[] // Many-to-many relation
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
 }
 
 model Review {
@@ -123,7 +71,71 @@ model Review {
   rating        Int
   reviewText    String
   customerName  String
-  product       Product  @relation(fields: [productId], references: [id])
+  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId     String
   createdAt     DateTime @default(now())
+}
+
+// --- Fragrance Note Models (Many-to-Many) ---
+
+model FragranceNote {
+  id        String      @id @default(cuid())
+  name      String      @unique
+  slug      String      @unique
+  color     String
+  imageUrl  String?
+  products  ProductFragranceNote[]
+}
+
+model ProductFragranceNote {
+  product         Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId       String
+  fragranceNote   FragranceNote @relation(fields: [fragranceNoteId], references: [id], onDelete: Cascade)
+  fragranceNoteId String
+  percentage      Int
+
+  @@id([productId, fragranceNoteId])
+}
+
+
+// --- Enums ---
+
+enum Sex {
+  WOMAN
+  MAN
+  UNISEX
+}
+
+enum OrderStatus {
+
+  SOLICITUD_NUEVO
+
+  ENVIADO_EN_PROCESO
+
+  ACEPTADO
+
+  CANCELADO
+
+  ENVIADO_CUMPLIDO
+
+  RECIBIDO_CONFORME
+
+  FACTURADO_PAGADO
+
+  CERRADO
+
+}
+
+
+
+model FooterContent {
+
+  id      String @id @default(cuid())
+
+  column  String
+
+  title   String
+
+  links   Json
+
 }

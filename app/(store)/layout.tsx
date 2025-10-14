@@ -4,6 +4,7 @@ import I18nProvider from "../../src/components/I18nProvider";
 import Header from "../../src/components/header";
 import Footer from "../../src/components/footer";
 import { AppProvider } from "../../src/context/AppProvider";
+import NotificationToast from "@/components/notifications";
 
 export const metadata: Metadata = {
   title: "Aura Perfumes",
@@ -18,6 +19,7 @@ export default async function StoreLayout({
   return (
     <I18nProvider>
       <AppProvider>
+        <NotificationToast />
         <div className="flex flex-col min-h-screen">
           <Header />
           <main className="flex-grow pt-14">

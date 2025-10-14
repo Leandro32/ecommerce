@@ -40,6 +40,7 @@
   "breadcrumb": {
     "home": "Home",
     "products": "Products",
+    "favorites": "Favorites",
     "cart": "Cart",
     "checkout": "Checkout",
     "account": "Account"

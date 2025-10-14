@@ -1,787 +1,160 @@
 # 📋 ECOMMERCE 2025 - PENDING TASKS
 
 ## 🎯 OVERVIEW
-This document tracks the implementation of critical features and bug fixes for the ecommerce platform.
+This document tracks the implementation of critical features and bug fixes for the ecommerce platform. The **V1.0 FINAL SPRINT - ACTION PLAN** at the end of this document is the definitive source of truth for all remaining work.
 
 ---
 
-## 🌐 **TASK 1: IMPLEMENT i18n TRANSLATIONS**
-**Priority: HIGH** | **Status: ✅ COMPLETED**
+## STATUS OF PREVIOUS TASKS
 
-### Dependencies Required
-- [x] Install react-i18next, i18next, i18next-browser-languagedetector
+*   **TASK 1: i18n TRANSLATIONS**: ✅ COMPLETED
+*   **TASK 2: FIX INFINITE LOADING ON PRODUCT FILTERS**: ✅ COMPLETED
+*   **TASK 3: HIDE NON-EXISTENT FOOTER LINKS**: 🟡 SUPERSEDED *(Now part of Final Plan Task 4.2)*
+*   **TASK 4: WHATSAPP CHECKOUT WITH LOCAL STORAGE PERSISTENCE**: ✅ COMPLETED
+*   **TASK 5: ENHANCE CART VIEW WITH ORDER HISTORY**: ✅ COMPLETED
+*   **TASK 6: MIGRATE APPLICATION FROM VITE TO NEXT.JS**: ✅ COMPLETED
+*   **TASK 7: INTEGRATE ADMIN PANEL UI**: ✅ COMPLETED
+*   **TASK 8: CREATE SECURE ADMIN PANEL FOR INVENTORY MANAGEMENT**: 🟡 SUPERSEDED *(Core is complete, UI/UX improvements are in Final Plan Task 4.1)*
+*   **TASK 9: CONNECT FRONTEND COMPONENTS TO BACKEND API**: ✅ COMPLETED
+*   **TASK 10: IMPLEMENT SERVER-SIDE IMAGE UPLOAD AND SERVING**: ✅ COMPLETED
+*   **TASK 11: IMPLEMENT PRODUCT CATEGORIES (CRUD)**: ❌ OBSOLETE
+*   **TASK 12: IMPLEMENT CUSTOMIZABLE HERO BANNER**: ❌ OBSOLETE
+*   **TASK 13: CREATE ADMINISTRATOR VIEW FOR HERO (STRAPI)**: ❌ OBSOLETE
+*   **TASK 14: REFACTOR IMAGE URLS FOR PRODUCTION (MINIO)**: ✅ COMPLETED
+*   **TASK 15: IMPLEMENT MULTI-IMAGE SUPPORT FOR PRODUCTS**: 🟡 SUPERSEDED *(Backend is complete, UI is in Final Plan Task 2.2)*
+*   **TASK 16: REFACTOR DATA FETCHING WITH TANSTACK QUERY**: ✅ COMPLETED
 
-### File Structure Setup
-- [x] Create `src/locales/en/` directory structure
-- [x] Create `src/locales/es/` directory structure
-- [x] Create `src/locales/pt/` directory structure (Portuguese added)
-- [x] Create translation files:
-  - [x] `common.json` (buttons, labels, general UI)
-  - [x] `products.json` (product-related text)
-  - [x] `checkout.json` (checkout process)
-  - [x] `navigation.json` (menus, links) - **NEW**
+---
+---
 
-### Configuration
-- [x] Create `src/i18n/index.ts`
-- [x] Configure i18next with language detection
-- [x] Add language switcher component
-- [x] Support for English, Spanish, and Portuguese
+# 🏆 V1.0 FINAL SPRINT - ACTION PLAN
 
-### Component Updates
-- [x] Update `Header.tsx` with translations
-- [x] Update `LanguageSwitcher.tsx` with 3 languages
-- [x] Enhanced translation support for navigation components
-- [ ] Update `Footer.tsx` with translations (pending)
-- [ ] Update `ProductListPage.tsx` with translations (pending)
-- [ ] Update `CheckoutPage.tsx` with translations (pending)
-- [ ] Update `ProductCard.tsx` with translations (pending)
+This is the definitive, consolidated action plan for completing the V1.0 release.
 
 ---
 
-## 🖼️ **TASK 2: FIX INFINITE LOADING ON PRODUCT FILTERS**
-**Priority: CRITICAL** | **Status: ✅ COMPLETED**
+## PHASE 1: BACKEND & DATA MODEL OVERHAUL
 
-### Root Cause Analysis
-- [x] Investigate `useProducts` and `useProductsByCategory` re-execution
-- [x] Analyze cache invalidation in `googleSheetsService`
+*Goal: Restructure the database and backend logic to support the new perfume-specific features. The current database is mock data and can be safely deleted and replaced.*
 
-**ISSUES IDENTIFIED & FIXED:**
-- ✅ Multiple hooks (`useProducts` + `useProductsByCategory`) called simultaneously → **FIXED**: Created `useOptimizedProducts` hook
-- ✅ No debouncing on filter changes causing immediate re-fetches → **FIXED**: Added `useDebounce` hook (300ms)
-- ✅ Products being re-transformed on every filter change → **FIXED**: Memoized transformation logic
-- ✅ Filtering logic mixed with data fetching logic → **FIXED**: Separated concerns in new hook
+### **1.1: Implement Advanced Fragrance Notes (Many-to-Many)**
+*Goal: Rework Fragrance Notes into a standalone, reusable entity with its own CRUD and image, and connect it to Products via a many-to-many relationship that includes the percentage.*
 
-### Performance Optimizations
-- [x] Implement granular `useMemo` in product hooks
-- [x] Separate filtering logic from data fetching
-- [x] Add debounce to filter changes (300ms)
-- [x] Implement smart caching that survives filter changes
+-   [x] **Action: Redefine Prisma Schema (`prisma/schema.prisma`)**
+    1.  Add a `color: String` field to the `FragranceNote` model.
+    2.  The rest of the many-to-many schema is correct.
 
-### Image Loading Fixes
-- [x] Review image URL transformation in `productUtils.ts`
-- [x] Implement fallback for broken images
-- [x] Add loading states for individual images
-- [x] Test with different filter combinations
+-   [ ] **Action: Build Admin CRUD for Fragrance Notes**
+    1.  Create a new page at `app/(admin)/fragrance-notes/page.tsx`.
+    2.  The form for creating/editing a `FragranceNote` must include an input for the `color` field (e.g., a text input or a color picker).
+    3.  Create all necessary API endpoints under `app/api/v1/admin/fragrance-notes/`.
 
-**FILES CREATED/MODIFIED:**
-- ✅ `src/hooks/useOptimizedProducts.ts` - New optimized hook
-- ✅ `src/hooks/useDebounce.ts` - Debouncing utility
-- ✅ `src/pages/product-list.tsx` - Updated to use new hooks
-- ✅ `src/components/ProductImage.tsx` - Enhanced with timeout & retry logic
+-   [ ] **Action: Integrate into Product Edit Page**
+    1.  The UI for adding a fragrance note to a product must include an input for the `percentage`.
+
+### **1.2. Update Seed Script**
+-   [x] **Action:** Modify `prisma/seed.cjs` to generate mock data that conforms to the new schema, including adding a `color` to each fragrance note.
 
 ---
 
-## 🔗 **TASK 3: HIDE NON-EXISTENT FOOTER LINKS**
-**Priority: LOW** | **Status: ❌ NOT STARTED**
+## PHASE 2: STOREFRONT - CORE PRODUCT EXPERIENCE
 
-### Route Validation System
-- [ ] Create `useRouteExists(path: string)` hook
-- [ ] Create `src/config/routes.ts` with available routes
-- [ ] Implement route checking against React Router
+*Goal: Overhaul the product list and detail pages to use the new data model and provide a richer user experience.*
 
-### Footer Intelligence
-- [ ] Update `Footer.tsx` with conditional rendering
-- [ ] Add "Coming Soon" placeholder for planned routes
-- [ ] Maintain visual consistency when hiding links
-- [ ] Test footer with different route configurations
+### **2.1. Rework Product Filters**
+-   [x] **Action:** In `src/components/product-filters.tsx`, remove the old filter logic.
+-   [x] **Action:** Implement new filter sections using checkboxes for `brand` and `sex`. For `bottleSize`, use checkboxes for common values (e.g., 50, 100, 200).
+-   [x] **UI for 'sex' filter:**
+    *   Group the checkboxes: Display "Man" and "Woman" checkboxes first, then "Unisex".
+    *   Style each checkbox label with a distinct border color: `dark blue` for Man, `soft pink` for Woman, `cream` for Unisex.
+-   [x] **Action:** Ensure all filter selections update the URL with query parameters (e.g., `?brand=Chanel&sex=WOMAN`) using Next.js `useRouter` and `useSearchParams`.
+-   [x] **Action:** Ensure the filter panel is accessible and usable on mobile devices, likely housed in a slide-out drawer.
 
-### Non-existent Routes Identified
-- [ ] `/help`, `/shipping`, `/returns`, `/contact`
-- [ ] `/about`, `/careers`, `sustainability`, `/press`
-- [ ] `/privacy`, `/terms`, `/cookies`
+### **2.2. Overhaul Product Image UI**
+-   [x] **Action:** In `src/components/product-detail-page-client.tsx`, implement a multi-image viewer: a main image with a clickable horizontal row of thumbnails below it.
+-   [x] **Action:** In `src/components/product-card.tsx`, transform the static image into a mini-carousel with subtle left/right arrow buttons overlaid on the image to allow users to cycle through `imageUrls`.
+-   [x] **Action:** On the product detail page, make the entire image gallery container `sticky` to the top of its parent column on desktop screens.
 
----
-📱 **TASK 4: WHATSAPP CHECKOUT WITH LOCAL STORAGE PERSISTENCE**
-**Priority: HIGH** | **Status: ✅ COMPLETED**
-*Implement a checkout flow that saves the order in the user's browser via `localStorage` before redirecting to WhatsApp. This approach provides persistence for the user's cart at the point of checkout without requiring a backend, making it a robust client-side MVP.*
-
-### 1. Local Order Persistence
-- [x] Choose `localStorage` as the storage mechanism for its persistence across sessions.
-- [x] Define a clear data structure for the saved order. It should include:
-    - `id`: A unique client-side ID (e.g., using `Date.now()` or `crypto.randomUUID()`).
-    - `items`: A copy of the cart items.
-    - `total`: The final price.
-    - `timestamp`: When the order was created.
-    - `status`: A default status, e.g., `"pending_whatsapp_confirmation"`.
-- [x] Create a utility module (e.g., `src/utils/localOrderManager.ts`) with functions to manage local orders (`saveOrder`, `getOrders`, etc.).
-
-### 2. Updated Checkout Flow & User Experience
-- [x] When the user clicks "Checkout with WhatsApp":
-    1.  The system will first save the current cart as an "order" object in `localStorage`.
-    2.  The UI must update to give feedback to the user, for example: *"¡Perfecto! Hemos guardado tu pedido en este navegador. Ahora, envíanos el mensaje por WhatsApp para confirmarlo."*
-    3.  Only after the save is successful, present the button/link to open WhatsApp.
-- [x] This flow ensures that if the user accidentally closes the tab or doesn't send the message, their intended order is not lost and can be retrieved from their browser.
-
-### 3. WhatsApp Message Generation
-- [x] Create a function that generates the `wa.me` link.
-- [x] The message content must be properly URL-encoded using `encodeURIComponent` to handle special characters and line breaks.
-- [x] The seller's WhatsApp number must be stored as an environment variable (`NEXT_PUBLIC_WHATSAPP_NUMBER`) to avoid hardcoding it.
-- [x] The message template will not include an order number, as per the requirements.
-
-#### Message Template
-```
-Hola, buen dia!
-Quiero comprar estos productos:
-
-${cartItems.map(item => `• ${item.name} x${item.quantity} - ${item.price}`)}
-
-💰 *Total: ${cartTotal}*
-
-Muchas gracias!
-```
-
-### 4. Client-Side Order History (Highly Recommended)
-- [x] Create a simple component or view where the user can see a list of the orders they've placed, pulling the data directly from `localStorage`.
-- [x] This gives the user confidence and a way to track their actions, showing a list of "pending" orders.
-- [x] Each item in the history could even have a "Reintentar envío por WhatsApp" button in case the first attempt failed.
-
-### 5. Technical Considerations & Limitations to Acknowledge
-- **No Stock Reservation**: This flow does not communicate with a backend, so stock cannot be reserved. Multiple users could try to buy the last item in stock.
-- **Data is Local**: The order is only stored on the user's device. If they clear their browser data or switch devices, the history is lost. This must be acceptable for the MVP.
-- **Manual Confirmation**: The seller's process remains 100% manual. The order is only "known" to the business once the WhatsApp message is received.
-
-**FILES CREATED/MODIFIED:**
-- ✅ `src/types/order.ts` - New type definition for orders.
-- ✅ `src/utils/localOrderManager.ts` - New utility for local storage management.
-- ✅ `src/pages/checkout.tsx` - Updated to implement WhatsApp checkout flow.
-- ✅ `src/pages/account.tsx` - Updated to display client-side order history.
----
-
-🛒 **TASK 5: ENHANCE CART VIEW WITH ORDER HISTORY**
-**Priority: MEDIUM** | **Status: ✅ COMPLETED**
-*As a senior software developer, I've enhanced the user experience by utilizing the empty state of the cart page to display the user's order history. This provides value to returning customers and makes the page more dynamic.*
-
-### 1. Component-Based Architecture
-- [x] Created a new reusable component `OrderHistory.tsx` to display the list of orders. This promotes separation of concerns and reusability.
-
-### 2. Smart UI in Cart Page
-- [x] Modified `cart.tsx` to conditionally render the `OrderHistory` component when the cart is empty but there are past orders in `localStorage`.
-- [x] If the cart is empty and there is no order history, the original "empty cart" message is displayed.
-
-### 3. User-Centric Design
-- [x] The "Resend on WhatsApp" button is available for each order, allowing users to easily retry sending their order.
-- [x] The order history is displayed in reverse chronological order, showing the most recent orders first.
-
-**FILES CREATED/MODIFIED:**
-- ✅ `src/components/OrderHistory.tsx` - New component to display order history.
-- ✅ `src/pages/cart.tsx` - Updated to conditionally render the order history.
+### **2.3. Add "Buy Now" Button**
+-   [x] **Action:** In `src/components/product-detail-page-client.tsx`, add a "Buy Now" button.
+-   [x] **Action:** This button will trigger a function that immediately formats a WhatsApp message for the single product (bypassing the cart) and redirects the user.
 
 ---
 
-## 🚀 **TASK 6: MIGRATE APPLICATION FROM VITE TO NEXT.JS**
-**Priority: CRITICAL** | **Status: ✅ COMPLETED**
-*A comprehensive plan to migrate the existing React + Vite SPA to Next.js. This architectural upgrade will enhance performance, SEO, and security by leveraging Server-Side Rendering (SSR), the App Router, and server-side data fetching.*
+## PHASE 3: STOREFRONT - UX & FEATURE ENHANCEMENTS
 
-### **Strategy**
-- The migration was performed iteratively, on a route-by-route basis, to ensure stability and make debugging manageable.
-- The process began with the base layout and home page, then progressively expanded to other routes.
+*Goal: Add smaller features that improve user engagement and overall site usability.*
 
-*(Details of migration phases omitted for brevity as they are complete)*
+### **3.1. Implement "Favorites" Feature**
+-   [x] **Action:** Add a "heart" icon button to `product-card.tsx` and `product-detail-page-client.tsx`.
+-   [x] **Action:** Create a `useFavorites` hook that manages a list of product IDs in `localStorage`.
+-   [x] **Action:** Add a "Favorites" checkbox to the product filters and a corresponding link in the main header (`/products?favorites=true`).
 
----
+### **3.2. Add Cart Toast Notifications**
+-   [x] **Action:** Verified that the existing `UIProvider` and `useUI` hook provide notification functions (`showSuccess`, `showError`).
+-   [x] **Action:** Added the `<NotificationToast />` component to the main `StoreLayout` to ensure notifications are rendered.
+-   [x] **Action:** Confirmed that `useCartOperations.ts` already uses the `useUI` hook to show notifications for adding/removing items.
 
-## 🔐 **TASK 7: INTEGRATE ADMIN PANEL UI**
-**Priority: HIGH** | **Status: ✅ COMPLETED**
-*Integrate the standalone React/Vite admin panel prototype into the main Next.js application. This provides a functional UI for demonstration and future backend integration, accessible under the `/admin` path.*
+### **3.3. Change Quantity Selector to Dropdown**
+-   [x] **Action:** In `cart-item.tsx`, replace the `+ / -` input with a `<select>` dropdown, populated with numbers from 1 up to a maximum of 10 (or the product's `stock` level, whichever is lower).
 
-### 1. Architectural Refactoring
-- [x] **Isolate Layouts**: Created `(admin)` and `(store)` route groups to support multiple, independent root layouts.
-- [x] **Implement Multiple Roots**: Removed the single global layout and created separate root layouts for each group (`app/(store)/layout.tsx` and `app/(admin)/layout.tsx`) to prevent UI conflicts and fix hydration errors.
+### **3.4. Add Related Products & Brand Links**
+-   [x] **Action: Create Server-Side API Helpers**
+    1.  Create a `lib/api.ts` file.
+    2.  Implement `getAllBrands()` to fetch all unique brand names.
+    3.  Implement `getRelatedProducts(brand, currentProductId)` to fetch products of the same brand.
+-   [x] **Action: Update Product Detail Page (Server)**
+    1.  In `app/(store)/product/[slug]/page.tsx`, use the new API helpers to fetch `allBrands` and `relatedProducts`.
+    2.  Pass this data as props to the `ProductDetailPageClient` component.
+-   [x] **Action: Update Product Detail Page (Client)**
+    1.  The `ProductDetailPageClient` will receive `allBrands` and `relatedProducts` as props.
+    2.  It will render the `RelatedProducts` component.
+    3.  It will dynamically render the list of brand links using the `allBrands` prop.
 
-### 2. Admin App Integration & Bug Fixing
-- [x] **Host SPA**: Created a catch-all route at `app/(admin)/admin/[[...slug]]/page.tsx` to host the admin panel as a Single Page Application.
-- [x] **Fix SSR Errors**: Used `next/dynamic` with `ssr: false` to ensure the admin app only renders on the client, resolving `document is not defined` errors.
-- [x] **Fix Navigation**: Switched from `BrowserRouter` to `HashRouter` to prevent full-page reloads during internal admin navigation.
-- [x] **Fix Module Not Found Errors**: Corrected all broken relative import paths in the store pages after refactoring the directory structure.
-- [x] **Configure Images**: Updated `next.config.mjs` to authorize external image hostnames used in product data.
-- [x] **Fix CSS Build**: Replaced Vite-specific CSS directives with standard Tailwind syntax in the admin's stylesheet.
-
-### 3. Configuration & Dependencies
-- [x] **Dependencies**: Merged all required dependencies from the admin project into the main `package.json`.
-- [x] **Styling**: Updated the root `tailwind.config.js` with the admin panel's specific theme and content paths.
-
----
-
-## 🔐 TASK 8: CREATE SECURE ADMIN PANEL FOR INVENTORY MANAGEMENT
-**Priority: HIGH** | **Status: ❌ NOT STARTED**
-*Develop a secure, full-featured admin panel integrated into the Next.js application. This panel will manage products and the entire order lifecycle, from manual creation to final fulfillment. It will leverage Next.js API Routes for the backend and `NextAuth.js` for robust security.*
-
-### 1. Backend: Next.js API Routes & Authentication
-- [x] **Authentication**: Implement `NextAuth.js` with a Credentials Provider.
-    - [x] Store admin credentials in the database (e.g., an `Admin` model).
-    - [x] Create a seeding script to create the initial admin user with a hashed password.
-    - [x] Use `bcrypt` to compare the provided password with the hashed password stored in the database.
-    - [x] Configure session management to use JSON Web Tokens (JWT) for stateless authentication.
-- [x] **API Structure**: Create all backend logic within the `app/api/v1/admin/` directory to version the API from the start.
-- [x] **Secure Endpoints**: Protect all admin API routes.
-    - [x] Implement middleware in `app/api/v1/admin/` to centralize session validation, ensuring only authenticated admins can access endpoints.
-    - [x] Define robust error handling, using `try-catch` blocks and returning consistent JSON error responses (e.g., `{ "error": "Unauthorized" }` with a `401` status code).
-- [x] **Database**: Utilize a serverless PostgreSQL provider (e.g., Vercel Postgres, Neon).
-    - [x] Integrate `Prisma` as the ORM for type-safe database access.
-    - [x] Define the database schema for `Admin`, `Product`, and `Order` models.
-- [x] **Implement Product CRUD Endpoints**:
-    - [x] `GET /api/v1/admin/products`: Fetch all products.
-    - [x] `POST /api/v1/admin/products`: Create a new product.
-    - [x] `PUT /api/v1/admin/products/[id]`: Update an existing product.
-    - [x] `DELETE /api/v1/admin/products/[id]`: Delete a product.
-    - [ ] **Image Handling**: Implement image uploads to a cloud storage service (e.g., AWS S3, Cloudinary). The `Product` model should store the image URL.
-- [x] **Implement Order Management Endpoints**:
-    - [x] `GET /api/v1/admin/orders`: Fetch all orders.
-    - [x] `POST /api/v1/admin/orders`: Create a new order (manual creation).
-    - [x] `PUT /api/v1/admin/orders/[id]`: Update the status of an order.
-- [x] **Data Validation**: Use a library like `Zod` to validate the body of all `POST` and `PUT` requests to ensure data integrity.
-
-### 2. Frontend: Admin UI (A Guide for Junior Developers)
-*This section breaks down the frontend work into smaller, more manageable tasks, explaining the "why" behind each step in a Next.js App Router environment.*
-
-#### **Sub-Task 2.1: Core Layout & Routing**
-*Goal: Create a protected area for the admin panel with consistent navigation.*
-- [x] **Create Route Group**: In the `app/` directory, create a new folder named `(admin)`. This is a "route group" – it lets us create a special layout for admin pages without changing the URL (e.g., the page will be `/dashboard`, not `/(admin)/dashboard`).
-- [x] **Implement Root Layout (`app/(admin)/layout.tsx`)**: This is a **Server Component**. Its job is to protect all child pages.
-    - [ ] Inside this component, get the user's session from `NextAuth.js` on the server.
-    - [ ] If there is no session, immediately redirect the user to the `/login` page using `redirect` from `next/navigation`.
-    - [ ] If there is a session, render the child pages. This layout should include a `<Sidebar />` component and a main content area.
-- [x] **Create Sidebar Component**: This will be a **Client Component** (`'use client'`) because it will manage interactive states (like which link is active).
-    - [ ] Use the `<Link>` component from `next/link` for navigation to Dashboard, Products, and Orders.
-    - [ ] Add a "Logout" button that calls the `signOut()` function from `next-auth/react`.
-
-#### **Sub-Task 2.2: Login Page**
-*Goal: Build a form to allow the admin to sign in.*
-- [x] **Create Login Page (`app/(admin)/login/page.tsx`)**: This must be a **Client Component** (`'use client'`) because it handles user input.
-    - [x] Use `useState` hooks to manage the `username` and `password` fields.
-    - [x] On form submission, call the `signIn('credentials', ...)` function from `NextAuth.js`.
-    - [x] Provide user feedback for loading states (e.g., disable the button) and display any login errors.
-
-#### **Sub-Task 2.3: Dashboard Page**
-*Goal: Show a high-level overview of the store's activity.*
-- [x] **Create Dashboard Page (`app/(admin)/dashboard/page.tsx`)**: This is a **Server Component**. It will fetch data directly.
-    - [ ] Inside the component (`async function DashboardPage()`), fetch the data needed for the KPI cards (e.g., total revenue, new order count) from your API.
-    - [ ] Create a small, reusable `<KpiCard />` component to display each metric.
-    - [ ] Create a `<RecentOrdersList />` component (can also be a Server Component) that fetches and displays the last 5-10 orders.
-
-#### **Sub-Task 2.4: Products - List View**
-*Goal: Display all products in a table with search and filter functionality.*
-- [ ] **Create Product List Page (`app/(admin)/products/page.tsx`)**: This is a **Server Component**.
-    - [ ] It will read the URL's search parameters (e.g., `?q=...` or `?category=...`) to fetch the correctly filtered list of products from the API.
-- [ ] **Create Product Table Component (`<ProductTable />`)**: This is a **Client Component** (`'use client'`) that receives the product data as a prop from the page.
-    - [ ] It is responsible for rendering the `<table>` structure.
-    - [ ] It will manage UI state, such as which "delete confirmation" dialog is open, using `useState`.
-- [ ] **Create Filter Components (`<SearchInput />`, `<CategoryFilter />`)**: These are **Client Components**.
-    - [ ] When the user types in the search bar or selects a category, use the `useRouter` hook from `next/navigation` to update the URL's query parameters. This will automatically trigger Next.js to re-run the Server Component page with the new parameters, re-fetching the data.
-
-#### **Sub-Task 2.5: Products - Create/Edit Form**
-*Goal: Build a form to create and update product details.*
-- [ ] **Create Product Form Page (`app/(admin)/products/new/page.tsx`, `.../[id]/edit/page.tsx`)**: This must be a **Client Component** (`'use client'`) because forms are highly interactive.
-    - [ ] Use `react-hook-form` to manage form state, validation, and submission.
-    - [ ] For the `description` field, integrate a rich text editor library like `react-quill`.
-    - [ ] For image uploads, use a library like `react-dropzone`. When a file is added, upload it to your backend via a dedicated API route, and store the returned URL in your form's state.
-    - [ ] The final `onSubmit` handler will call your API to either `POST` (create) or `PUT` (update) the product.
-
-#### **Sub-Task 2.6: Orders - List View & Detail View**
-*Goal: Display and manage all orders and their lifecycle.*
-- [ ] **Create Order List Page (`app/(admin)/orders/page.tsx`)**: Follow the same pattern as the Product List page (Server Component for data fetching, Client Component for the interactive table).
-    - [ ] **Create Status Badge Component (`<StatusBadge />`)**: This component will take a status string as a prop and render a colored badge. This is crucial for at-a-glance understanding. The required statuses and their colors are:
-        - `Solicitud / Nuevo`: **Blue**
-        - `Enviado / En Proceso`: **Orange**
-        - `Aceptado`: **Light Green**
-        - `Cancelado`: **Red**
-        - `Enviado / Cumplido`: **Purple**
-        - `Recibido / Conforme`: **Teal**
-        - `Facturado / Pagado`: **Dark Green**
-        - `Cerrado`: **Gray**
-- [ ] **Create Order Detail Page (`app/(admin)/orders/[id]/page.tsx`)**: This page will fetch all data for a single order on the server.
-    - [ ] **Create Status Updater Component (`<StatusUpdater />`)**: This is a **Client Component** that gets the `orderId` and current `status` as props.
-        - [ ] It will contain a `<select>` dropdown pre-populated with all possible order statuses listed above.
-        - [ ] When the user selects a new status and clicks a "Save" button, it calls the `PUT /api/admin/orders/[id]` endpoint with the new status.
-    - [ ] **Create Internal Notes Component (`<InternalNotes />`)**: This is a **Client Component**. It will have a `<textarea>` and a "Add Note" button to post new notes. It will also fetch and display the list of existing notes for that order.
-
-#### **Sub-Task 2.7: Orders - Create Form**
-*Goal: Build the form for the admin to manually create a new order.*
-- [ ] **Create Order Form Page (`app/(admin)/orders/new/page.tsx`)**: This is a complex **Client Component**.
-    - [ ] **Create Line Item Builder (`<LineItemBuilder />`)**:
-        - [ ] Use a debounced search input (`<ProductSearchInput />`) to find products.
-        - [ ] Manage the list of selected products in an array in state. Ensure the UI can handle adding and removing items from this list.
-        - [ ] Automatically calculate totals whenever the list of items or their quantities change.
-    - [ ] The final "Save Order" button should be disabled during the API call.
-    - [ ] On success, show a success toast and redirect the user to the newly created order's detail page.
+### **3.5. Implement Fragrance Note Visualization**
+-   [x] **Action:** In `ProductDetailPageClient.tsx`, in the "Fragrance Notes" accordion section:
+    1.  Sort the incoming `product.fragranceNotes` array in descending order by `percentage`.
+    2.  For each note, render a progress bar-style component.
+    3.  The background color of the bar must be the `color` from the `fragranceNote` object.
+    4.  The width of the bar will be determined by the `percentage`.
+    5.  The name of the note will be displayed on top of or next to the bar.
 
 ---
 
-## 🏷️ **TASK 11: IMPLEMENT PRODUCT CATEGORIES (CRUD)**
-**Priority: HIGH** | **Status: ❌ NOT STARTED**
+## PHASE 4: ADMIN PANEL & FOOTER MANAGEMENT
 
-*This task involves implementing a full CRUD (Create, Read, Update, Delete) system for product categories. Products will be associated with a single category.*
+*Goal: Improve admin usability and make static content editable.*
 
-### 1. Database - Category Model
-- [ ] **Update `prisma/schema.prisma`:**
-    - [ ] Create a new `Category` model with `id` (String, @id, @default(cuid())), `name` (String, @unique), and `slug` (String, @unique).
-    - [ ] Add a `categoryId` field to the `Product` model, linking it to the `Category` model via a foreign key.
-    - [ ] Add a `products` relation to the `Category` model to easily fetch products belonging to a category.
-- [ ] **Run Prisma Migrations:** Generate and apply new Prisma migrations to update the database schema.
+### **4.1. Improve Admin Products Table**
+-   [x] **Action:** Refactor the products table at `app/(admin)/products/page.tsx`.
+-   [x] **Action:** Implement server-side pagination, displaying only ~10 products per page.
+-   [x] **Action:** Add search and filter capabilities that update the query.
+-   [x] **Action:** In each table row, add an **inline stock editor**. This will be a small component showing the current stock, which, when clicked, turns into a number input and a "Save" button. Clicking "Save" will call a dedicated API route to update only the stock for that product.
 
-### 2. Backend - Category API Endpoints
-- [ ] **Create `app/api/v1/admin/categories/route.ts`:**
-    - [ ] `GET /api/v1/admin/categories`: Fetch all categories.
-    - [ ] `POST /api/v1/admin/categories`: Create a new category.
-- [ ] **Create `app/api/v1/admin/categories/[id]/route.ts`:**
-    - [ ] `GET /api/v1/admin/categories/[id]`: Fetch a single category by ID.
-    - [ ] `PUT /api/v1/admin/categories/[id]`: Update an existing category.
-    - [ ] `DELETE /api/v1/admin/categories/[id]`: Delete a category.
-- [ ] **Update Product API Endpoints:**
-    - [ ] Modify `POST /api/v1/admin/products` and `PUT /api/v1/admin/products/[id]` to accept `categoryId`.
-    - [ ] Modify `GET /api/v1/admin/products` and `GET /api/v1/admin/products/[id]` to include category information.
-- [ ] **Create Public Category Endpoints:**
-    - [ ] `GET /api/v1/categories`: Fetch all categories (for storefront navigation).
-    - [ ] `GET /api/v1/categories/[slug]/products`: Fetch products by category slug (for storefront product listing).
-
-### 3. Frontend - Admin Panel Category Management
-- [ ] **Create Category List Page (`app/(admin)/categories/page.tsx`):**
-    - [ ] Display a table of all categories with options to edit or delete.
-    - [ ] Include a button to create a new category.
-- [ ] **Create Category Form Page (`app/(admin)/categories/new/page.tsx`, `.../[id]/edit/page.tsx`):**
-    - [ ] Form for creating and editing category `name` and `slug`.
-    - [ ] Implement validation for unique slug.
-- [ ] **Integrate Category Selection into Product Form (`src/admin/pages/product-form-page.tsx`):**
-    - [ ] Replace the current `category` field with a dropdown/select input to choose from existing categories.
-    - [ ] Fetch available categories from `GET /api/v1/admin/categories`.
-
-### 4. Frontend - Storefront Integration
-- [ ] **Update `src/types/product.ts`:** Add `category` field (or `categoryId` and `categoryName`).
-- [ ] **Update `app/(store)/layout.tsx`:** Fetch categories from `GET /api/v1/categories` and pass them to the `Header` component.
-- [ ] **Update `src/components/header.tsx`:** Re-enable the categories dropdown using the fetched categories.
-- [ ] **Update Product List Page (`app/(store)/products/page.tsx`):**
-    - [ ] Implement filtering by category using the `GET /api/v1/categories/[slug]/products` endpoint or by passing `categoryId` to `GET /api/v1/products`.
-    - [ ] Re-enable category filters in `src/components/product-filters.tsx`.
-- [ ] **Update Home Page (`app/(store)/page.tsx`):** Re-enable `CategorySlider` using the fetched categories.
+### **4.2. Implement Editable Footer**
+-   [x] **Action:** Create a new `FooterContent` model in `prisma/schema.prisma` to store footer links (e.g., column title, array of link texts and URLs).
+-   [x] **Action:** Build a new page in the admin panel at `app/(admin)/footer/page.tsx` to allow editing of this content.
+-   [x] **Action:** The main `src/components/footer.tsx` will now fetch its content from a new `GET /api/v1/footer` endpoint instead of being hardcoded. This also resolves the "hide non-existent links" task.
 
 ---
 
-## 🖼️ **TASK 12: IMPLEMENT CUSTOMIZABLE HERO BANNER**
-**Priority: MEDIUM** | **Status: ❌ NOT STARTED**
+## PHASE 5: FINAL QA & CLEANUP
 
-*This task involves making the home page hero banner customizable via the admin panel. Admins will be able to create, update, and delete hero banner configurations.*
+*Goal: Perform a final pass to ensure high quality across the application.*
 
-### 1. Database - HeroBanner Model
-- [ ] **Update `prisma/schema.prisma`:**
-    - [ ] Create a new `HeroBanner` model with `id` (String, @id, @default(cuid())), `title` (String), `subtitle` (String), `imageUrl` (String), `linkUrl` (String), and `isActive` (Boolean, @default(true)).
-- [ ] **Run Prisma Migrations:** Generate and apply new Prisma migrations to update the database schema.
+### **5.1. Full Mobile Usability Review**
+-   [ ] **Action:** Manually test the entire user flow on a mobile device viewport, checking for layout issues, non-responsive elements, and difficult-to-tap buttons.
 
-### 2. Backend - HeroBanner API Endpoints
-- [ ] **Create `app/api/v1/admin/hero-banners/route.ts`:**
-    - [ ] `GET /api/v1/admin/hero-banners`: Fetch all hero banners.
-    - [ ] `POST /api/v1/admin/hero-banners`: Create a new hero banner.
-- [ ] **Create `app/api/v1/admin/hero-banners/[id]/route.ts`:**
-    - [ ] `GET /api/v1/admin/hero-banners/[id]`: Fetch a single hero banner by ID.
-    - [ ] `PUT /api/v1/admin/hero-banners/[id]`: Update an existing hero banner.
-    - [ ] `DELETE /api/v1/admin/hero-banners/[id]`: Delete a hero banner.
-- [ ] **Create Public HeroBanner Endpoint:**
-    - [ ] `GET /api/v1/hero-banners/active`: Fetch active hero banners for the storefront.
+### **5.2. Verify Checkout & Order History Flow**
+-   [ ] **Action:** Perform an end-to-end test of the checkout process, confirming that the order is saved to `localStorage`, the cart is NOT cleared, and the user can view their past orders on the cart page when it's empty.
 
-### 3. Frontend - Admin Panel Hero Banner Management
-- [ ] **Create Hero Banner List Page (`app/(admin)/hero-banners/page.tsx`):**
-    - [ ] Display a table of all hero banners with options to edit or delete.
-    - [ ] Include a button to create a new hero banner.
-- [ ] **Create Hero Banner Form Page (`app/(admin)/hero-banners/new/page.tsx`, `.../[id]/edit/page.tsx`):**
-    - [ ] Form for creating and editing `title`, `subtitle`, `imageUrl` (using the existing image upload system), `linkUrl`, and `isActive`.
 
-### 4. Frontend - Storefront Integration
-- [ ] **Update Home Page (`app/(store)/page.tsx`):**
-    - [ ] Fetch active hero banners from `GET /api/v1/hero-banners/active`.
-    - [ ] Pass the fetched data to the `HeroBanner` component.
-- [ ] **Update `src/components/hero-banner.tsx`:** Modify to accept and display dynamic data.
 
----
 
-## 🦸 **TASK 13: CREATE ADMINISTRATOR VIEW FOR HERO**
 
-2This task involves creating a new page in the `/admin` section to manage the content of the hero section on the homepage. This includes the ability to edit the hero image, title, paragraph, and buttons.
+add animations
+- [ ] **Action:** Implement smooth transitions and animations for key interactions, enhancing the user experience.
 
-#### **Part 1: Backend Setup (Strapi)**
-
-The first step is to create a new "Collection Type" in Strapi to hold the hero section's content.
-
-1.  **Log in to your Strapi Admin Panel.**
-2.  Navigate to **Content-Type Builder**.
-3.  Click on **Create new collection type**.
-4.  Set the `Display name` to `Hero` and click **Continue**.
-5.  Add the following fields to your `Hero` collection type:
-    *   **`title`**: `Text` field (Short text).
-    *   **`paragraph`**: `Text` field (Long text).
-    *   **`heroImage`**: `Media` field (Single media).
-    *   **`buttonLayout`**: `Enumeration` field with the following values: `none`, `oneButton`, `twoButtons`.
-    *   **`buttons`**: A `Component` field. You'll need to create a new component named `Button` with the following fields:
-        *   `buttonText`: `Text` field (Short text).
-        *   `buttonLink`: `Text` field (Short text).
-        *   `isExternal`: `Boolean` field.
-        *   `variant`: `Enumeration` field with values like `primary`, `secondary`.
-
-#### **Part 2: Frontend Implementation (Next.js)**
-
-Now, let's create the administrator view in the Next.js application.
-
-1.  **Create the API Service:**
-    *   Create a new file at `ecommerce/lib/api.ts`. This file will contain the functions to interact with the Strapi API.
-    *   You'll need to use an HTTP client like `axios` or the built-in `fetch` API to make requests to your Strapi backend.
-    *   Implement the following functions in `ecommerce/lib/api.ts`:
-        *   `getHero()`: Fetches the hero content from Strapi.
-        *   `updateHero(data)`: Updates the hero content in Strapi.
-
-2.  **Create the Admin Page:**
-    *   Create a new file at `ecommerce/app/admin/hero/page.tsx`.
-    *   This page will contain a form with the following fields:
-        *   An input for the `title`.
-        *   A textarea for the `paragraph`.
-        *   A file upload component for the `heroImage`.
-        *   A dropdown to select the `buttonLayout`.
-        *   A section to manage the buttons. This section will show/hide input fields for the buttons based on the selected `buttonLayout`.
-    *   Use React's `useState` hook to manage the form's state.
-    *   Fetch the initial hero content using the `getHero` function from your API service and populate the form.
-    *   When the form is submitted, call the `updateHero` function from your API service to save the changes.
-
-3.  **Update the Homepage:**
-    *   Open the homepage file at `ecommerce/app/page.tsx`.
-    *   Use the `getHero` function from your API service to fetch the hero content.
-    *   Render the hero section dynamically based on the fetched data. This includes displaying the title, paragraph, image, and the correct number of buttons with the correct text and links.
-
-
-## 📸 **TASK 10: IMPLEMENT SERVER-SIDE IMAGE UPLOAD AND SERVING**
-**Priority: HIGH** | **Status: ✅ COMPLETED**
-
-*This task involves implementing a robust system for uploading product images directly to the Next.js server's `public` directory and serving them from there. This approach avoids external cloud storage dependencies and simplifies `next.config.js` configuration.*
-
-### 1. Backend - Image Upload API
-- [x] **Install Dependencies:** Install `formidable` for handling multipart form data and `uuid` for generating unique filenames.
-- [x] **Create `POST /api/v1/admin/upload-image` API Route (`app/api/v1/admin/upload-image/route.ts`):**
-    - [x] Configure the API route to handle `multipart/form-data` requests.
-    - [x] Use `formidable` to parse the incoming file upload.
-    - [x] Generate a unique filename for each uploaded image (e.g., using `uuid` and preserving the original file extension).
-    - [x] Save the uploaded image file to a designated directory within the `public` folder (e.g., `public/uploads/products`). Create this directory if it doesn't exist.
-    - [x] Return the relative URL of the saved image (e.g., `/uploads/products/unique-filename.jpg`) in the API response.
-    - [x] Implement error handling for file size limits, invalid file types, and disk write errors.
-
-### 2. Frontend - Integrate Image Upload in Admin Product Form
-- [x] **Product Form Page (`src/admin/pages/product-form-page.tsx`):**
-    - [x] **Add File Input:** Integrated a file input element into the product creation/edit form.
-    - [x] **Handle File Selection:** Implemented a function to handle file selection and upload.
-    - [x] **Upload Logic:** Called the `POST /api/v1/admin/upload-image` API route.
-    - [x] **Update `imageUrl`:** Updated the `imageUrl` field in the product form's state with the returned URL.
-    - [x] **Display Preview:** Displayed a preview of the selected/uploaded image.
-
-### 3. Frontend - Update `next.config.mjs`
-- [x] **Remove External Domains:** Removed all external image domains from `images.remotePatterns` in `next.config.mjs`.
-- [x] **Configure Local Images:** Ensured `next/image` is configured to allow images from your own domain (which is the default for images in `/public`, so no explicit `remotePatterns` entry is needed for your own domain).
-
-### 4. Data Migration (Consideration)
-- [ ] **Existing External Images:** For any existing product data that still points to external domains, consider a one-time script to download these images, upload them to your server via the new API, and update their `imageUrl` in the database. This is outside the scope of this task but is a necessary follow-up for a complete solution.
-
----
-
-## 🔗 **TASK 9: CONNECT FRONTEND COMPONENTS TO BACKEND API**
-**Priority: CRITICAL** | **Status: ✅ COMPLETED**
-
-*This task involves creating public API endpoints for the storefront and connecting all frontend components (both the public ecommerce site and the admin panel) to the newly created backend APIs.*
-
-### 1. Create Public API Endpoints (Backend)
-
-- [x] **API Structure:** Create all public-facing backend logic within the `app/api/v1/` directory for versioning consistency.
-- [x] **Product Endpoints:**
-    - [x] `GET /api/v1/products`: Create an endpoint to fetch all products.
-    - [x] `GET /api/v1/products/[id]`: Create an endpoint to fetch a single product by ID.
-- [x] **Order Endpoint:**
-    - [x] `POST /api/v1/orders`: Create a public endpoint for customers to submit new orders.
-        - [x] **Crucial:** This endpoint must perform **stock validation** before creating an order. If an item is out of stock, it should return a `400 Bad Request` error.
-        - [x] On successful order creation, it must **decrement the stock** for the purchased products.
-
-### 2. Connect Ecommerce Frontend to API
-
-- [x] **Data Fetching Strategy:**
-    - [x] Introduce and configure a data-fetching library like **SWR** or **TanStack Query (React Query)** to manage server state, caching, and revalidation.
-- [x] **Product Pages:**
-    - [x] Refactor the product list and detail pages to fetch data from the new `/api/v1/products` endpoints instead of using mock data.
-    - [x] Implement proper loading and error states.
-- [x] **Checkout Process:**
-    - [ ] **Replace WhatsApp Flow:** The checkout page will be modified to submit orders directly to the `POST /api/v1/orders` endpoint. The `localStorage` and WhatsApp logic will be removed. (Note: This was reverted, WhatsApp flow is restored).
-    - [x] Provide clear success or error feedback to the user based on the API response (e.g., "Order placed successfully!" or "Some items are out of stock.").
-
-### 3. Connect Admin Panel Frontend to API
-
-- [x] **Follow the detailed plan in TASK 8 (Section 2: Frontend: Admin UI)**, which already provides a comprehensive guide for connecting all admin components to the existing `/api/v1/admin/*` endpoints. This includes:
-    - [x] Dashboard Page
-    - [x] Product Management (List, Create, Edit)
-    - [x] Order Management (List, Details, Status Update)
-
----
-
---- 
-
-## 📦 TASK 14: REFACTOR IMAGE URLS FOR PRODUCTION (MINIO)
-**Priority: HIGH** | **Status: ✅ COMPLETED**
-*To prepare for production, we must stop using hardcoded image URLs. This task will refactor the application to use a centralized, environment-based configuration for image URLs, making it easy to switch between local mock images and a production MinIO bucket.* 
-
-### 1. Centralize Image Host Configuration
-*Goal: Control the image source with an environment variable, not with hardcoded values.*
-
-- [x] **Update `next.config.mjs`**: 
-    - Add logic to read a new environment variable called `NEXT_PUBLIC_IMAGE_CDN_URL`.
-    - If this variable is set, dynamically parse its `hostname`, `port`, and `protocol` and add them to the `images.remotePatterns` array. **Hint:** You can copy the existing logic used for `NEXT_PUBLIC_APP_URL` as a template for this.
-
-- [x] **Create Local Environment File**:
-    - Create a `.env.local` file in the project root (if it doesn't exist).
-    - Add the following line. This tells the app that the image host is the local development server. The `NEXT_PUBLIC_` prefix is **required** to make the variable available in the browser.
-      ```
-      NEXT_PUBLIC_IMAGE_CDN_URL=http://localhost:3000
-      ```
-
-### 2. Fix Data and Application Code
-*Goal: Remove environment-specific URLs from our data and code, making them portable.*
-
-- [ ] **Download External Images**:
-    - Before updating the seed, you must manually download the images from the external `http2.mlstatic.com` URLs.
-    - Place these downloaded images inside the `public/uploads/products/` directory.
-
-- [ ] **Update Prisma Seed Data (`prisma/seed.cjs`)**:
-    - Find all products with an `imageUrl` that points to an external site.
-    - Change these full URLs to be **relative paths** that point to the files you just downloaded. For example:
-      - **From**: `https://http2.mlstatic.com/D_NQ_NP_795844-MLA83441100293_032025-O.webp`
-      - **To**: `/uploads/products/D_NQ_NP_795844-MLA83441100293_032025-O.webp`
-    - This ensures our database only stores a reference to the image, not where it is hosted.
-
-- [x] **Create an Image URL Utility (`src/utils/imageUrl.ts`)**:
-    - Create a new function `getImageUrl(relativePath: string): string`.
-    - This function will read the `NEXT_PUBLIC_IMAGE_CDN_URL` from `process.env`.
-    - **Important:** To safely combine the URLs and avoid double slashes, use the `URL` constructor. If `relativePath` is already a full URL (starts with `http`), return it directly. Otherwise, construct the new URL.
-      ```javascript
-      // Example implementation hint
-      export function getImageUrl(relativePath: string): string {
-        if (relativePath.startsWith('http')) {
-          return relativePath; // Already a full URL
-        }
-        const cdnUrl = process.env.NEXT_PUBLIC_IMAGE_CDN_URL || '';
-        return new URL(relativePath, cdnUrl).href;
-      }
-      ```
-
-- [x] **Update Image Rendering (`ProductImage.tsx`)**:
-    - In `src/components/ProductImage.tsx` (and any other component that renders a product image), import the new `getImageUrl` utility.
-    - Before passing the `src` prop to the `next/image` component, pass it through the utility: `src={getImageUrl(product.imageUrl)}`.
-
-### How It Works in Production
-
-When you build your Docker image, you will set the `NEXT_PUBLIC_IMAGE_CDN_URL` environment variable to the address of your MinIO bucket (e.g., `http://minio:9000`). The Next.js app will automatically whitelist that address and the `getImageUrl` utility will construct the correct image links, pointing to MinIO instead of the local server. No code changes will be needed.
---- 
-
-## 🚀 TASK 16: REFACTOR DATA FETCHING WITH TANSTACK QUERY
-**Priority: CRITICAL** | **Status: ✅ COMPLETED**
-
-*This task outlines the process of migrating the entire application's data fetching logic to use TanStack Query (formerly React Query). This is a critical architectural improvement to standardize how we fetch, cache, and manage server state, leading to significant performance gains, a better user experience, and simpler, more maintainable code.*
-
-### **Guiding Principles (Based on Product Owner Feedback)**
-1.  **Offline First for Browsing**: Users should be able to view products they've already loaded even if their connection drops. The app will rely on cached data. Online connectivity is only required for actions like placing an order.
-2.  **Real-Time Admin Orders**: The main orders list in the admin panel must update automatically as new orders come in. We will achieve this via background polling.
-3.  **Non-Disruptive, Specific Error Feedback**: All server or network errors should trigger a non-intrusive toast notification. The system must provide specific messages for different errors (e.g., session expiry vs. server down).
-4.  **Skeleton Loaders Everywhere**: All initial data loads must be represented by skeleton loaders that mimic the shape of the final content. No more "Loading..." text.
-5.  **Optimistic UI for Admin Actions**: Admin panel mutations (create, update, delete) should feel instantaneous by using optimistic UI updates.
-
----
-
-### **Phase 1: Foundation & Setup**
-*Goal: Install TanStack Query and configure it at the application's root with production-grade settings.*
-
-1.  [x] **Install Dependencies**: `npm install @tanstack/react-query @tanstack/react-query-devtools`.
-
-2.  [x] **Configure the `QueryClient`**:
-    - [x] In `app/providers.tsx`, create the `QueryClient` instance.
-    - [x] **Set `staleTime` to 15 minutes**: Data will be considered fresh for 15 minutes, preventing refetches during this window for a faster navigation experience.
-    - [x] **Set `cacheTime`**: Configure how long inactive query data is kept in memory (defaults to 5 minutes, can be increased for better offline experience).
-
-    ```tsx
-    // Example for app/providers.tsx
-    const [queryClient] = React.useState(() => new QueryClient({
-      defaultOptions: {
-        queries: {
-          staleTime: 1000 * 60 * 15, // 15 minutes
-        },
-      },
-    }));
-    ```
-
-3.  [x] **Implement `QueryClientProvider`**: Wrap the application in `app/providers.tsx` and include the devtools for debugging.
-
----
-
-### **Phase 2: Skeleton Loaders**
-*Goal: Create a set of reusable skeleton components for a polished loading experience.*
-
-1.  [x] **Create Skeleton Components**: In `src/components/skeletons/`, build components like `ProductCardSkeleton`, `ProductGridSkeleton`, and `ProductDetailSkeleton` using Tailwind CSS's `animate-pulse`.
-
----
-
-### **Phase 3: Intelligent API Client**
-*Goal: Centralize all `fetch` logic and implement intelligent, context-aware error handling.*
-
-1.  [x] **Create `apiClient.ts`**: In `src/lib/apiClient.ts`, build wrapper functions for `get`, `post`, `put`, `delete`.
-
-2.  [x] **Implement Intelligent Error Handling**:
-    - [x] The client must inspect the HTTP response status code.
-    - [x] **For `401 Unauthorized` errors** (Admin Panel): Trigger a toast notification ("Session expired, please log in again.") and programmatically redirect the user to the `/admin/login` page.
-    - [x] **For `400 Bad Request` errors** (e.g., checkout fails due to no stock): The API should return a specific error message (e.g., `{ "message": "Item X is out of stock" }`). The `apiClient` will display this specific message in the toast.
-    - [x] **For generic errors** (e.g., `500 Internal Server Error`): Display a generic but friendly toast like "An error occurred on the server. Please try again later."
-
----
-
-### **Phase 4: Reusable Query Hooks**
-*Goal: Abstract TanStack Query logic into custom hooks for each API resource.*
-
-1.  [x] **Create Hooks in `src/hooks/queries/`**: For each data entity, create a dedicated hook (e.g., `useProducts`, `useAdminOrders`).
-
-2.  [x] **Implement Real-Time Polling for Admin Orders**:
-    - [x] In `useAdminOrders.ts`, set the `refetchInterval` to 30 seconds as requested.
-
-    ```typescript
-    // src/hooks/queries/useAdminOrders.ts
-    export const useAdminOrders = () => {
-      return useQuery<Order[], Error>({
-        queryKey: ['admin', 'orders'],
-        queryFn: () => apiClient.get('/admin/orders'),
-        refetchInterval: 30000, // Refetch every 30 seconds
-      });
-    };
-    ```
-
----
-
-### **Phase 5: Refactor Components**
-*Goal: Replace all manual data fetching with the new query hooks and skeleton loaders.*
-
-1.  [x] **Refactor Pages and Components**: Systematically replace `useEffect`/`useState` fetching logic with a single call to a query hook.
-2.  [x] **Implement Loading States**: Use the `isLoading` boolean from the hook to render the appropriate skeleton component, providing a seamless visual transition.
-
----
-
-### **Phase 6: Implement Optimistic Mutations**
-*Goal: Make the admin panel feel instantaneous by updating the UI before the API call completes.*
-
-1.  [x] **Create Mutation Hooks**: For each CUD (Create, Update, Delete) operation, create a `useMutation` hook (e.g., `useUpdateProduct`, `useDeleteProduct`).
-
-2.  [x] **Implement Optimistic Update Logic**:
-    - [x] Use the full `useMutation` object: `onMutate`, `onError`, and `onSettled`.
-    - [x] **`onMutate`**: Called before the mutation runs. Here we will:
-        1.  Cancel any outgoing refetches for the data we are about to update.
-        2.  Get a snapshot of the current data from the query cache.
-        3.  Manually update the query cache with the new, optimistic data.
-        4.  Return the snapshot of the previous data.
-    - [x] **`onError`**: If the mutation fails, use the context returned from `onMutate` (the previous data snapshot) to roll back the UI to its original state.
-    - [x] **`onSettled`**: Whether the mutation succeeds or fails, always refetch the data from the server to ensure the client has the true state.
-
-    ```typescript
-    // Example: useDeleteProduct.ts
-    const useDeleteProduct = () => {
-      const queryClient = useQueryClient();
-      return useMutation({ 
-        mutationFn: (productId: string) => apiClient.delete(`/admin/products/${productId}`),
-        onMutate: async (productId) => {
-          await queryClient.cancelQueries({ queryKey: ['products'] });
-          const previousProducts = queryClient.getQueryData<Product[]>(['products']);
-          queryClient.setQueryData<Product[]>(['products'], (old) => old?.filter(p => p.id !== productId));
-          return { previousProducts };
-        },
-        onError: (err, vars, context) => {
-          queryClient.setQueryData(['products'], context?.previousProducts);
-        },
-        onSettled: () => {
-          queryClient.invalidateQueries({ queryKey: ['products'] });
-        },
-      });
-    }
-    ```
-
----
-
-### **Phase 7: Advanced Optimization (Future Enhancement)**
-*Goal: Prevent unnecessary data fetching if the underlying data on the server has not changed.*
-
-*This is a future-facing optimization that requires backend cooperation. It should be considered after the initial refactor is complete.*
-
-1.  **Backend Requirement**: The backend API must expose a new, lightweight endpoint for each major resource, e.g., `/api/v1/products/last-updated`. This endpoint should return a simple object like `{ "lastUpdatedAt": "2025-10-11T12:00:00.000Z" }`.
-
-2.  **Frontend Implementation Strategy**:
-    - The frontend would first fetch this `last-updated` timestamp.
-    - It would compare this server timestamp with a timestamp stored locally from the last successful data fetch.
-    - The main data-fetching query (e.g., `useProducts`) would use the `enabled` option to run only if the server timestamp is newer than the client's timestamp.
-    - This avoids fetching a large list of products if nothing has changed, saving bandwidth and server resources.
-
-
-## 🧹 TASK 15: IMPLEMENT MULTI-IMAGE SUPPORT FOR PRODUCTS
-**Priority: HIGH** | **Status: 🟡 IN PROGRESS**
-*Currently, a product has only one image. This task will upgrade the data model and UI to support multiple images per product, including the ability to upload and delete them from the admin panel.* 
-
-### 1. Define a Single Source of Truth
-- [x] **Decision**: The `Product` model will be updated to support an array of image URLs.
-- [x] **Update `src/types/product.ts`**: Modify the `Product` type to change `imageUrl: string` to `imageUrls: string[]`.
-
-### 2. Refactor Data Sources
-- [x] **Update `prisma/schema.prisma`**: Change the `imageUrl` field on the `Product` model to `imageUrls String[]` to store a list of strings.
-- [ ] **Update Seed/Mock Data**: Go through `prisma/seed.cjs` and `src/data/mockProducts.ts` and update all product entries to use the new `imageUrls` array structure.
-
-### 3. Refactor Application Code
-- [x] **Update Backend API**: Modify the Product CRUD endpoints (`POST` and `PUT`) to accept and save the `imageUrls` array.
-- [x] **Enhance Admin UI (`product-form-page.tsx`)**: 
-    - [x] Replace the `SingleImageUploader` with a new `MultiImageUploader` component.
-    - [x] This new component will allow uploading multiple files.
-    - [x] Each image preview in the component will have a "Delete" button that removes the image from the product's list of images.
-- [ ] **Update Storefront Components**: Ensure components like `ProductImage.tsx` and `product-detail-page-client.tsx` correctly handle the `imageUrls` array to display the primary image and any thumbnails.
-
---- 
-
-## 🔧 **TECHNICAL CONSIDERATIONS**
-### Testing Strategy
-- [ ] Unit tests for translation hooks
-- [x] Integration tests for product filtering - **COMPLETED**: Optimized filtering logic
-- [ ] E2E tests for WhatsApp checkout flow
-- [ ] Visual regression tests for footer changes
-
-### Performance Monitoring
-- [ ] Monitor bundle size impact of i18n
-- [x] Track product loading performance - **COMPLETED**: Optimized with debouncing & caching
-- [ ] Monitor WhatsApp integration success rate
-
-### Code Quality
-- [ ] Update TypeScript interfaces for new features
-- [x] Add JSDoc comments for new functions - **COMPLETED**: Added to new hooks
-- [x] Ensure all new code follows existing patterns - **COMPLETED**: Followed React best practices
-- [ ] Clean up any unused code after implementation
-
----
-
-## 📊 **PROGRESS TRACKING**
-
-**Overall Progress: 8/12 tasks completed**
-
-- 🌐 **i18n Translations**: ✅ **100% complete**
-- 🖼️ **Filter Loading Fix**: ✅ **100% complete**
-- 📱 **WhatsApp Checkout**: ✅ **100% complete**
-- 🛒 **Cart Order History**: ✅ **100% complete**
-- 🔐 **Admin Panel UI Integration**: ✅ **100% complete**
-- 🔗 **Footer Links**: 0% complete
-- 📸 **Server-side Image Upload**: ✅ **100% complete**
-- 🏷️ **Product Categories (CRUD)**: 0% complete
-- 🖼️ **Customizable Hero Banner**: 0% complete
-
----
-
-## 🚀 **IMPLEMENTATION ORDER**
-
-1. ✅ **COMPLETED**: Task 2 (Critical UX issue) - **FILTER LOADING FIX**
-2. ✅ **COMPLETED**: Task 1 (Enables proper localization)
-3. ✅ **COMPLETED**: Task 4 (High business value)
-4. ✅ **COMPLETED**: Task 7 (Admin UI Integration)
-5. ✅ **COMPLETED**: Task 9 (Connect Frontend Components to Backend API)
-6. ✅ **COMPLETED**: Task 10 (High priority image handling)
-7. **NEXT**: Task 11 (High priority product categories)
-8. **NEXT**: Task 12 (Medium priority hero banner)
-9. **NEXT**: Task 3 (Nice to have improvement)
-
----
-
-*Last Updated: 2025-09-30*
-*Estimated Remaining Time: 2-3 days*
+- [ ] **Action:** Add animations to the product card transitions on the home page.
+- [ ] **Action:** Add animations to the product card transitions on the product detail page.- [ ] **Action:** Add animations to the product card transitions on the product detail page.
+- [ ] **Action:** Add animations to the cart add product action
