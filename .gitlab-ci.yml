@@ -1,0 +1,61 @@
+variables:
+  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+
+stages:
+  - build
+  - push
+  - deploy
+
+build_image:
+  stage: build
+  image: docker:20.10.16
+  services:
+    - docker:20.10.16-dind
+  script:
+    - echo "Building Docker image..."
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker build \
+      --build-arg NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL \
+      --build-arg NEXT_PUBLIC_IMAGE_CDN_URL=$NEXT_PUBLIC_IMAGE_CDN_URL \
+      --build-arg NEXT_PUBLIC_WHATSAPP_NUMBER=$NEXT_PUBLIC_WHATSAPP_NUMBER \
+      -t $IMAGE_TAG .
+    - docker save $IMAGE_TAG > image.tar
+  artifacts:
+    paths:
+      - image.tar
+
+push_image:
+  stage: push
+  image: docker:20.10.16
+  services:
+    - docker:20.10.16-dind
+  needs: ["build_image"]
+  script:
+    - echo "Pushing Docker image to GitLab Registry..."
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - docker load < image.tar
+    - docker push $IMAGE_TAG
+
+deploy_to_server:
+  stage: deploy
+  image: alpine:latest
+  needs: ["push_image"]
+  before_script:
+    - 'which ssh-agent || ( apk add --update openssh-client )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo "$SSH_KNOWN_HOSTS" >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+  script:
+    - echo "Connecting to server and deploying..."
+    - ssh $SSH_USER@$SSH_HOST "\
+        cd /path/to/your/app && \
+        export IMAGE_TAG=$IMAGE_TAG && \
+        docker-compose down && \
+        docker-compose pull && \
+        docker-compose up -d"
+  when: manual
+  only:
+    - main # or master, depending on your default branch
