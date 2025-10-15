@@ -2,7 +2,6 @@
 node_modules/
 docs/_book/
 .tmp
-.idea
 npm-debug.log
 .build/
 lib
@@ -14,6 +13,8 @@ yarn-error.log
 .env
 .env.*
 .next/
+.eslintcache
+package-lock.json
 
 # Editor specific
 .vscode/
@@ -23,4 +24,11 @@ yarn-error.log
 *.user
 *.sln.docstates
 
+# Tool specific
+.crush/
+
+# Generated code
 /generated/prisma
+
+# Ignore user-uploaded files
+/public/uploads/
