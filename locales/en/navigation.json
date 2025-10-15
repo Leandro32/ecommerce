@@ -1,0 +1,8 @@
+{
+  "main": {
+    "home": "Home",
+    "products": "Products",
+    "favorites": "Favorites",
+    "search": "Search..."
+  }
+}

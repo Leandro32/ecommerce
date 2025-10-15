@@ -2,22 +2,22 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
 // English translations
-import enCommon from '../locales/en/common.json';
-import enProducts from '../locales/en/products.json';
-import enCheckout from '../locales/en/checkout.json';
-import enNavigation from '../locales/en/navigation.json';
+import enCommon from '../../locales/en/common.json';
+import enProducts from '../../locales/en/products.json';
+import enCheckout from '../../locales/en/checkout.json';
+import enNavigation from '../../locales/en/navigation.json';
 
 // Spanish translations
-import esCommon from '../locales/es/common.json';
-import esProducts from '../locales/es/products.json';
-import esCheckout from '../locales/es/checkout.json';
-import esNavigation from '../locales/es/navigation.json';
+import esCommon from '../../locales/es/common.json';
+import esProducts from '../../locales/es/products.json';
+import esCheckout from '../../locales/es/checkout.json';
+import esNavigation from '../../locales/es/navigation.json';
 
 // Portuguese translations
-import ptCommon from '../locales/pt/common.json';
-import ptProducts from '../locales/pt/products.json';
-import ptCheckout from '../locales/pt/checkout.json';
-import ptNavigation from '../locales/pt/navigation.json';
+import ptCommon from '../../locales/pt/common.json';
+import ptProducts from '../../locales/pt/products.json';
+import ptCheckout from '../../locales/pt/checkout.json';
+import ptNavigation from '../../locales/pt/navigation.json';
 
 const resources = {
   en: {

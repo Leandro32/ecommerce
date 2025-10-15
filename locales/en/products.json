@@ -1,0 +1,22 @@
+{
+  "messages": {
+    "noReviews": "No reviews yet."
+  },
+  "titles": {
+    "browseByBrand": "Browse by Brand",
+    "youMayLike": "You May Also Like"
+  },
+  "details": {
+    "description": "Description",
+    "fragranceNotes": "Fragrance Notes",
+    "reviews": "Reviews",
+    "specifications": "Specifications",
+    "brand": "Brand",
+    "sex": "Sex",
+    "packaging": "Packaging"
+  },
+  "actions": {
+    "addToCart": "Add to Cart",
+    "buyNow": "Buy Now"
+  }
+}
