@@ -76,14 +76,11 @@ const ProductFilters: React.FC<ProductFiltersProps> = ({ availableBrands }) => {
             onValueChange={(values) => handleFilterChange('sex', values)}
             className="gap-2"
           >
-            {['MAN', 'WOMAN'].map((s) => (
+            {ALL_SEXES.map((s) => (
               <Checkbox key={s} value={s} className={`border-2 ${sexStyles[s as keyof typeof sexStyles]}`}>
                 {t(`sex.${s.toLowerCase()}`)}
               </Checkbox>
             ))}
-            <Checkbox key="UNISEX" value="UNISEX" className={`border-2 ${sexStyles.UNISEX}`}>
-              {t('sex.unisex')}
-            </Checkbox>
           </CheckboxGroup>
         </AccordionItem>
 

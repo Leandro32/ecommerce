@@ -250,7 +250,7 @@ const ProductDetailPageClient: React.FC<ProductDetailPageClientProps> = ({ produ
         <div className="flex flex-wrap justify-center gap-2">
           {allBrands.map(brand => (
             <Link key={brand} href={`/products?brands=${encodeURIComponent(brand)}`}>
-              <Chip as="a" variant="flat">{brand}</Chip>
+              <Chip variant="flat">{brand}</Chip>
             </Link>
           ))}
         </div>

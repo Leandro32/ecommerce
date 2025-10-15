@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useQuery } from '@tanstack/react-query';
-import apiClient from '@/lib/apiClient';
+import { apiClient } from '@/lib/apiClient';
 import { Icon } from '@iconify/react';
 
 interface FooterLink {
@@ -19,7 +19,7 @@ interface FooterColumn {
 }
 
 const fetchFooterContent = async (): Promise<FooterColumn[]> => {
-  return apiClient.get('/footer');
+  return apiClient.get('/api/v1/footer');
 };
 
 const Footer: React.FC = () => {

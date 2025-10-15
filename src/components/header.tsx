@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   Navbar,
   NavbarBrand,
@@ -25,6 +25,7 @@ const Header: React.FC<HeaderProps> = ({}) => {
   const { t } = useTranslation(["navigation", "common"]);
   const pathname = usePathname();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { cartItems } = useCart();
   const [searchQuery, setSearchQuery] = React.useState("");
 
@@ -62,7 +63,7 @@ const Header: React.FC<HeaderProps> = ({}) => {
         <NavbarItem isActive={isActive("/products")} as={Link} href="/products">
           {t("navigation:main.products")}
         </NavbarItem>
-        <NavbarItem isActive={pathname.startsWith('/products') && new URLSearchParams(window.location.search).get('favorites') === 'true'} as={Link} href="/products?favorites=true">
+        <NavbarItem isActive={pathname.startsWith('/products') && searchParams.get('favorites') === 'true'} as={Link} href="/products?favorites=true">
           {t("navigation:main.favorites")}
         </NavbarItem>
       </NavbarContent>

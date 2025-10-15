@@ -1,6 +1,6 @@
 import ProductDetailPageClient from "@/components/product-detail-page-client";
-import { getProductBySlug, getRelatedProducts } from "@/lib/api"; // Assuming these functions exist
-import { getAllBrands } from "@/lib/api"; // Assuming this function exists
+import { getProductBySlug, getRelatedProducts, getAllBrands } from "@lib/api";
+
 
 async function fetchProductData(slug: string) {
   try {

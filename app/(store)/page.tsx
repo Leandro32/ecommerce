@@ -21,7 +21,7 @@ export default async function HomePage() {
 
     if (productsResponse.ok) {
       const productsData = await productsResponse.json();
-      products = productsData.data;
+      products = productsData.products;
     } else {
       console.error("Failed to fetch products:", productsResponse.status, productsResponse.statusText);
     }

@@ -2,18 +2,20 @@
 
 import React from 'react';
 import { useSearchParams } from 'next/navigation';
-import { useProducts } from '@/hooks/queries/useProducts'; // Assuming this hook is adapted to take filters
+import { useProducts } from '@/hooks/queries/useProducts';
 import ProductGrid from './product-grid';
 import ProductFilters from './product-filters';
-import { ProductGridSkeleton } from './skeletons/product-grid-skeleton';
-
+import ProductGridSkeleton from '@/components/skeletons/ProductGridSkeleton';
 import { useFavorites } from '@/hooks/useFavorites';
-
 import { useProductBrands } from '@/hooks/queries/useProductBrands';
+import { useUI } from '@/context/UIContext';
+import Filters from './filters';
+import { Button } from '@heroui/react';
 
 const ProductListPageClient = () => {
   const searchParams = useSearchParams();
   const { favoriteIds } = useFavorites();
+  const { state: { isFiltersOpen }, openFilters, closeFilters } = useUI();
 
   const filters = {
     brands: searchParams.get('brands')?.split(',') || [],
@@ -22,16 +24,16 @@ const ProductListPageClient = () => {
   };
   const showFavorites = searchParams.get('favorites') === 'true';
 
-  const { data: products, isLoading, error } = useProducts(filters);
-  const { data: availableBrands, isLoading: isLoadingBrands } = useProductBrands();
+  const { data, isLoading, error } = useProducts(filters);
+  const { data: availableBrands, isLoading: isLoadingBrands } = useProductBrands(filters);
 
   const filteredProducts = React.useMemo(() => {
-    if (!products) return [];
+    if (!data?.products) return [];
     if (showFavorites) {
-      return products.filter(p => favoriteIds.includes(p.id));
+      return data.products.filter(p => favoriteIds.includes(p.id));
     }
-    return products;
-  }, [products, showFavorites, favoriteIds]);
+    return data.products;
+  }, [data, showFavorites, favoriteIds]);
 
   if (error) {
     return <div>Error loading products.</div>;
@@ -39,12 +41,15 @@ const ProductListPageClient = () => {
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <aside className="hidden lg:block">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
+        <aside className="hidden md:block lg:col-span-1">
           <ProductFilters availableBrands={availableBrands || []} />
         </aside>
 
-        <main className="lg:col-span-3">
+        <main className="md:col-span-2 lg:col-span-3">
+          <div className="md:hidden mb-4">
+            <Button onPress={openFilters}>Filters</Button>
+          </div>
           {isLoading ? (
             <ProductGridSkeleton />
           ) : (
@@ -52,6 +57,9 @@ const ProductListPageClient = () => {
           )}
         </main>
       </div>
+      {isFiltersOpen && (
+        <Filters availableBrands={availableBrands || []} onClose={closeFilters} />
+      )}
     </div>
   );
 };

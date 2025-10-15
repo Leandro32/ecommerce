@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, Input, Spinner } from '@heroui/react';
 import { Icon } from '@iconify/react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import apiClient from '@/lib/apiClient';
+import { apiClient } from '@/lib/apiClient';
 
 interface InlineStockEditorProps {
   productId: string;
@@ -18,9 +18,10 @@ export const InlineStockEditor: React.FC<InlineStockEditorProps> = ({ productId,
   const [stock, setStock] = useState(initialStock);
   const queryClient = useQueryClient();
 
-  const { mutate, isLoading } = useMutation(updateStock, {
+  const { mutate, isLoading } = useMutation({ 
+    mutationFn: updateStock,
     onSuccess: () => {
-      queryClient.invalidateQueries(['products']);
+      queryClient.invalidateQueries(['adminProducts']); // Changed to adminProducts
       setIsEditing(false);
     },
     onError: () => {

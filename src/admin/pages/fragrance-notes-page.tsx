@@ -21,64 +21,57 @@ import {
 } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import Link from "next/link";
-import { useAdminProducts } from "@/hooks/queries/useAdminProducts";
-import { useDeleteProduct } from "../../hooks/queries/useProductMutations";
-import { useDebounce } from "../../hooks/useDebounce";
-
-import { InlineStockEditor } from "../components/InlineStockEditor";
-
+import { useDebounce } from "@/hooks/useDebounce";
 import { useRouter } from "next/navigation";
+import { useFragranceNotes, useDeleteFragranceNote } from "@/hooks/queries/useFragranceNoteHooks";
+import { FragranceNote } from "@/types/fragrance";
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  stock: number;
-  createdAt: string;
-}
-
-export const ProductListPage: React.FC = () => {
+export const FragranceNotesListPage: React.FC = () => {
   const router = useRouter();
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [selectedProduct, setSelectedProduct] = React.useState<Product | null>(null);
+  const [selectedFragranceNote, setSelectedFragranceNote] = React.useState<FragranceNote | null>(null);
   const [page, setPage] = React.useState(1);
   const [filterValue, setFilterValue] = React.useState("");
   const debouncedFilterValue = useDebounce(filterValue, 300);
 
   const rowsPerPage = 10;
 
-  const { data, isLoading } = useAdminProducts({
+  const { data, isLoading } = useFragranceNotes({
     page,
     limit: rowsPerPage,
     query: debouncedFilterValue,
   });
-  const { mutate: deleteProduct } = useDeleteProduct();
+  const { mutate: deleteFragranceNote } = useDeleteFragranceNote();
 
-  const products = data?.products || [];
+  const fragranceNotes = data?.fragranceNotes || [];
   const totalPages = data?.totalPages || 1;
 
   const handleDelete = () => {
-    if (!selectedProduct) return;
-    deleteProduct(selectedProduct.id);
+    if (!selectedFragranceNote) return;
+    deleteFragranceNote(selectedFragranceNote.id);
     onClose();
   };
 
-  const openDeleteModal = (product: Product) => {
-    setSelectedProduct(product);
+  const openDeleteModal = (note: FragranceNote) => {
+    setSelectedFragranceNote(note);
     onOpen();
+  };
+
+  const handleRowClick = (noteId: string) => {
+    router.push(`/admin/fragrance-notes/${noteId}/edit`);
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Products</h1>
+        <h1 className="text-2xl font-semibold">Fragrance Notes</h1>
         <Button
           color="primary"
           startContent={<Icon icon="lucide:plus" />}
           as={Link}
-          href="/admin/products/new"
+          href="/admin/fragrance-notes/new"
         >
-          New Product
+          New Fragrance Note
         </Button>
       </div>
 
@@ -96,38 +89,48 @@ export const ProductListPage: React.FC = () => {
             />
           </div>
 
-          <Table aria-label="Products table">
+          <Table aria-label="Fragrance Notes table">
             <TableHeader>
+              <TableColumn>IMAGE</TableColumn>
               <TableColumn>NAME</TableColumn>
-              <TableColumn>PRICE</TableColumn>
-              <TableColumn>STOCK</TableColumn>
-              <TableColumn>CREATED AT</TableColumn>
+              <TableColumn>COLOR</TableColumn>
               <TableColumn>ACTIONS</TableColumn>
             </TableHeader>
             <TableBody
               isLoading={isLoading}
               loadingContent={<Spinner label="Loading..." />}
-              emptyContent={!isLoading && "No products found."}
+              emptyContent={!isLoading && "No fragrance notes found."}
             >
-              {products.map((product) => (
-                <TableRow 
-                  key={product.id} 
-                  className={`cursor-pointer hover:bg-default-100 ${
-                    product.stock === 0 ? 'bg-danger-50' : product.stock < 10 ? 'bg-warning-50' : ''
-                  }`}
-                  onClick={() => router.push(`/admin/products/${product.id}/edit`)}
+              {fragranceNotes.map((note: FragranceNote) => (
+                <TableRow
+                  key={note.id}
+                  className="cursor-pointer hover:bg-default-100"
+                  onClick={() => handleRowClick(note.id)}
                 >
-                  <TableCell>{product.name}</TableCell>
-                  <TableCell>${product.price.toFixed(2)}</TableCell>
-                  <TableCell><InlineStockEditor productId={product.id} initialStock={product.stock} /></TableCell>
                   <TableCell>
-                    {new Date(product.createdAt).toLocaleDateString()}
+                    {note.imageUrl ? (
+                      <img src={note.imageUrl} alt={note.name} className="w-10 h-10 object-cover rounded-md" />
+                    ) : (
+                      <div className="w-10 h-10 bg-default-200 rounded-md flex items-center justify-center">
+                        <Icon icon="lucide:image-off" className="text-default-500" />
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell>{note.name}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-6 h-6 rounded-full border"
+                        style={{ backgroundColor: note.color }}
+                      ></div>
+                      {note.color}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <div className="relative flex items-center gap-2">
                       <Button
                         as={Link}
-                        href={`/admin/products/${product.id}/edit`}
+                        href={`/admin/fragrance-notes/${note.id}/edit`}
                         size="sm"
                         variant="flat"
                         color="primary"
@@ -140,7 +143,7 @@ export const ProductListPage: React.FC = () => {
                         variant="flat"
                         color="danger"
                         isIconOnly
-                        onPress={() => openDeleteModal(product)}
+                        onPress={(e) => { e.stopPropagation(); openDeleteModal(note); }}
                       >
                         <Icon icon="lucide:trash-2" />
                       </Button>
@@ -172,8 +175,7 @@ export const ProductListPage: React.FC = () => {
           </ModalHeader>
           <ModalBody>
             <p>
-              Are you sure you want to delete the product "
-              {selectedProduct?.name}"?
+              Are you sure you want to delete the fragrance note "{selectedFragranceNote?.name}"?
             </p>
             <p className="text-sm text-gray-500">
               This action cannot be undone.

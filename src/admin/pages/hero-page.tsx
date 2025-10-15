@@ -107,7 +107,6 @@ export const HeroPage: React.FC = () => {
           buttonLink: "",
           isExternal: false,
           variant: "primary",
-          heroId: formData.id || "", // Assign heroId if formData.id exists
         } as HeroButton);
       }
       setFormData((prev) => ({ ...prev, buttons: newButtons }));
