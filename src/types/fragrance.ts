@@ -1,4 +1,3 @@
-
 export interface FragranceNote {
   id: string;
   name: string;

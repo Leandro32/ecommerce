@@ -127,7 +127,7 @@ This is the definitive, consolidated action plan for completing the V1.0 release
 -   [x] **Action:** Add search and filter capabilities that update the query.
 -   [x] **Action:** In each table row, add an **inline stock editor**. This will be a small component showing the current stock, which, when clicked, turns into a number input and a "Save" button. Clicking "Save" will call a dedicated API route to update only the stock for that product.
 
-### **4.2. Implement Editable Footer**
+### **4.12. Implement Editable Footer**
 -   [x] **Action:** Create a new `FooterContent` model in `prisma/schema.prisma` to store footer links (e.g., column title, array of link texts and URLs).
 -   [x] **Action:** Build a new page in the admin panel at `app/(admin)/footer/page.tsx` to allow editing of this content.
 -   [x] **Action:** The main `src/components/footer.tsx` will now fetch its content from a new `GET /api/v1/footer` endpoint instead of being hardcoded. This also resolves the "hide non-existent links" task.
@@ -163,3 +163,31 @@ add animations
 - [ ] **Action:** Add animations to the product card transitions on the home page.
 - [ ] **Action:** Add animations to the product card transitions on the product detail page.- [ ] **Action:** Add animations to the product card transitions on the product detail page.
 - [ ] **Action:** Add animations to the cart add product action
+
+---
+
+## PHASE 6: ADMIN NAVIGATION & ROUTING
+
+*Goal: Ensure all admin sections are accessible through the sidebar and use correct, consistent routing.*
+
+### **6.1: Add Fragrance Notes to Admin Sidebar**
+*Goal: Add a navigation link to the admin sidebar for the Fragrance Notes CRUD section to make it discoverable.*
+
+-   [x] **Action: Locate and Edit Sidebar Component**
+    1.  The admin sidebar is defined in `src/admin/components/layout/sidebar.tsx`. Open this file for editing.
+    2.  The navigation links are stored in a `navItems` array within this file.
+
+-   [x] **Action: Add New Navigation Link**
+    1.  In the `navItems` array, add a new object for "Fragrance Notes". It should be placed logically, for example, after "Products".
+    2.  The object should look like this:
+        ```javascript
+        { path: "/admin/fragrance-notes", label: "Fragrance Notes", icon: "lucide:leaf" },
+        ```
+    3.  This will add the "Fragrance Notes" link to the sidebar with a leaf icon.
+
+### **6.2: Verify Route Consistency**
+*Goal: Confirm that the routing for fragrance notes is consistent and correctly spelled across the application.*
+
+-   [x] **Action: Confirm Route `fragrance-notes`**
+    1.  The correct route is `/admin/fragrance-notes`.
+    2.  This task is a verification step to ensure no typos like `fragance-notes` exist in the codebase. A quick search for `fragance-notes` should be performed to be certain. If any are found, they must be corrected to `fragrance-notes`.

@@ -25,6 +25,7 @@ export const Sidebar: React.FC = () => {
     { path: "/admin/dashboard", label: "Dashboard", icon: "lucide:layout-dashboard" },
     { path: "/admin/hero", label: "Hero", icon: "lucide:layout-template" },
     { path: "/admin/products", label: "Products", icon: "lucide:package" },
+    { path: "/admin/fragrance-notes", label: "Fragrance Notes", icon: "lucide:leaf" },
     { path: "/admin/orders", label: "Orders", icon: "lucide:shopping-cart" },
   ];
 
