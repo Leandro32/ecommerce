@@ -44,12 +44,8 @@ This is the definitive, consolidated action plan for completing the V1.0 release
     1.  Add a `color: String` field to the `FragranceNote` model.
     2.  The rest of the many-to-many schema is correct.
 
--   [ ] **Action: Build Admin CRUD for Fragrance Notes**
-    1.  Create a new page at `app/(admin)/fragrance-notes/page.tsx`.
-    2.  The form for creating/editing a `FragranceNote` must include an input for the `color` field (e.g., a text input or a color picker).
-    3.  Create all necessary API endpoints under `app/api/v1/admin/fragrance-notes/`.
-
--   [ ] **Action: Integrate into Product Edit Page**
+-   [x] **Action: Build Admin CRUD for Fragrance Notes**
+-   [x] **Action: Integrate into Product Edit Page**
     1.  The UI for adding a fragrance note to a product must include an input for the `percentage`.
 
 ### **1.2. Update Seed Script**
@@ -135,6 +131,15 @@ This is the definitive, consolidated action plan for completing the V1.0 release
 -   [x] **Action:** Create a new `FooterContent` model in `prisma/schema.prisma` to store footer links (e.g., column title, array of link texts and URLs).
 -   [x] **Action:** Build a new page in the admin panel at `app/(admin)/footer/page.tsx` to allow editing of this content.
 -   [x] **Action:** The main `src/components/footer.tsx` will now fetch its content from a new `GET /api/v1/footer` endpoint instead of being hardcoded. This also resolves the "hide non-existent links" task.
+
+### **4.3: Fix Incomplete Product Form**
+*Goal: Resolve product creation error by adding all mandatory fields to the admin product form.*
+- [x] **Action: Add Missing Inputs to Form**
+- [x] **Action: Update Backend API**
+
+### **4.4: Add SEO Generator Buttons**
+*Goal: Improve admin workflow by adding buttons to automatically generate SEO title and description.*
+- [x] **Action: Add "Generate" buttons and logic to the product form.**
 
 ---
 

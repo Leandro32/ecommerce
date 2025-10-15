@@ -4,6 +4,7 @@ export const initialUIState: UIState = {
   theme: 'system',
   sidebarOpen: false,
   mobileMenuOpen: false,
+  isFiltersOpen: false,
   searchQuery: '',
   notifications: [],
 };
@@ -22,17 +23,16 @@ export const uiReducer = (state: UIState, action: UIAction): UIState => {
         sidebarOpen: !state.sidebarOpen,
       };
 
-    case 'TOGGLE_MOBILE_MENU':
-      return {
-        ...state,
-        mobileMenuOpen: !state.mobileMenuOpen,
-      };
-
-    case 'SET_SEARCH_QUERY':
-      return {
-        ...state,
-        searchQuery: action.payload,
-      };
+    case "TOGGLE_MOBILE_MENU":
+      return { ...state, isMobileMenuOpen: !state.isMobileMenuOpen };
+    case "OPEN_FILTERS":
+      return { ...state, isFiltersOpen: true };
+    case "CLOSE_FILTERS":
+      return { ...state, isFiltersOpen: false };
+    case "TOGGLE_FILTERS":
+      return { ...state, isFiltersOpen: !state.isFiltersOpen };
+    case "SET_SEARCH_QUERY":
+      return { ...state, searchQuery: action.payload };
 
     case 'ADD_NOTIFICATION': {
       const newNotification = {

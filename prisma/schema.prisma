@@ -97,6 +97,29 @@ model ProductFragranceNote {
   @@id([productId, fragranceNoteId])
 }
 
+// --- Hero Models ---
+
+model Hero {
+  id            String    @id @default(cuid())
+  title         String
+  paragraph     String
+  heroImageUrl  String
+  buttonLayout  String
+  buttons       Button[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Button {
+  id          String   @id @default(cuid())
+  buttonText  String
+  buttonLink  String
+  isExternal  Boolean
+  variant     String
+  hero        Hero     @relation(fields: [heroId], references: [id], onDelete: Cascade)
+  heroId      String
+}
+
 
 // --- Enums ---
 

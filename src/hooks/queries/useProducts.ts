@@ -1,6 +1,7 @@
+
 import { useQuery } from '@tanstack/react-query';
 import { Product } from '@/types/product';
-import apiClient from '@/lib/apiClient';
+import { apiClient } from '@/lib/apiClient';
 
 interface ProductFilters {
   brands?: string[];
@@ -34,15 +35,15 @@ const fetchProducts = async (filters: ProductFilters): Promise<{ products: Produ
   }
 
   const queryString = params.toString();
-  const endpoint = queryString ? `/products?${queryString}` : '/products';
+  const endpoint = queryString ? `/api/v1/products?${queryString}` : '/api/v1/products';
 
   return apiClient.get(endpoint);
 };
 
 export const useProducts = (filters: ProductFilters) => {
   return useQuery<{ products: Product[], totalPages: number }, Error>({
-    queryKey: ['products', filters], // Include filters in the query key
+    queryKey: ['products', filters],
     queryFn: () => fetchProducts(filters),
-    keepPreviousData: true, // Keep previous data while new data is fetching
+    keepPreviousData: true,
   });
 };

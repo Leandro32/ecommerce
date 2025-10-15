@@ -52,9 +52,10 @@ export interface AppState {
 }
 
 export interface UIState {
-  theme: 'light' | 'dark' | 'system';
-  sidebarOpen: boolean;
-  mobileMenuOpen: boolean;
+  theme: "light" | "dark" | "system";
+  isSidebarOpen: boolean;
+  isMobileMenuOpen: boolean;
+  isFiltersOpen: boolean;
   searchQuery: string;
   notifications: Notification[];
 }

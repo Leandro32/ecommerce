@@ -1,9 +1,12 @@
+'use client';
+
 import React, {
   createContext,
   useContext,
   useReducer,
   useEffect,
   ReactNode,
+  useCallback,
 } from "react";
 import { UIState, UIAction, Notification } from "../types/store";
 import { uiReducer, initialUIState } from "../store/uiReducer";
@@ -14,6 +17,9 @@ interface UIContextType {
   setTheme: (theme: "light" | "dark" | "system") => void;
   toggleSidebar: () => void;
   toggleMobileMenu: () => void;
+  openFilters: () => void;
+  closeFilters: () => void;
+  toggleFilters: () => void;
   setSearchQuery: (query: string) => void;
   addNotification: (notification: Omit<Notification, "id">) => void;
   removeNotification: (id: string) => void;
@@ -35,7 +41,6 @@ interface UIProviderProps {
 export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(uiReducer, initialUIState);
 
-  // Load UI preferences from localStorage on mount
   useEffect(() => {
     const savedPreferences = localStorage.getItem(UI_STORAGE_KEY);
     if (savedPreferences) {
@@ -50,7 +55,6 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
     }
   }, []);
 
-  // Save theme preference to localStorage
   useEffect(() => {
     const preferences = {
       theme: state.theme,
@@ -58,7 +62,6 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
     localStorage.setItem(UI_STORAGE_KEY, JSON.stringify(preferences));
   }, [state.theme]);
 
-  // Handle system theme changes
   useEffect(() => {
     if (state.theme === "system") {
       const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -66,7 +69,7 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
         document.documentElement.classList.toggle("dark", mediaQuery.matches);
       };
 
-      handleChange(); // Set initial state
+      handleChange();
       mediaQuery.addEventListener("change", handleChange);
 
       return () => mediaQuery.removeEventListener("change", handleChange);
@@ -75,7 +78,6 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
     }
   }, [state.theme]);
 
-  // Auto-remove notifications after their duration
   useEffect(() => {
     const timers: number[] = [];
 
@@ -84,7 +86,7 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
         const timer = setTimeout(() => {
           dispatch({ type: "REMOVE_NOTIFICATION", payload: notification.id });
         }, notification.duration);
-        timers.push(timer);
+        timers.push(timer as unknown as number);
       }
     });
 
@@ -104,6 +106,18 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
   const toggleMobileMenu = () => {
     dispatch({ type: "TOGGLE_MOBILE_MENU" });
   };
+
+  const openFilters = useCallback(() => {
+    dispatch({ type: "OPEN_FILTERS" });
+  }, []);
+
+  const closeFilters = useCallback(() => {
+    dispatch({ type: "CLOSE_FILTERS" });
+  }, []);
+
+  const toggleFilters = useCallback(() => {
+    dispatch({ type: "TOGGLE_FILTERS" });
+  }, []);
 
   const setSearchQuery = (query: string) => {
     dispatch({ type: "SET_SEARCH_QUERY", payload: query });
@@ -163,11 +177,14 @@ export const UIProvider: React.FC<UIProviderProps> = ({ children }) => {
     setTheme,
     toggleSidebar,
     toggleMobileMenu,
+    openFilters,
+    closeFilters,
+    toggleFilters,
     setSearchQuery,
     addNotification,
     removeNotification,
     clearNotifications,
-    showSuccess,
+showSuccess,
     showError,
     showWarning,
     showInfo,

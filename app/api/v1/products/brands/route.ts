@@ -1,9 +1,31 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import prisma from '@lib/prisma';
+import { Prisma } from '@prisma/client';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const sex = searchParams.get('sex')?.split(',');
+    const bottleSize = searchParams.get('bottleSize')?.split(',');
+
+    let where: Prisma.ProductWhereInput = {};
+
+    if (sex && sex.length > 0) {
+      where.sex = { in: sex as any };
+    }
+
+    if (bottleSize && bottleSize.length > 0) {
+      where.variants = {
+        some: {
+          size: {
+            in: bottleSize.map(Number),
+          },
+        },
+      };
+    }
+
     const brands = await prisma.product.findMany({
+      where,
       select: {
         brand: true,
       },
